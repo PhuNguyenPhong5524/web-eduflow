@@ -14,7 +14,7 @@ const ICON_MAP = {
   language: "code",
   game: "sports_esports",
 };
-import { Dropdown, Avatar, Menu } from "antd";
+import { Dropdown, Avatar, Menu, message } from "antd";
 import { DownOutlined } from "@ant-design/icons";
 import { useAuth } from "../../contexts/AuthContext";
 import { Modal } from "antd";
@@ -141,31 +141,43 @@ const menuItems = user
     {
       type: "divider",
     },
+    
     {
       key: "logout",
       label: "Đăng xuất",
       danger: true,
       onClick: () => {
         Modal.confirm({
-        title: "Bạn muốn đăng xuất?",
-        onOk: logout,
-      });
-      }
+          title: "Bạn muốn đăng xuất?",
+          onOk: async () => {
+            try {
+              await logout(); 
 
+              message.success("Đăng xuất thành công!"); 
+
+              navigate("/login");
+
+            } catch (error) {
+              console.error(error);
+              message.error("Đăng xuất thất bại! Vui lòng thử lại."); 
+            }
+          },
+        });
+      },
     },
-  ]
-: [
-    {
-      key: "login",
-      label: "Đăng nhập",
-      onClick: () => navigate("/login"),
-    },
-    {
-      key: "register",
-      label: "Đăng ký",
-      onClick: () => navigate("/register"),
-    },
-  ];
+      ]
+    : [
+        {
+          key: "login",
+          label: "Đăng nhập",
+          onClick: () => navigate("/login"),
+        },
+        {
+          key: "register",
+          label: "Đăng ký",
+          onClick: () => navigate("/register"),
+        },
+      ];
 
 
 
