@@ -74,13 +74,20 @@ export default function RegisterPage() {
   
   return (
     <div className="bg-background mesh-gradient min-h-screen flex flex-col">
-      <main className="grow flex items-center justify-center py-stack-lg px-margin-mobile">
+      <div className="grow flex items-center justify-center py-stack-lg px-margin-mobile">
         <div className="w-full max-w-250 grid md:grid-cols-2 bg-surface-container-lowest rounded-xl shadow-xl overflow-hidden border border-outline-variant/20">
           {/* Branding Side */}
           <div className="hidden md:flex flex-col justify-between p-stack-lg bg-primary-container text-on-primary-container relative overflow-hidden">
+            <div className="absolute inset-0 z-0">
+              <img
+                className="w-full h-full object-cover opacity-30 mix-blend-overlay"
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuDZufuli37g8IzSxrqEszEuUDpYQ5GGRu0pVHz1fOamHDZODrxg2OtibfaG2DFDzDtyQ-4oZVBzimBRjLt_74wrJF7Sj5jrfEy9rmR2eH-Izr-u9SihFWUw6HCg5zLQys_ZZSix0Kwpm-4uuCHaisDv5J91AYjtritQNdYf8fTTCXVDT5jDqgNWIUidjK_yloPWztS3czV0nLf--rrj4UfEwn8ZKTcAHg3nlgkCrB4TzkUd4dNKIJAsLhsdjVshJkCWRS6xmrzTqr8" // Replace with actual hero image URL
+                alt="Students collaborating in a modern library"
+              />
+            </div>
             <div className="relative z-10">
               <span className="font-label-md text-label-md px-3 py-1 bg-on-primary-container/10 rounded-full inline-block mb-stack-md">
-                Chào mừng bạn gia nhập [Tên Nền Tảng]
+                Chào mừng bạn gia nhập EduFlow
               </span>
               <h1 className="font-bold text-[34px] leading-tight mb-stack-md">
                 Làm Chủ Tương Lai, Khóa Học Từng Bước.
@@ -229,7 +236,7 @@ export default function RegisterPage() {
             </Form>
           </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 }

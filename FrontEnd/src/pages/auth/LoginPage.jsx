@@ -57,7 +57,7 @@ export default function LoginPage() {
   return (
     <main className="min-h-screen flex flex-col md:flex-row">
       {/* Left Side: Hero Section */}
-      <section className="hidden md:flex md:w-1/2 relative overflow-hidden hero-pattern items-center justify-center p-margin-desktop bg-[#122E7E]">
+      <section className="hidden md:flex md:w-1/2 relative overflow-hidden hero-pattern items-center justify-center p-margin-desktop bg-[#4F46E5]">
         <div className="absolute inset-0 z-0">
           <img
             className="w-full h-full object-cover opacity-30 mix-blend-overlay"

@@ -211,45 +211,9 @@ export default function InstructorProfilePage() {
 
   return (
     <div className="bg-surface font-body-md text-on-surface min-h-screen selection:bg-primary-container selection:text-on-primary-container">
-      <nav className="fixed top-0 w-full z-50 bg-surface/70 backdrop-blur-xl border-b border-outline-variant/30 shadow-sm">
-        <div className="flex items-center justify-between px-margin-mobile md:px-margin-desktop h-16 max-w-7xl mx-auto">
-          <span className="font-headline-md text-headline-md font-bold text-primary">
-            EduFlow
-          </span>
-          <div className="hidden md:flex items-center gap-6">
-            <a
-              className="font-label-md text-label-md text-on-surface-variant hover:text-primary"
-              href="#"
-            >
-              Browse
-            </a>
-            <a
-              className="font-label-md text-label-md text-on-surface-variant hover:text-primary"
-              href="#"
-            >
-              My Courses
-            </a>
-            <a
-              className="font-label-md text-label-md text-primary border-b-2 border-primary pb-1"
-              href="#"
-            >
-              Instructors
-            </a>
-            <a
-              className="font-label-md text-label-md text-on-surface-variant hover:text-primary"
-              href="#"
-            >
-              Resources
-            </a>
-          </div>
-          <button className="bg-primary-container text-on-primary px-6 py-2.5 rounded-xl font-label-md text-label-md">
-            Get Started
-          </button>
-        </div>
-      </nav>
 
-      <main className="pt-24 pb-stack-lg">
-        <header className="max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop mb-stack-lg">
+      <div className="pt-24 pb-stack-lg">
+        <div className="max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop mb-stack-lg">
           <div className="relative overflow-hidden rounded-3xl bg-surface-container-low p-stack-lg md:p-12 border border-outline-variant/20 shadow-sm">
             <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/4 w-96 h-96 bg-primary-container/5 rounded-full blur-3xl" />
             <div className="relative flex flex-col md:flex-row gap-stack-lg items-center md:items-start text-center md:text-left">
@@ -314,7 +278,7 @@ export default function InstructorProfilePage() {
               </div>
             </div>
           </div>
-        </header>
+        </div>
 
         <section className="max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop">
           <div className="border-b border-outline-variant/30 mb-8 overflow-x-auto">
@@ -336,35 +300,7 @@ export default function InstructorProfilePage() {
 
           {content}
         </section>
-      </main>
-
-      <footer className="bg-surface-container-lowest border-t border-outline-variant w-full py-stack-lg">
-        <div className="flex flex-col md:flex-row justify-between items-center px-margin-mobile md:px-margin-desktop max-w-7xl mx-auto gap-stack-md">
-          <span className="font-headline-md text-headline-md font-bold text-on-surface">
-            EduFlow
-          </span>
-          <div className="flex flex-wrap justify-center gap-6">
-            <a
-              className="font-body-sm text-body-sm text-on-surface-variant hover:text-primary"
-              href="#"
-            >
-              Privacy Policy
-            </a>
-            <a
-              className="font-body-sm text-body-sm text-on-surface-variant hover:text-primary"
-              href="#"
-            >
-              Terms of Service
-            </a>
-            <a
-              className="font-body-sm text-body-sm text-on-surface-variant hover:text-primary"
-              href="#"
-            >
-              Help Center
-            </a>
-          </div>
-        </div>
-      </footer>
+      </div>
     </div>
   );
 }

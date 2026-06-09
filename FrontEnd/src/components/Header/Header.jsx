@@ -1,0 +1,183 @@
+
+
+import React from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Avatar, Dropdown, message, Modal } from "antd";
+import { DownOutlined } from "@ant-design/icons";
+import { useAuth } from "../../contexts/AuthContext";
+
+
+const Header = () => {
+    const { user, logout } = useAuth(); 
+    const navigate = useNavigate();
+
+
+    const menuItems = user ? [
+        {
+            key: "change-password",
+            label: "Đổi mật khẩu",
+            onClick: () => navigate("/change-password"),
+        },
+        {
+            type: "divider",
+        },
+
+        {
+            key: "logout",
+            label: "Đăng xuất",
+            danger: true,
+            onClick: () => {
+            Modal.confirm({
+                title: "Bạn muốn đăng xuất?",
+                onOk: async () => {
+                try {
+                    await logout(); 
+
+                    message.success("Đăng xuất thành công!"); 
+
+                    navigate("/login");
+
+                } catch (error) {
+                    console.error(error);
+                    message.error("Đăng xuất thất bại! Vui lòng thử lại."); 
+                }
+                },
+            });
+            },
+        },
+    ] : [
+            {
+                key: "login",
+                label: "Đăng nhập",
+                onClick: () => navigate("/login"),
+            },
+            {
+                key: "register",
+                label: "Đăng ký",
+                onClick: () => navigate("/register"),
+            },
+        ];
+    return (
+        <header className="fixed top-0 w-full z-50 bg-surface/70 backdrop-blur-xl border-b border-outline-variant/30 shadow-sm">
+            <div className="flex items-center justify-between px-margin-desktop h-16 max-w-7xl mx-auto">
+                <div className="flex items-center gap-stack-lg">
+                    <Link
+                        className="font-headline-md text-headline-md font-bold text-primary"
+                        to="/"
+                    >
+                        EduFlow
+                    </Link>
+                    <nav className="hidden md:flex gap-6 items-center">
+                        <Link
+                            className="font-label-md text-label-md text-primary border-b-2 border-primary pb-1"
+                            to="/browse"
+                        >
+                            Trang chủ
+                        </Link>
+                        <Link
+                            className="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors duration-200"
+                            to="/my-courses"
+                        >
+                            Khóa học của tôi
+                        </Link>
+                        <Link
+                            className="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors duration-200"
+                            to="/"
+                        >
+                            Giảng viên 
+                        </Link>
+                        <Link
+                            className="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors duration-200"
+                            to="/resources"
+                        >
+                            Tài liệu
+                        </Link>
+                    </nav>
+                </div>
+                <div className="flex items-center gap-4">
+                    <div className="hidden lg:flex items-center bg-surface-container px-4 py-2 rounded-full gap-2 border border-outline-variant/20 focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+                        <span className="material-symbols-outlined text-on-surface-variant">
+                            search
+                        </span>
+                        <input
+                            className="bg-transparent border-none focus:ring-0 text-body-sm w-48 outline-none"
+                            placeholder="Search courses..."
+                            type="text"
+                        />
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                    <button className="p-2 hover:bg-primary-container/10 rounded-full transition-colors active:scale-95">
+                        <span className="material-symbols-outlined text-on-surface-variant">
+                        shopping_cart
+                        </span>
+                    </button>
+                    <button className="p-2 hover:bg-primary-container/10 rounded-full transition-colors active:scale-95">
+                        <span className="material-symbols-outlined text-on-surface-variant">
+                        notifications
+                        </span>
+                    </button>
+                    </div>
+
+                    {/* <div className="hidden sm:flex items-center gap-3 ml-2">
+                    <Link
+                        to="/login"
+                        className="font-label-md text-label-md text-primary px-4 py-2 hover:bg-primary-container/10 rounded-lg transition-colors"
+                    >
+                        Sign In
+                    </Link>
+                    <Link
+                        to="/register"
+                        className="font-label-md text-label-md bg-primary-container text-on-primary-container px-5 py-2.5 rounded-lg shimmer-btn shadow-md active:scale-95 transition-transform"
+                    >
+                        Get Started
+                    </Link>
+                    </div> */}
+
+                    <div className="hidden sm:flex items-center gap-3 ml-2">
+                        {!user ? (
+                            <>
+                            <Link
+                                to="/login"
+                                className="font-label-md text-label-md text-primary px-4 py-2 border-[0.5px] p-5 hover:bg-primary-container/10 rounded-lg"
+                            >
+                                Sign In
+                            </Link>
+                            {/* 
+                            <Link
+                                to="/register"
+                                className="font-label-md bg-primary-container text-on-primary-container px-5 py-2.5 rounded-lg"
+                            >
+                                Get Started
+                            </Link> */}
+                            </>
+                        ) : (
+                            <Dropdown
+                                menu={{ items: menuItems }}
+                                trigger={["click"]}
+                                placement="bottomRight"
+                            >
+                                <div className="flex items-center gap-2 cursor-pointer hover:bg-primary-container/10 px-3 py-2 rounded-lg transition">
+                                    
+                                    <Avatar
+                                    style={{ backgroundColor: "#1677ff" }}
+                                    >
+                                    {user.username?.charAt(0).toUpperCase()}
+                                    </Avatar>
+
+                                    <span className="text-sm font-medium">
+                                    {user.username}
+                                    </span>
+
+                                    <DownOutlined className="text-xs" />
+                                </div>
+                            </Dropdown>
+                        )}
+                    </div>
+                </div>
+            </div>
+        </header>
+    );
+}
+
+export default Header;

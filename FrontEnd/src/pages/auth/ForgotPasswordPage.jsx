@@ -177,31 +177,7 @@ const ForgotPasswordPage = () => {
   const label = strengthLabel();
   return (
     <div className="bg-background text-on-background font-body-md min-h-screen flex flex-col">
-      {/* Navbar */}
-      <nav className="fixed top-0 left-0 right-0 z-50 h-16 bg-surface/70 backdrop-blur-xl border-b border-outline-variant/30 px-margin-desktop flex items-center justify-between">
-        <div className="flex items-center gap-stack-sm">
-          <span className="font-display text-headline-md font-bold text-primary">
-            EduFlow
-          </span>
-        </div>
-        <div className="hidden md:flex items-center gap-gutter">
-          <a
-            className="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors"
-            href="#"
-          >
-            Help Center
-          </a>
-          <a
-            className="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors"
-            href="#"
-          >
-            Contact Support
-          </a>
-        </div>
-      </nav>
-
-      {/* Main */}
-      <main className="grow flex items-center justify-center px-margin-mobile pt-20 pb-10">
+      <div className="grow flex items-center justify-center px-margin-mobile pt-20 pb-10">
         {/* Forgot Password Screen */}
         {screen === SCREEN.FORGOT && (
           <div className="w-full max-w-110">
@@ -558,30 +534,7 @@ const ForgotPasswordPage = () => {
             </div>
           </div>
         )}
-      </main>
-
-      {/* Footer */}
-      <footer className="mt-auto py-stack-lg border-t border-outline-variant/20">
-        <div className="max-w-container-max mx-auto px-margin-desktop flex flex-col md:flex-row justify-between items-center gap-stack-md">
-          <p className="font-body-sm text-body-sm text-outline">
-            © 2024 EduFlow Inc. All rights reserved.
-          </p>
-          <div className="flex gap-gutter">
-            <a
-              className="font-label-sm text-label-sm text-outline hover:text-primary transition-colors"
-              href="#"
-            >
-              Privacy Policy
-            </a>
-            <a
-              className="font-label-sm text-label-sm text-outline hover:text-primary transition-colors"
-              href="#"
-            >
-              Terms of Service
-            </a>
-          </div>
-        </div>
-      </footer>
+      </div>
     </div>
   );
 }
