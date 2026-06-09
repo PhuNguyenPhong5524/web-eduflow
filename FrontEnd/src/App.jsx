@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import HomePage from "./pages/home/HomePage";
+import CourseSearchPage from "./pages/home/CourseSearchPage";
 import LoginPage from "./pages/auth/LoginPage";
 import ForgotPasswordPage from "./pages/auth/ForgotPasswordPage";
 import VerifyEmailPage from "./pages/auth/VerifyEmailPage";
@@ -8,6 +9,7 @@ import SecuritySettingsPage from "./pages/auth/SecuritySettingsPage";
 import RegisterPage from "./pages/auth/RegisterPage";
 import DashboardPage from "./pages/customer/DashboardPage";
 import InstructorDashboardPage from "./pages/provider/InstructorDashboardPage";
+import InstructorProfilePage from "./pages/provider/InstructorProfilePage";
 import AdminDashboardPage from "./pages/admin/AdminDashboardPage";
 import AdminUsersPage from "./pages/admin/AdminUsersPage";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -20,6 +22,11 @@ function App() {
         <Routes>
           {/* Home */}
           <Route path="/" element={<HomePage />} />
+          <Route path="/courses/search" element={<CourseSearchPage />} />
+          <Route
+            path="/development"
+            element={<Navigate to="/courses/search" replace />}
+          />
 
           {/* Auth */}
           <Route path="/login" element={<LoginPage />} />
@@ -32,9 +39,9 @@ function App() {
           <Route
             path="/dashboard"
             element={
-              <ProtectedRoute roles={["customer", "student"]}>
+              // <ProtectedRoute roles={["customer", "student"]}>
                 <DashboardPage />
-              </ProtectedRoute>
+              // </ProtectedRoute>
             }
           />
 
@@ -47,7 +54,10 @@ function App() {
               </ProtectedRoute>
             }
           />
-
+          <Route
+            path="/instructors/profile"
+            element={<InstructorProfilePage />}
+          />
           {/* Admin */}
           <Route
             path="/admin/dashboard"
