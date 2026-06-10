@@ -23,13 +23,16 @@ const providerSchema = new mongoose.Schema(
       lowercase: true,
     },
     images: {
-      type: String,
-      default: null,
+      type: [String],
+      default: [],
     },
     status: {
       type: String,
       enum: ["pending", "approved", "rejected"],
       default: "pending",
+    },
+    profile: {
+      type: String,
     },
   },
   { timestamps: true },

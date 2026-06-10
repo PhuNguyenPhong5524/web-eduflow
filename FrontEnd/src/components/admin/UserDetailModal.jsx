@@ -13,7 +13,9 @@ function DetailRow({ label, value }) {
       <p className="mb-1 text-label-sm font-label-sm uppercase text-outline">
         {label}
       </p>
-      <p className="break-words text-body-sm text-on-surface">{value || "-"}</p>
+      <p className="wrap-break-word text-body-sm text-on-surface">
+        {value || "-"}
+      </p>
     </div>
   );
 }
@@ -31,7 +33,7 @@ export default function UserDetailModal({
   const username = user.username || user.fullName || user.name || "User";
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-on-surface/45 p-margin-mobile backdrop-blur-sm">
+    <div className="fixed inset-0 z-60 flex items-center justify-center bg-on-surface/45 p-margin-mobile backdrop-blur-sm">
       <div className="glass-card w-full max-w-2xl rounded-xl shadow-2xl">
         <div className="flex items-start justify-between gap-4 border-b border-outline-variant/30 p-6">
           <div className="flex items-center gap-4">

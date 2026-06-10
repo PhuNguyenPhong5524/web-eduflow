@@ -88,16 +88,27 @@ import routerRefreshToken from "./routes/auth/refreshToken.js";
 import routerForgotPassword from "./routes/auth/forgotPassword.js";
 import routerLogout from "./routes/auth/logout.js";
 
-
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 8080;
 const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
 
+const allowedOrigins = new Set([
+  FRONTEND_URL,
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+]);
+
 app.use(
   cors({
-    origin: FRONTEND_URL,
+    origin(origin, callback) {
+      if (!origin || allowedOrigins.has(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error(`Not allowed by CORS: ${origin}`));
+    },
     credentials: true,
   }),
 );
@@ -131,7 +142,6 @@ app.use("/", routerRegister);
 
 // Đăng xuất
 app.use("/", routerLogout);
-
 
 // Đổi mật khẩu
 app.use("/", routerChangePassword);

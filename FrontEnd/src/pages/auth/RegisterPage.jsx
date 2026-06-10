@@ -3,7 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { register } from "../../services/authService";
 import { Form, Input, Button, message } from "antd";
 
-
 function getStrength(password) {
   let strength = 0;
   if (password.length > 5) strength += 25;
@@ -26,9 +25,7 @@ function StrengthBar({ strength }) {
     );
   if (strength <= 75)
     return (
-      <p className="font-label-sm text-label-sm text-secondary">
-        Mật khẩu tốt
-      </p>
+      <p className="font-label-sm text-label-sm text-secondary">Mật khẩu tốt</p>
     );
   return (
     <p className="font-label-sm text-label-sm text-[#02e102]">Mật khẩu mạnh</p>
@@ -41,8 +38,6 @@ function strengthBarColor(strength) {
   if (strength <= 75) return "bg-secondary";
   return "bg-[#02e102]";
 }
-
-
 
 export default function RegisterPage() {
   const [password, setPassword] = useState("");
@@ -62,16 +57,14 @@ export default function RegisterPage() {
     } catch (err) {
       console.log("REGISTER ERROR:", err); // debug
 
-      message.error(
-        err.response?.data?.message || "Đăng ký thất bại"
-      );
+      message.error(err.response?.data?.message || "Đăng ký thất bại");
     } finally {
       setSubmitting(false);
     }
   };
 
   const strength = getStrength(password);
-  
+
   return (
     <div className="bg-background mesh-gradient min-h-screen flex flex-col">
       <div className="grow flex items-center justify-center py-stack-lg px-margin-mobile">
@@ -93,20 +86,36 @@ export default function RegisterPage() {
                 Làm Chủ Tương Lai, Khóa Học Từng Bước.
               </h1>
               <p className="font-body-lg text-body-lg opacity-90 max-w-sm">
-                Gia nhập hơn 50.000+ học viên, phát triển kỹ năng với sự hướng dẫn của các chuyên gia.
+                Gia nhập hơn 50.000+ học viên, phát triển kỹ năng với sự hướng
+                dẫn của các chuyên gia.
               </p>
             </div>
 
             <div className="relative z-10 space-y-stack-md">
               {[
-                { icon: "verified", title: "Giảng Viên Đã Xác Minh", desc: "Chỉ học từ những chuyên gia giỏi nhất." },
-                { icon: "history_edu", title: "Quyền Truy Cập Trọn Đời", desc: "Khóa học của bạn sẽ không bao giờ hết hạn." },
+                {
+                  icon: "verified",
+                  title: "Giảng Viên Đã Xác Minh",
+                  desc: "Chỉ học từ những chuyên gia giỏi nhất.",
+                },
+                {
+                  icon: "history_edu",
+                  title: "Quyền Truy Cập Trọn Đời",
+                  desc: "Khóa học của bạn sẽ không bao giờ hết hạn.",
+                },
               ].map(({ icon, title, desc }) => (
-                <div key={title} className="flex items-center gap-stack-md p-stack-md bg-white/5 rounded-lg border border-white/10 glass-card">
-                  <span className="material-symbols-outlined text-on-primary-container bg-primary/20 p-2 rounded-lg">{icon}</span>
+                <div
+                  key={title}
+                  className="flex items-center gap-stack-md p-stack-md bg-white/5 rounded-lg border border-white/10 glass-card"
+                >
+                  <span className="material-symbols-outlined text-on-primary-container bg-primary/20 p-2 rounded-lg">
+                    {icon}
+                  </span>
                   <div>
                     <p className="font-label-md text-label-md">{title}</p>
-                    <p className="font-body-sm text-body-sm opacity-80">{desc}</p>
+                    <p className="font-body-sm text-body-sm opacity-80">
+                      {desc}
+                    </p>
                   </div>
                 </div>
               ))}
@@ -116,7 +125,9 @@ export default function RegisterPage() {
           {/* Form Side */}
           <div className="p-stack-lg md:p-12 flex flex-col justify-center">
             <div className="mb-stack-lg">
-              <h2 className="font-display text-headline-lg text-on-surface mb-2">Tạo tài khoản</h2>
+              <h2 className="font-display text-headline-lg text-on-surface mb-2">
+                Tạo tài khoản
+              </h2>
               <p className="font-body-md text-body-md text-on-surface-variant">
                 Nhập thông tin chi tiết để bắt đầu hành trình học tập.
               </p>
@@ -132,14 +143,12 @@ export default function RegisterPage() {
               <Form.Item
                 name="username"
                 label={<span className="text-[12px]">Tên người dùng</span>}
-                rules={[
-                  { required: true, message: "Vui lòng nhập username!" },
-                ]}
+                rules={[{ required: true, message: "Vui lòng nhập username!" }]}
               >
                 <Input
                   autoComplete="new-password"
                   placeholder="vd: phu123"
-                  className="!h-[48px] !rounded-xl"
+                  className="h-12! rounded-xl!"
                 />
               </Form.Item>
 
@@ -155,7 +164,7 @@ export default function RegisterPage() {
                 <Input
                   autoComplete="new-password"
                   placeholder="vd: abc@gmail.com"
-                  className="!h-[48px] !rounded-xl"
+                  className="h-12! rounded-xl!"
                 />
               </Form.Item>
 
@@ -172,10 +181,10 @@ export default function RegisterPage() {
                   autoComplete="new-password"
                   placeholder="••••••••"
                   onChange={(e) => setPassword(e.target.value)}
-                  className="!h-[48px] !rounded-xl"
+                  className="h-12! rounded-xl!"
                 />
               </Form.Item>
-              
+
               {password && (
                 <>
                   <div className="flex gap-1 h-1.5 w-full bg-surface-container rounded-full overflow-hidden mt-2">
@@ -201,16 +210,14 @@ export default function RegisterPage() {
                       if (!value || getFieldValue("password") === value) {
                         return Promise.resolve();
                       }
-                      return Promise.reject(
-                        new Error("Mật khẩu không khớp!")
-                      );
+                      return Promise.reject(new Error("Mật khẩu không khớp!"));
                     },
                   }),
                 ]}
               >
                 <Input.Password
                   placeholder="••••••••"
-                  className="!h-[48px] !rounded-xl"
+                  className="h-12! rounded-xl!"
                 />
               </Form.Item>
 
@@ -218,7 +225,7 @@ export default function RegisterPage() {
               <Button
                 htmlType="submit"
                 loading={submitting}
-                className="!w-full !h-[48px] !rounded-xl !bg-primary !text-white"
+                className="w-full! h-12! rounded-xl! bg-primary! text-white!"
               >
                 Đăng ký
               </Button>
@@ -240,7 +247,3 @@ export default function RegisterPage() {
     </div>
   );
 }
-
-
-
-

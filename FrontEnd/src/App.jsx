@@ -22,48 +22,32 @@ function App() {
       <BrowserRouter>
         <Routes>
           {/* Customer */}
-            <Route 
-              path='/' 
+          <Route path="/" element={<CustomerLayout />}>
+            {/* Home */}
+            <Route index element={<HomePage />} />
+            <Route path="/courses/search" element={<CourseSearchPage />} />
+            <Route
+              path="/development"
+              element={<Navigate to="/courses/search" replace />}
+            />
+
+            {/* Customer */}
+            <Route
+              path="/dashboard"
               element={
-                  <CustomerLayout />
+                // <ProtectedRoute roles={["customer", "student"]}>
+                <DashboardPage />
+                // </ProtectedRoute>
               }
-            >
-              {/* Home */}
-                <Route index element={
-                  <ProtectedRoute roles={["customer", "provider"]}>
-                    <HomePage />
-                  </ProtectedRoute>
-                } />
-                <Route 
-                  path="/courses/search" 
-                  element={
-                    <ProtectedRoute roles={["customer", "provider"]}>
-                      <CourseSearchPage />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route
-                  path="/development"
-                  element={<Navigate to="/courses/search" replace />}
-                />
+            />
 
-              {/* Customer */}
-                <Route
-                  path="/dashboard"
-                  element={
-                    // <ProtectedRoute roles={["customer", "student"]}>
-                      <DashboardPage />
-                    // </ProtectedRoute>
-                  }
-                />
+            {/* Page hiển thị khóa học theo giảng viên */}
+            <Route
+              path="courses-provider"
+              element={<InstructorProfilePage />}
+            />
+          </Route>
 
-              {/* Page hiển thị khóa học theo giảng viên */}
-                <Route
-                  path="courses-provider"
-                  element={<InstructorProfilePage />}
-                />
-            </Route>
-        
           {/* Provider / Instructor */}
           <Route
             path="/instructor/dashboard"
@@ -73,7 +57,6 @@ function App() {
               </ProtectedRoute>
             }
           />
-        
 
           {/* Admin */}
           <Route
@@ -95,20 +78,19 @@ function App() {
             }
           />
 
-
           {/* Auth */}
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/register" element={<RegisterPage />} />
-              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-              <Route path="/verify-email" element={<VerifyEmailPage />} />
-              <Route 
-                path="/security-settings" 
-                element={
-                  <ProtectedRoute roles={["customer", "provider", "admin"]}>
-                    <SecuritySettingsPage />
-                  </ProtectedRoute>
-                } 
-              />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/verify-email" element={<VerifyEmailPage />} />
+          <Route
+            path="/security-settings"
+            element={
+              <ProtectedRoute roles={["customer", "provider", "admin"]}>
+                <SecuritySettingsPage />
+              </ProtectedRoute>
+            }
+          />
           {/* Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

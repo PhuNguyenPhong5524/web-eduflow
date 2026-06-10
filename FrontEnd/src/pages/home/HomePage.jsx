@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, Navigate, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import {
   getCategories,
   getFeatureCourses,
@@ -14,11 +14,6 @@ const ICON_MAP = {
   language: "code",
   game: "sports_esports",
 };
-import { Dropdown, Avatar, Menu, message } from "antd";
-import { DownOutlined } from "@ant-design/icons";
-import { useAuth } from "../../contexts/AuthContext";
-import { Modal } from "antd";
-
 // Rotating bg colors for category small cards
 const CATEGORY_BG = [
   "bg-secondary-container text-on-secondary-container",
@@ -124,7 +119,6 @@ export default function HomePage() {
 
     return () => observer.disconnect();
   }, []);
-
 
   return (
     <div className="bg-background text-on-surface font-body-md">
@@ -355,37 +349,44 @@ export default function HomePage() {
               ? Array.from({ length: 5 }).map((_, i) => (
                   <ProviderSkeleton key={i} />
                 ))
-              : providers.slice(0, 10).map((prov) => (
-                  <div
-                    key={prov._id}
-                    className="flex flex-col items-center gap-3 p-6 rounded-2xl bg-surface border border-outline-variant/30 hover:shadow-md hover:border-primary/30 transition-all group"
-                  >
-                    <div className="w-16 h-16 rounded-full overflow-hidden bg-surface-container-high flex items-center justify-center ring-2 ring-primary/10 group-hover:ring-primary/40 transition-all">
-                      {prov.images?.[0] ? (
-                        <img
-                          src={prov.images[0]}
-                          alt={prov.provider_name}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            e.target.style.display = "none";
-                          }}
-                        />
-                      ) : (
-                        <span className="material-symbols-outlined text-primary text-[32px]">
-                          person
-                        </span>
-                      )}
-                    </div>
-                    <div className="text-center">
-                      <p className="font-label-md text-label-md text-on-surface line-clamp-2">
-                        {prov.provider_name}
-                      </p>
-                      <p className="font-body-sm text-[12px] text-on-surface-variant mt-1 line-clamp-1">
-                        {prov.career}
-                      </p>
-                    </div>
-                  </div>
-                ))}
+              : providers.slice(0, 10).map((prov) => {
+                  const providerImage = Array.isArray(prov.images)
+                    ? prov.images[0]
+                    : prov.images;
+
+                  return (
+                    <Link
+                      key={prov._id}
+                      to={`/courses-provider?providerId=${prov._id}`}
+                      className="flex flex-col items-center gap-3 p-6 rounded-2xl bg-surface border border-outline-variant/30 hover:shadow-md hover:border-primary/30 transition-all group"
+                    >
+                      <div className="w-16 h-16 rounded-full overflow-hidden bg-surface-container-high flex items-center justify-center ring-2 ring-primary/10 group-hover:ring-primary/40 transition-all">
+                        {providerImage ? (
+                          <img
+                            src={providerImage}
+                            alt={prov.provider_name}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.target.style.display = "none";
+                            }}
+                          />
+                        ) : (
+                          <span className="material-symbols-outlined text-primary text-[32px]">
+                            person
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-center">
+                        <p className="font-label-md text-label-md text-on-surface line-clamp-2">
+                          {prov.provider_name}
+                        </p>
+                        <p className="font-body-sm text-[12px] text-on-surface-variant mt-1 line-clamp-1">
+                          {prov.career}
+                        </p>
+                      </div>
+                    </Link>
+                  );
+                })}
           </div>
         </section>
 
