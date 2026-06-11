@@ -5,7 +5,6 @@ import CourseSearchPage from "./pages/home/CourseSearchPage";
 import LoginPage from "./pages/auth/LoginPage";
 import ForgotPasswordPage from "./pages/auth/ForgotPasswordPage";
 import VerifyEmailPage from "./pages/auth/VerifyEmailPage";
-import SecuritySettingsPage from "./pages/auth/SecuritySettingsPage";
 import RegisterPage from "./pages/auth/RegisterPage";
 import DashboardPage from "./pages/customer/DashboardPage";
 import InstructorDashboardPage from "./pages/provider/InstructorDashboardPage";
@@ -15,38 +14,55 @@ import AdminUsersPage from "./pages/admin/AdminUsersPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminLayout from "./layouts/AdminLayout";
 import CustomerLayout from "./layouts/CustomerLayout";
+import CustomerDashboardLayout from "./layouts/CustomerDashboardLayout";
+import ChangePasswordPage from "./pages/customer/ChangePasswordPage";
+import AccountSettingPage from "./pages/customer/AccountSettingPage";
 
 function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-          {/* Customer */}
-          <Route path="/" element={<CustomerLayout />}>
-            {/* Home */}
-            <Route index element={<HomePage />} />
-            <Route path="/courses/search" element={<CourseSearchPage />} />
-            <Route
-              path="/development"
-              element={<Navigate to="/courses/search" replace />}
-            />
+          {/* Customer layout */}
+            <Route path="/" element={<CustomerLayout />}>
+              <Route index element={<HomePage />} />
 
-            {/* Customer */}
-            <Route
-              path="/dashboard"
-              element={
-                // <ProtectedRoute roles={["customer", "student"]}>
-                <DashboardPage />
-                // </ProtectedRoute>
-              }
-            />
+              <Route path="courses/search" element={<CourseSearchPage />} />
+              <Route path="development" element={<Navigate to="courses/search" replace />} />
 
-            {/* Page hiển thị khóa học theo giảng viên */}
-            <Route
-              path="courses-provider"
-              element={<InstructorProfilePage />}
-            />
-          </Route>
+              <Route path="courses-provider" element={<InstructorProfilePage />} />
+            </Route>
+
+          {/* Customer dashboard */}
+            <Route path="/user" element={<CustomerDashboardLayout />}>
+    
+              <Route
+                path="dashboard"
+                element={
+                  <ProtectedRoute roles={["customer"]}>
+                    <DashboardPage />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="change-password"
+                element={
+                  <ProtectedRoute roles={["customer"]}>
+                    <ChangePasswordPage />
+                  </ProtectedRoute>
+                }
+              />
+              
+              <Route
+                path="account-settings"
+                element={
+                  <ProtectedRoute roles={["customer"]}>
+                    <AccountSettingPage />
+                  </ProtectedRoute>   
+                }
+              />
+            </Route>
 
           {/* Provider / Instructor */}
           <Route
@@ -83,14 +99,7 @@ function App() {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/verify-email" element={<VerifyEmailPage />} />
-          <Route
-            path="/security-settings"
-            element={
-              <ProtectedRoute roles={["customer", "provider", "admin"]}>
-                <SecuritySettingsPage />
-              </ProtectedRoute>
-            }
-          />
+
           {/* Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

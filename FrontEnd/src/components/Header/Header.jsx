@@ -14,9 +14,9 @@ const Header = () => {
 
     const menuItems = user ? [
         {
-            key: "change-password",
-            label: "Đổi mật khẩu",
-            onClick: () => navigate("/change-password"),
+            key: "dashboard",
+            label: "Bảng điều khiển",
+            onClick: () => navigate("/user/dashboard"),
         },
         {
             type: "divider",
@@ -160,13 +160,13 @@ const Header = () => {
                                 <div className="flex items-center gap-2 cursor-pointer hover:bg-primary-container/10 px-3 py-2 rounded-lg transition">
                                     
                                     <Avatar
-                                    style={{ backgroundColor: "#1677ff" }}
+                                        style={{ backgroundColor: "#4F46E5" }}
                                     >
-                                    {user.username?.charAt(0).toUpperCase()}
+                                        {user.username?.charAt(0).toUpperCase()}
                                     </Avatar>
 
                                     <span className="text-sm font-medium">
-                                    {user.username}
+                                        {user.username}
                                     </span>
 
                                     <DownOutlined className="text-xs" />
