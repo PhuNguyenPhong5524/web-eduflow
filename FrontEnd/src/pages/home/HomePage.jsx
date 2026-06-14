@@ -199,15 +199,15 @@ export default function HomePage() {
                 Tailored paths for your personal growth.
               </p>
             </div>
-            <a
+            <Link
               className="text-primary font-label-md hover:underline flex items-center gap-1 group"
-              href="#"
+              to="/courses/search"
             >
               View All{" "}
               <span className="material-symbols-outlined group-hover:translate-x-1 transition-transform">
                 arrow_forward
               </span>
-            </a>
+            </Link>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
