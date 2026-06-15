@@ -1,11 +1,11 @@
 
 
-import React from "react";
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Avatar, Dropdown, message, Modal } from "antd";
 import { DownOutlined } from "@ant-design/icons";
 import { useAuth } from "../../contexts/AuthContext";
-
+import { NavLink } from "react-router-dom";
 
 const Header = () => {
     const { user, logout } = useAuth(); 
@@ -56,7 +56,8 @@ const Header = () => {
                 label: "Đăng ký",
                 onClick: () => navigate("/register"),
             },
-        ];
+        ];  
+
     return (
         <header className="fixed top-0 w-full z-50 bg-surface/70 backdrop-blur-xl border-b border-outline-variant/30 shadow-sm">
             <div className="flex items-center justify-between px-margin-desktop h-16 max-w-7xl mx-auto">
@@ -68,30 +69,46 @@ const Header = () => {
                         EduFlow
                     </Link>
                     <nav className="hidden md:flex gap-6 items-center">
-                        <Link
-                            className="font-label-md text-label-md text-primary border-b-2 border-primary pb-1"
-                            to="/browse"
+                        <NavLink
+                            to="/"
+                            className={({ isActive }) =>
+                                `font-label-md text-label-md text-text-on-surface-variant pb-1 transition-all duration-200 ease-in-out ${
+                                    isActive ? "border-[#0000ff] text-[#0000ff] border-b-[1px]" : ""
+                                }`
+                            }
                         >
                             Trang chủ
-                        </Link>
-                        <Link
-                            className="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors duration-200"
-                            to="/my-courses"
+                        </NavLink>
+                        <NavLink
+                            to="/all-courses"
+                            className={({ isActive }) =>
+                                `font-label-md text-label-md text-text-on-surface-variant pb-1 transform transition-all duration-200 ease-in-out ${
+                                    isActive ? "border-[#0000ff] text-[#0000ff] border-b-[1px]" : "border-none "
+                                }`
+                            }
                         >
-                            Khóa học của tôi
-                        </Link>
-                        <Link
-                            className="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors duration-200"
-                            to="/"
+                            Khóa học
+                        </NavLink>
+                        <NavLink
+                            to="||"
+                            className={({ isActive }) =>
+                                `font-label-md text-label-md text-text-on-surface-variant pb-1 transform transition-all duration-200 ease-in-out ${
+                                    isActive ? "border-[#0000ff] text-[#0000ff] border-b-[1px]" : "border-none "
+                                }`
+                            }
                         >
-                            Giảng viên 
-                        </Link>
-                        <Link
-                            className="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors duration-200"
-                            to="/resources"
+                            Giảng viên
+                        </NavLink>
+                        <NavLink
+                            to="||"
+                            className={({ isActive }) =>
+                                `font-label-md text-label-md text-text-on-surface-variant pb-1 transform transition-all duration-200 ease-in-out ${
+                                    isActive ? "border-[#0000ff] text-[#0000ff] border-b-[1px]" : "border-none "
+                                }`
+                            }
                         >
                             Tài liệu
-                        </Link>
+                        </NavLink>
                     </nav>
                 </div>
                 <div className="flex items-center gap-4">

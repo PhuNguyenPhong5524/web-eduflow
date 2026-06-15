@@ -27,7 +27,7 @@ function App() {
             <Route path="/" element={<CustomerLayout />}>
               <Route index element={<HomePage />} />
 
-              <Route path="courses/search" element={<CourseSearchPage />} />
+              <Route path="all-courses" element={<CourseSearchPage />} />
               <Route path="development" element={<Navigate to="courses/search" replace />} />
 
               <Route path="courses-provider" element={<InstructorProfilePage />} />
