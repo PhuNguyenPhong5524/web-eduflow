@@ -59,7 +59,7 @@ const Header = () => {
         ];  
 
     return (
-        <header className="fixed top-0 w-full z-50 bg-surface/70 backdrop-blur-xl border-b border-outline-variant/30 shadow-sm">
+        <header className="fixed top-0 w-full z-[100] bg-surface/70 backdrop-blur-xl border-b border-outline-variant/30 shadow-sm">
             <div className="flex items-center justify-between px-margin-desktop h-16 max-w-7xl mx-auto">
                 <div className="flex items-center gap-stack-lg">
                     <Link

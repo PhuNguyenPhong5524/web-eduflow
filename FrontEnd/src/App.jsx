@@ -17,6 +17,7 @@ import CustomerLayout from "./layouts/CustomerLayout";
 import CustomerDashboardLayout from "./layouts/CustomerDashboardLayout";
 import ChangePasswordPage from "./pages/customer/ChangePasswordPage";
 import AccountSettingPage from "./pages/customer/AccountSettingPage";
+import DetailPage from "./pages/detailPage/DetailPage";
 
 function App() {
   return (
@@ -26,7 +27,7 @@ function App() {
           {/* Customer layout */}
             <Route path="/" element={<CustomerLayout />}>
               <Route index element={<HomePage />} />
-
+              <Route path="course/detail/:id" element={<DetailPage />} />
               <Route path="all-courses" element={<CourseSearchPage />} />
               <Route path="development" element={<Navigate to="courses/search" replace />} />
 
