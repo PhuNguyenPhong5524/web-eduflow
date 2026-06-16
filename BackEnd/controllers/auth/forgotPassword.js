@@ -10,7 +10,6 @@ export const forgotPassword = async (req, res) => {
 
     const user = await userModel.findOne({ email });
 
-    // Không tiết lộ email có tồn tại hay không
     if (!user) {
       return res.status(200).json({
         message: "Nếu email tồn tại, mã OTP đã được gửi.",
@@ -19,12 +18,12 @@ export const forgotPassword = async (req, res) => {
 
     const otp = crypto.randomInt(100000, 999999).toString();
 
+    await sendOtpEmail(user.email, otp);
+
     user.resetOtp = otp;
-    user.otpExpiry = Date.now() + 2 * 60 * 1000; // 2 phút
+    user.otpExpiry = Date.now() + 2 * 60 * 1000;
 
     await user.save();
-
-    await sendOtpEmail(user.email, otp);
 
     return res.status(200).json({
       message: "Đã gửi mã OTP qua email.",
@@ -37,7 +36,6 @@ export const forgotPassword = async (req, res) => {
     });
   }
 };
-
 
 // Xác thực OTP
 export const verifyOtp = async (req, res) => {
