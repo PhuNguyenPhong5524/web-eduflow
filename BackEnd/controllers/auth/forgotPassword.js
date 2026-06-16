@@ -10,31 +10,33 @@ export const forgotPassword = async (req, res) => {
 
     const user = await userModel.findOne({ email });
 
-    // luôn trả về message giống nhau (security)
+    // Không tiết lộ email có tồn tại hay không
     if (!user) {
-      return res.json({
-        message: "Nếu email tồn tại, mã đã được gửi!",
+      return res.status(200).json({
+        message: "Nếu email tồn tại, mã OTP đã được gửi.",
       });
     }
 
     const otp = crypto.randomInt(100000, 999999).toString();
 
     user.resetOtp = otp;
-    user.otpExpiry = Date.now() + 5 * 60 * 1000;
+    user.otpExpiry = Date.now() + 2 * 60 * 1000; // 2 phút
 
     await user.save();
 
-    // gửi email bằng Resend
-    await sendOtpEmail(email, otp);
+    await sendOtpEmail(user.email, otp);
 
-    return res.json({
-      message: "Đã gửi mã OTP qua email",
+    return res.status(200).json({
+      message: "Đã gửi mã OTP qua email.",
     });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+  } catch (error) {
+    console.error("Forgot Password Error:", error);
+
+    return res.status(500).json({
+      message: "Có lỗi xảy ra khi gửi OTP.",
+    });
   }
 };
-
 
 
 // Xác thực OTP
