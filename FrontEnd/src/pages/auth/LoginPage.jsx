@@ -24,7 +24,7 @@ export default function LoginPage() {
       if (user.role === "admin") {
         navigate("/admin/dashboard");
       } else if (user.role === "provider") {
-        navigate("/instructor/dashboard");
+        navigate("/provider");
       } else if (user.role === "customer") {
         navigate("/"); // hoặc "/search" nếu bạn có page search
       } else {
