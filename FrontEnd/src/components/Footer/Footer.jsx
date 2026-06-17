@@ -6,7 +6,7 @@ const Footer = () => {
             <div className="flex flex-col md:flex-row justify-between items-center px-margin-desktop max-w-7xl mx-auto gap-8">
                 <div className="flex flex-col items-center md:items-start gap-4">
                     <Link
-                        className="font-headline-md text-headline-md font-bold text-on-surface"
+                        className="font-headline-md text-headline-md font-bold text-[#4F46E5] hover:text-primary transition-colors"
                         to="/"
                     >
                         EduFlow
