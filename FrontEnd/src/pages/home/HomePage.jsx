@@ -296,9 +296,12 @@ export default function HomePage() {
                         )}
                       </div>
                       <div className="p-5 flex flex-col flex-1">
-                        <h4 className="font-headline-md text-[16px] mb-1 group-hover:text-primary transition-colors line-clamp-2">
+                        <Link
+                          to={`/course/detail/${course._id}`}
+                          className="font-bold text-[16px] mb-2 hover:text-primary transition-colors"
+                        >
                           {course.course_title}
-                        </h4>
+                        </Link>
                         <p className="text-on-surface-variant font-body-sm mb-1">
                           {course.provider}
                         </p>

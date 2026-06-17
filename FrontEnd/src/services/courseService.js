@@ -20,3 +20,7 @@ export const getCourses = (params = {}) => {
 
   return api.get("/api/courses", { params: cleanParams });
 };
+
+export const getCourseDetail = (id) => {
+  return api.get(`/courses/${id}`);
+};

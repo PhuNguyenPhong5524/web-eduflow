@@ -97,17 +97,7 @@ const Header = () => {
                                 }`
                             }
                         >
-                            Giảng viên
-                        </NavLink>
-                        <NavLink
-                            to="||"
-                            className={({ isActive }) =>
-                                `font-label-md text-label-md text-text-on-surface-variant pb-1 transform transition-all duration-200 ease-in-out ${
-                                    isActive ? "border-[#0000ff] text-[#0000ff] border-b-[1px]" : "border-none "
-                                }`
-                            }
-                        >
-                            Tài liệu
+                            Giới thiệu
                         </NavLink>
                     </nav>
                 </div>
