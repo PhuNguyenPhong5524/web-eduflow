@@ -98,6 +98,16 @@ function App() {
                   </ProtectedRoute>
                 }
               />
+              <Route
+                path="settings"
+                element={
+                  <ProtectedRoute roles={["provider"]}>
+                    <div className="text-center h-[500px] flex justify-center items-center bg-[#e9e9e9] rounded-lg">
+                      <p>Tính năng còn đang phát triển!</p>
+                    </div>
+                  </ProtectedRoute>
+                }
+              />
             </Route>
 
             {/* Admin */}
