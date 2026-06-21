@@ -61,7 +61,9 @@ function unwrapUsersResponse(response) {
 
 function unwrapUserDetail(response) {
   const payload =
-    response?.data && response?.user === undefined ? response.data : response || {};
+    response?.data && response?.user === undefined
+      ? response.data
+      : response || {};
   return payload.user || payload.data || payload;
 }
 
@@ -240,7 +242,9 @@ export default function AdminUsersPage() {
         prev.map((item) => (getUserId(item) === targetId ? mergedUser : item)),
       );
       setSelectedUser((prev) =>
-        prev && getUserId(prev) === targetId ? { ...prev, ...mergedUser } : prev,
+        prev && getUserId(prev) === targetId
+          ? { ...prev, ...mergedUser }
+          : prev,
       );
       setDetailError("");
     } catch (err) {
@@ -262,9 +266,7 @@ export default function AdminUsersPage() {
       <section className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
         <div>
           <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-primary-container/15 px-3 py-1 text-primary">
-            <span className="material-symbols-outlined text-[18px]">
-              group
-            </span>
+            <span className="material-symbols-outlined text-[18px]">group</span>
             <span className="font-label-sm text-label-sm uppercase">
               User Management
             </span>
@@ -354,7 +356,7 @@ export default function AdminUsersPage() {
         )}
 
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[900px] border-collapse text-left">
+          <table className="w-full min-w-225 border-collapse text-left">
             <thead>
               <tr className="bg-surface-container-low text-on-surface-variant">
                 {["User", "Role", "Status", "Created At", "Actions"].map(
@@ -474,11 +476,7 @@ export default function AdminUsersPage() {
                             <span className="material-symbols-outlined text-[18px]">
                               {item.isActive ? "lock" : "lock_open"}
                             </span>
-                            {isBusy
-                              ? "..."
-                              : item.isActive
-                                ? "Lock"
-                                : "Unlock"}
+                            {isBusy ? "..." : item.isActive ? "Lock" : "Unlock"}
                           </button>
                         </div>
                       </td>
@@ -499,7 +497,7 @@ export default function AdminUsersPage() {
       </section>
 
       {detailLoading && detailOpen && (
-        <div className="fixed inset-0 z-[55] flex items-center justify-center bg-on-surface/35 p-margin-mobile backdrop-blur-sm">
+        <div className="fixed inset-0 z-55 flex items-center justify-center bg-on-surface/35 p-margin-mobile backdrop-blur-sm">
           <div className="glass-card flex items-center gap-3 rounded-xl p-5 shadow-xl">
             <span className="material-symbols-outlined animate-spin text-primary">
               progress_activity
