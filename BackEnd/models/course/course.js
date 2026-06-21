@@ -5,12 +5,12 @@ const courseSchema = new mongoose.Schema(
     category_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Category",
-      required: true,
+      required: true
     },
     provider_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Provider",
-      required: true,
+      required: true
     },
     course_title: { type: String, required: true },
     price: { type: Number, required: true },
@@ -25,11 +25,11 @@ const courseSchema = new mongoose.Schema(
     feature: { type: Boolean, default: false },
     isActive: {
       type: Boolean,
-      default: true,
+      default: true
     },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
-const courseModel = mongoose.model("Course", courseSchema);
-
+    const courseModel = mongoose.model("Course", courseSchema);
+    
 export default courseModel;

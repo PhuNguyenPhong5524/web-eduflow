@@ -17,94 +17,113 @@ import CustomerLayout from "./layouts/CustomerLayout";
 import CustomerDashboardLayout from "./layouts/CustomerDashboardLayout";
 import ChangePasswordPage from "./pages/customer/ChangePasswordPage";
 import AccountSettingPage from "./pages/customer/AccountSettingPage";
+import DetailPage from "./pages/detailPage/DetailPage";
+import ProviderLayout from "./layouts/ProviderLayout";
+import ManagementCoursePage from "./pages/provider/ManagementCoursePage/ManagementCoursePage";
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+
+const queryClient = new QueryClient();
 
 function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          {/* Customer layout */}
-            <Route path="/" element={<CustomerLayout />}>
-              <Route index element={<HomePage />} />
+    <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <BrowserRouter>
+            <Routes>
+              {/* Customer layout */}
+                <Route path="/" element={<CustomerLayout />}>
+                  <Route index element={<HomePage />} />
+                  <Route path="course/detail/:id" element={<DetailPage />} />
+                  <Route path="all-courses" element={<CourseSearchPage />} />
+                  <Route path="development" element={<Navigate to="courses/search" replace />} />
 
-              <Route path="courses/search" element={<CourseSearchPage />} />
-              <Route path="development" element={<Navigate to="courses/search" replace />} />
+                  <Route path="courses-provider" element={<InstructorProfilePage />} />
+                </Route>
 
-              <Route path="courses-provider" element={<InstructorProfilePage />} />
-            </Route>
+              {/* Customer dashboard */}
+                <Route path="/user" element={<CustomerDashboardLayout />}>
+        
+                  <Route
+                    path="dashboard"
+                    element={
+                      <ProtectedRoute roles={["customer"]}>
+                        <DashboardPage />
+                      </ProtectedRoute>
+                    }
+                  />
 
-          {/* Customer dashboard */}
-            <Route path="/user" element={<CustomerDashboardLayout />}>
-    
+                  <Route
+                    path="change-password"
+                    element={
+                      <ProtectedRoute roles={["customer"]}>
+                        <ChangePasswordPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  
+                  <Route
+                    path="account-settings"
+                    element={
+                      <ProtectedRoute roles={["customer"]}>
+                        <AccountSettingPage />
+                      </ProtectedRoute>   
+                    }
+                  />
+                </Route>
+
+              {/* Provider*/}
+                <Route path="/provider" element={<ProviderLayout />}>
+                  <Route 
+                    index
+                    element={
+                      <ProtectedRoute roles={["provider"]}>
+                        <InstructorDashboardPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route 
+                    path="courses"
+                    element={
+                      <ProtectedRoute roles={["provider"]}>
+                        <ManagementCoursePage />
+                      </ProtectedRoute>
+                    }
+                  />
+                </Route>
+
+
+              {/* Admin */}
               <Route
-                path="dashboard"
+                path="/admin/dashboard"
                 element={
-                  <ProtectedRoute roles={["customer"]}>
-                    <DashboardPage />
+                  <ProtectedRoute roles={["admin"]}>
+                    <AdminDashboardPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/users"
+                element={
+                  <ProtectedRoute roles={["admin"]}>
+                    <AdminLayout title="Users">
+                      <AdminUsersPage />
+                    </AdminLayout>
                   </ProtectedRoute>
                 }
               />
 
-              <Route
-                path="change-password"
-                element={
-                  <ProtectedRoute roles={["customer"]}>
-                    <ChangePasswordPage />
-                  </ProtectedRoute>
-                }
-              />
-              
-              <Route
-                path="account-settings"
-                element={
-                  <ProtectedRoute roles={["customer"]}>
-                    <AccountSettingPage />
-                  </ProtectedRoute>   
-                }
-              />
-            </Route>
+              {/* Auth */}
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
+              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+              <Route path="/verify-email" element={<VerifyEmailPage />} />
 
-          {/* Provider / Instructor */}
-          <Route
-            path="/instructor/dashboard"
-            element={
-              <ProtectedRoute roles={["provider"]}>
-                <InstructorDashboardPage />
-              </ProtectedRoute>
-            }
-          />
-
-          {/* Admin */}
-          <Route
-            path="/admin/dashboard"
-            element={
-              <ProtectedRoute roles={["admin"]}>
-                <AdminDashboardPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/users"
-            element={
-              <ProtectedRoute roles={["admin"]}>
-                <AdminLayout title="Users">
-                  <AdminUsersPage />
-                </AdminLayout>
-              </ProtectedRoute>
-            }
-          />
-
-          {/* Auth */}
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-          <Route path="/verify-email" element={<VerifyEmailPage />} />
-
-          {/* Fallback */}
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </BrowserRouter>
-    </AuthProvider>
+              {/* Fallback */}
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </BrowserRouter>
+        </AuthProvider>
+    </QueryClientProvider>
   );
 }
 

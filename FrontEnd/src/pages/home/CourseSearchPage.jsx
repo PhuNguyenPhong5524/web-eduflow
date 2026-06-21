@@ -1,601 +1,148 @@
-import { useState } from "react";
+import { useEffect, useState, useCallback } from "react";
+import { useSearchParams } from "react-router-dom";
+import { getCourses } from "../../services/courseService";
+import FilterSidebar from "../../components/FilterSidebar";
+import CourseList from "../../components/CourseList";
 
-const ratingOptions = [
-  { id: "rating-4", label: "4.0 & Up", stars: 4 },
-  { id: "rating-3", label: "3.0 & Up", stars: 3 },
-];
-
-const levelOptions = ["Beginner", "Intermediate", "Advanced"];
-const priceOptions = ["Paid", "Free"];
-const durationOptions = ["0-3 Hours", "3-7 Hours", "7+ Hours"];
-
-const courses = [
-  {
-    id: 1,
-    title: "The Complete 2024 Web Development Bootcamp",
-    instructor: "Dr. Angela Yu, Lead Instructor",
-    rating: "4.8",
-    reviews: "(215,482)",
-    price: "$94.99",
-    badge: "Best Seller",
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuAnIctgjfl3kEG4TPmi2sNQkJ9YYqaGtcXXh920raXv3VNoKQpfj05jvCkvbhcMUqSdPUGak-DXe7LFLQpyauN9qRaecHOyVWHkaBJHsO7nuPttYCmtpUH70BE6HlZmyfLhUzpe1M2iQIOhoELYUaDvfiaZ017dSnJi0XdtGomEvSjw3F-UKBNGbtnGKseeVkPIi2k-dbeM2omA2LDREvm7JF4nD5w46q47CQ_2XFtH5NHXMACdvXx9La_e2RDwec4mkf4XJQMYtcM",
-    stars: 4.5,
-  },
-  {
-    id: 2,
-    title: "JavaScript: The Advanced Concepts",
-    instructor: "Andrei Neagoie",
-    rating: "4.7",
-    reviews: "(82,104)",
-    price: "$84.99",
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuBFHgAjBw7x5YUx6ieEDv_SZr314BSwyp3tBLv_-SZ-uMFqKzXXhR8BgHPvBrmTEgPoDvASOduNpURniJQ4kVblLBq-khaf_xurddm1j7MLBvOaV51AkRvHL_rw2wbVyDR0B8D0mLFzSNGTlf5fyf1mCjUW7fnvN_5jFNFhvphFio7_jTMb5gKj0Q6oM3ilmFB-L_f0Qr1pY470dKL7OgvprtJvWe4ybxD34ynJp1YL40vxODJwlGfzNGjhfCnhBCFokzvry2HrH1E",
-    stars: 5,
-  },
-  {
-    id: 3,
-    title: "Python for Data Science and Machine Learning",
-    instructor: "Jose Portilla",
-    rating: "4.6",
-    reviews: "(156,219)",
-    price: "$79.99",
-    badge: "New",
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuBMbTITEGruCBzOrdNHOoH4czFsuRVI_UPHVU6V0ZEHXonT3zOdmGfIhwmSqX2va1h4vzoZZO0Nyd404O9XjxL7l-L-C8zIDzVk5OjFQBJQvwEuABmYUWsXW5bRe2h9Ow4iZMHICxJD60H0O_Gu3Z0ivf0lBLFRs7Yv-MP0DmIzK_Stp96mCpzGu17-SD7zP_dOhjh8nmZTfnYIFNsCqSH61myFkcnceYWGftTllc3A7AotjRetpUNlztifCt_lWi2lEMhhgUuafgw",
-    stars: 4.5,
-  },
-  {
-    id: 4,
-    title: "iOS & Swift - The Complete Development Course",
-    instructor: "App Brewery",
-    rating: "4.9",
-    reviews: "(45,031)",
-    price: "$99.99",
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuAJO48kRoXBQAQYd3wlaNqZGTXWwk4XCNCa2RGpG3ncA4ybtGkRvjMzUC6fkn8eZsoPvnytj3TzjSdcB_ImcTCHPw4L8sBz6sD4-lUR4yggnpXYwBeDgd0Q7mBtX7QYNqMYaPskfCsPzL_UANgGMNSJ2iKq9kIuh4c370OUCJOdwXJ_qbfTR-AKQ6bKAFfTzWPrBEyg_14Qypagq3AX63-SiLdPOpcVBizz5AkemFMTC1ICxcLtGZpBCW4nISzHO2gMubAnj54dnHg",
-    stars: 5,
-  },
-  {
-    id: 5,
-    title: "Blockchain and Smart Contract Development",
-    instructor: "Gregory McCubbin",
-    rating: "4.8",
-    reviews: "(12,874)",
-    price: "$109.99",
-    badge: "Best Seller",
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuA9aFKNlwZJhziNpd04HsoN4EG_6HydtmpScF7wBjYHQoPS_bWepn0oZUttBqCfPF9YFIUJ-DS1IonSSH4a92SqaZ-zuHRBfMWPH9_v75hsS_xi7355UP6IvCwjKMA9XKt8mF3OiLtcTVSGTT4DfKMfhCpBKo9m8y8MN6-UIYv9DTViGLHzkXFk6QZC4kEuktlIDeabwag4uKukCRE3Y0b4ig1w2EpAsW-D6goRpVrGTUAeQFMhAcNAY1WLRA196yW9HsOS8B0ibw4",
-    stars: 5,
-  },
-  {
-    id: 6,
-    title: "Docker and Kubernetes: The Complete Guide",
-    instructor: "Stephen Grider",
-    rating: "4.7",
-    reviews: "(33,902)",
-    price: "$89.99",
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuDGuD3Ka3CI375QKngsFAb9Hn9atZjkIMSSJ7DsTdOfwUBttweSd_oNXikefiD2sT5NDmHgF5U99x9IRGypkr-T8kXUJ9lM922VbQa8x6jnYMTCk9F4IB6Op71c3uo4hn3rEQ6TD2gh5pdhdaVy6u-E2MPpABj3YvqndvuIdBcxwaQNKisDbNVw8VCRwjN-2lq4uQqSlu6f3nYTNnjw8XJeQgAE4awumBZdupwnoUUjmJ40JEmRDaFmrnrzFVAXFg8Y9pJQzy_I84g",
-    stars: 4.5,
-  },
-];
-
-function StarRow({ stars }) {
-  const wholeStars = Math.floor(stars);
-  const hasHalf = stars % 1 !== 0;
-
-  return (
-    <div className="flex text-yellow-500">
-      {Array.from({ length: wholeStars }).map((_, idx) => (
-        <span
-          key={`whole-${idx}`}
-          className="material-symbols-outlined text-[14px]"
-          style={{ fontVariationSettings: "'FILL' 1" }}
-        >
-          star
-        </span>
-      ))}
-      {hasHalf ? (
-        <span
-          className="material-symbols-outlined text-[14px]"
-          style={{ fontVariationSettings: "'FILL' 0.5" }}
-        >
-          star_half
-        </span>
-      ) : null}
-      {Array.from({ length: 5 - wholeStars - (hasHalf ? 1 : 0) }).map(
-        (_, idx) => (
-          <span
-            key={`empty-${idx}`}
-            className="material-symbols-outlined text-[14px]"
-          >
-            star
-          </span>
-        ),
-      )}
-    </div>
-  );
-}
+const ITEMS_PER_PAGE = 12;
 
 export default function CourseSearchPage() {
-  const [openFilters, setOpenFilters] = useState({
-    rating: true,
-    level: true,
-    price: true,
-    duration: true,
-  });
+  // ── URL search params as single source of truth ──────────
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const toggleFilter = (key) => {
-    setOpenFilters((prev) => ({ ...prev, [key]: !prev[key] }));
+  // Read filters from URL
+  const category = searchParams.get("category") || "";
+  const price = searchParams.get("price") || null;
+  const rating = searchParams.get("rating") || null;
+  const level = searchParams.get("level") || null;
+  const page = Number(searchParams.get("page")) || 1;
+
+  // ── Data state ────────────────────────────────────────────
+  const [courses, setCourses] = useState([]);
+  const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [loading, setLoading] = useState(true);
+
+  // ── Fetch courses whenever URL params change ──────────────
+  const fetchCourses = useCallback(async () => {
+    setLoading(true);
+    try {
+      const { data: res } = await getCourses({
+        category: category || undefined,
+        price: price || undefined,
+        rating: rating || undefined,
+        level: level || undefined,
+        page,
+        limit: ITEMS_PER_PAGE,
+      });
+      setCourses(res.data);
+      setTotal(res.total);
+      setTotalPages(res.totalPages);
+    } catch (error) {
+      console.error("Failed to fetch courses:", error);
+      setCourses([]);
+      setTotal(0);
+      setTotalPages(0);
+    } finally {
+      setLoading(false);
+    }
+  }, [category, price, rating, level, page]);
+
+  useEffect(() => {
+    fetchCourses();
+  }, [fetchCourses]);
+
+  // ── Update URL params (filter change resets to page 1) ────
+  const handleFilterChange = (key, value) => {
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      if (value) {
+        next.set(key, value);
+      } else {
+        next.delete(key);
+      }
+      // Reset to page 1 on filter change
+      next.delete("page");
+      return next;
+    });
   };
 
+  const handlePageChange = (newPage) => {
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      if (newPage > 1) {
+        next.set("page", String(newPage));
+      } else {
+        next.delete("page");
+      }
+      return next;
+    });
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  // ── Filters object for sidebar ────────────────────────────
+  const filters = { price, rating, level };
+
   return (
-    <div className="bg-surface font-body-md text-on-surface min-h-screen">
-      <header className="fixed top-0 w-full z-50 bg-surface/70 backdrop-blur-xl border-b border-outline-variant/30 shadow-sm h-16">
-        <div className="flex items-center justify-between px-margin-mobile md:px-margin-desktop h-full max-w-7xl mx-auto">
-          <div className="flex items-center gap-stack-lg">
-            <span className="font-headline-md text-headline-md font-bold text-primary">
-              EduFlow
-            </span>
-            <nav className="hidden md:flex items-center gap-gutter">
-              <a
-                className="font-label-md text-label-md text-primary border-b-2 border-primary pb-1"
-                href="#"
-              >
-                Browse
-              </a>
-              <a
-                className="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors duration-200"
-                href="#"
-              >
-                My Courses
-              </a>
-              <a
-                className="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors duration-200"
-                href="#"
-              >
-                Instructors
-              </a>
-              <a
-                className="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors duration-200"
-                href="#"
-              >
-                Resources
-              </a>
-            </nav>
-          </div>
+    <main className="pt-24 pb-stack-lg min-h-screen">
+      <div className="max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop">
+        {/* Breadcrumb */}
+        <nav className="flex items-center gap-2 mb-stack-md">
+          <a
+            className="font-label-md text-label-md text-on-surface-variant hover:text-primary"
+            href="/"
+          >
+            Home
+          </a>
+          <span className="material-symbols-outlined text-[16px] text-outline">
+            chevron_right
+          </span>
+          <span className="font-label-md text-label-md text-primary">
+            {category || "All Courses"}
+          </span>
+        </nav>
 
-          <div className="flex items-center gap-stack-md">
-            <div className="hidden lg:flex items-center bg-surface-container-low rounded-full px-4 py-2 border border-outline-variant/30">
-              <span className="material-symbols-outlined text-on-surface-variant text-[20px] mr-2">
-                search
-              </span>
-              <input
-                className="bg-transparent border-none focus:ring-0 text-body-sm w-48 outline-none"
-                placeholder="Search courses..."
-                type="text"
-              />
-            </div>
-
-            <button className="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">
-              shopping_cart
-            </button>
-            <button className="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">
-              notifications
-            </button>
-            <button className="hidden md:block font-label-md text-label-md text-on-surface-variant hover:text-primary px-4 py-2">
-              Sign In
-            </button>
-            <button className="bg-primary text-on-primary font-label-md text-label-md px-6 py-2.5 rounded-full hover:shadow-lg hover:scale-105 active:scale-95 transition-all duration-200">
-              Get Started
-            </button>
-          </div>
-        </div>
-      </header>
-
-      <main className="pt-24 pb-stack-lg">
-        <div className="max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop">
-          <nav className="flex items-center gap-2 mb-stack-md">
-            <a
-              className="font-label-md text-label-md text-on-surface-variant hover:text-primary"
-              href="#"
-            >
-              Home
-            </a>
-            <span className="material-symbols-outlined text-[16px] text-outline">
-              chevron_right
-            </span>
-            <span className="font-label-md text-label-md text-primary">
-              Development
-            </span>
-          </nav>
-
-          <section className="mb-stack-lg p-stack-lg rounded-xl bg-linear-to-br from-primary-container to-secondary-container text-on-primary-container relative overflow-hidden">
-            <div className="relative z-10 max-w-2xl">
-              <h1 className="font-display text-display mb-4">Development</h1>
-              <p className="font-body-lg text-body-lg opacity-90 leading-relaxed">
-                Master the art of building robust, scalable applications. From
-                web development to machine learning, our expert-led courses
-                provide hands-on experience with the industry&apos;s most
-                in-demand technologies.
-              </p>
-            </div>
-            <div className="absolute right-0 top-0 w-1/3 h-full opacity-10 pointer-events-none">
-              <span
-                className="material-symbols-outlined text-[240px]"
-                style={{ fontVariationSettings: "'wght' 100" }}
-              >
-                code
-              </span>
-            </div>
-          </section>
-
-          <div className="flex flex-col lg:flex-row gap-gutter">
-            <aside className="w-full lg:w-64 shrink-0">
-              <div className="sticky top-24 space-y-stack-lg">
-                <div>
-                  <h3 className="font-label-md text-label-md uppercase tracking-wider text-on-surface-variant mb-4">
-                    Filters
-                  </h3>
-
-                  <div className="mb-6">
-                    <button
-                      onClick={() => toggleFilter("rating")}
-                      className="w-full font-label-md text-label-md text-on-surface mb-3 flex items-center justify-between"
-                    >
-                      Rating
-                      <span
-                        className="material-symbols-outlined text-[18px] transition-transform"
-                        style={{
-                          transform: openFilters.rating
-                            ? "rotate(180deg)"
-                            : "rotate(0deg)",
-                        }}
-                      >
-                        expand_more
-                      </span>
-                    </button>
-                    {openFilters.rating ? (
-                      <div className="space-y-2">
-                        {ratingOptions.map((option) => (
-                          <label
-                            key={option.id}
-                            className="flex items-center gap-3 cursor-pointer group"
-                          >
-                            <input
-                              className="w-4 h-4 rounded border-outline-variant text-primary focus:ring-primary"
-                              type="checkbox"
-                            />
-                            <span className="flex items-center text-body-sm text-on-surface-variant group-hover:text-on-surface">
-                              <span className="flex text-yellow-500 mr-2">
-                                {Array.from({ length: option.stars }).map(
-                                  (_, i) => (
-                                    <span
-                                      key={`${option.id}-${i}`}
-                                      className="material-symbols-outlined text-[16px]"
-                                      style={{
-                                        fontVariationSettings: "'FILL' 1",
-                                      }}
-                                    >
-                                      star
-                                    </span>
-                                  ),
-                                )}
-                                {Array.from({ length: 5 - option.stars }).map(
-                                  (_, i) => (
-                                    <span
-                                      key={`${option.id}-empty-${i}`}
-                                      className="material-symbols-outlined text-[16px]"
-                                    >
-                                      star
-                                    </span>
-                                  ),
-                                )}
-                              </span>
-                              {option.label}
-                            </span>
-                          </label>
-                        ))}
-                      </div>
-                    ) : null}
-                  </div>
-
-                  <div className="mb-6">
-                    <button
-                      onClick={() => toggleFilter("level")}
-                      className="w-full font-label-md text-label-md text-on-surface mb-3 flex items-center justify-between"
-                    >
-                      Level
-                      <span
-                        className="material-symbols-outlined text-[18px] transition-transform"
-                        style={{
-                          transform: openFilters.level
-                            ? "rotate(180deg)"
-                            : "rotate(0deg)",
-                        }}
-                      >
-                        expand_more
-                      </span>
-                    </button>
-                    {openFilters.level ? (
-                      <div className="space-y-2">
-                        {levelOptions.map((option) => (
-                          <label
-                            key={option}
-                            className="flex items-center gap-3 cursor-pointer"
-                          >
-                            <input
-                              className="w-4 h-4 rounded border-outline-variant text-primary"
-                              type="checkbox"
-                            />
-                            <span className="text-body-sm text-on-surface-variant">
-                              {option}
-                            </span>
-                          </label>
-                        ))}
-                      </div>
-                    ) : null}
-                  </div>
-
-                  <div className="mb-6">
-                    <button
-                      onClick={() => toggleFilter("price")}
-                      className="w-full font-label-md text-label-md text-on-surface mb-3 flex items-center justify-between"
-                    >
-                      Price
-                      <span
-                        className="material-symbols-outlined text-[18px] transition-transform"
-                        style={{
-                          transform: openFilters.price
-                            ? "rotate(180deg)"
-                            : "rotate(0deg)",
-                        }}
-                      >
-                        expand_more
-                      </span>
-                    </button>
-                    {openFilters.price ? (
-                      <div className="space-y-2">
-                        {priceOptions.map((option) => (
-                          <label
-                            key={option}
-                            className="flex items-center gap-3 cursor-pointer"
-                          >
-                            <input
-                              className="w-4 h-4 border-outline-variant text-primary"
-                              name="price"
-                              type="radio"
-                            />
-                            <span className="text-body-sm text-on-surface-variant">
-                              {option}
-                            </span>
-                          </label>
-                        ))}
-                      </div>
-                    ) : null}
-                  </div>
-
-                  <div className="mb-6">
-                    <button
-                      onClick={() => toggleFilter("duration")}
-                      className="w-full font-label-md text-label-md text-on-surface mb-3 flex items-center justify-between"
-                    >
-                      Duration
-                      <span
-                        className="material-symbols-outlined text-[18px] transition-transform"
-                        style={{
-                          transform: openFilters.duration
-                            ? "rotate(180deg)"
-                            : "rotate(0deg)",
-                        }}
-                      >
-                        expand_more
-                      </span>
-                    </button>
-                    {openFilters.duration ? (
-                      <div className="space-y-2">
-                        {durationOptions.map((option) => (
-                          <label
-                            key={option}
-                            className="flex items-center gap-3 cursor-pointer"
-                          >
-                            <input
-                              className="w-4 h-4 rounded border-outline-variant text-primary"
-                              type="checkbox"
-                            />
-                            <span className="text-body-sm text-on-surface-variant">
-                              {option}
-                            </span>
-                          </label>
-                        ))}
-                      </div>
-                    ) : null}
-                  </div>
-                </div>
-              </div>
-            </aside>
-
-            <div className="flex-1">
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-                <span className="text-body-sm text-on-surface-variant">
-                  Showing 1,248 results for{" "}
-                  <span className="text-on-surface font-semibold">
-                    "Development"
-                  </span>
-                </span>
-
-                <div className="hidden md:flex items-center bg-surface-container-low rounded-lg px-3 py-1.5 border border-outline-variant/30 ml-4 flex-1 max-w-xs">
-                  <span className="material-symbols-outlined text-on-surface-variant text-[18px] mr-2">
-                    search
-                  </span>
-                  <input
-                    type="text"
-                    placeholder="Search within results..."
-                    className="bg-transparent border-none focus:ring-0 text-body-sm w-full p-0 outline-none"
-                  />
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <span className="text-body-sm text-on-surface-variant">
-                    Sort by:
-                  </span>
-                  <select className="bg-transparent border-none focus:ring-0 text-body-sm font-semibold cursor-pointer outline-none">
-                    <option>Most Relevant</option>
-                    <option>Newest</option>
-                    <option>Highest Rated</option>
-                    <option>Price: Low to High</option>
-                  </select>
-                  <div className="flex items-center border border-outline-variant/30 rounded-lg overflow-hidden ml-2">
-                    <button
-                      className="p-1.5 bg-primary text-on-primary flex items-center justify-center"
-                      aria-label="Grid View"
-                    >
-                      <span className="material-symbols-outlined text-[20px]">
-                        grid_view
-                      </span>
-                    </button>
-                    <button
-                      className="p-1.5 hover:bg-primary-container/10 text-on-surface-variant flex items-center justify-center"
-                      aria-label="List View"
-                    >
-                      <span className="material-symbols-outlined text-[20px]">
-                        format_list_bulleted
-                      </span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-gutter">
-                {courses.map((course) => (
-                  <div
-                    key={course.id}
-                    className="group bg-surface-container-lowest border border-outline-variant/30 rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300"
-                  >
-                    <div className="relative aspect-video">
-                      <img
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                        alt={course.title}
-                        src={course.image}
-                      />
-                      {course.badge ? (
-                        <div className="absolute top-3 right-3 glass-panel px-2 py-1 rounded text-primary font-label-sm text-label-sm shadow-sm">
-                          {course.badge}
-                        </div>
-                      ) : null}
-                    </div>
-
-                    <div className="p-4 space-y-3">
-                      <h3 className="font-headline-md text-headline-md leading-tight group-hover:text-primary transition-colors line-clamp-2">
-                        {course.title}
-                      </h3>
-                      <p className="text-body-sm text-on-surface-variant">
-                        {course.instructor}
-                      </p>
-
-                      <div className="flex items-center gap-1">
-                        <span className="font-label-md text-label-md text-on-surface">
-                          {course.rating}
-                        </span>
-                        <StarRow stars={course.stars} />
-                        <span className="text-body-sm text-on-surface-variant">
-                          {course.reviews}
-                        </span>
-                      </div>
-
-                      <div className="flex items-center justify-between pt-2">
-                        <span className="font-headline-md text-headline-md text-on-surface">
-                          {course.price}
-                        </span>
-                        <button className="material-symbols-outlined text-outline hover:text-primary transition-colors">
-                          favorite
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="mt-12 flex items-center justify-center gap-2">
-                <button className="w-10 h-10 flex items-center justify-center rounded-full border border-outline-variant hover:bg-primary-container/10 transition-colors">
-                  <span className="material-symbols-outlined text-[20px]">
-                    chevron_left
-                  </span>
-                </button>
-                <button className="w-10 h-10 flex items-center justify-center rounded-full bg-primary text-on-primary font-label-md">
-                  1
-                </button>
-                <button className="w-10 h-10 flex items-center justify-center rounded-full border border-outline-variant hover:bg-primary-container/10 transition-colors font-label-md">
-                  2
-                </button>
-                <button className="w-10 h-10 flex items-center justify-center rounded-full border border-outline-variant hover:bg-primary-container/10 transition-colors font-label-md">
-                  3
-                </button>
-                <span className="text-on-surface-variant px-2">...</span>
-                <button className="w-10 h-10 flex items-center justify-center rounded-full border border-outline-variant hover:bg-primary-container/10 transition-colors font-label-md">
-                  42
-                </button>
-                <button className="w-10 h-10 flex items-center justify-center rounded-full border border-outline-variant hover:bg-primary-container/10 transition-colors">
-                  <span className="material-symbols-outlined text-[20px]">
-                    chevron_right
-                  </span>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </main>
-
-      <footer className="w-full py-stack-lg bg-surface-container-lowest border-t border-outline-variant">
-        <div className="flex flex-col md:flex-row justify-between items-center px-margin-mobile md:px-margin-desktop max-w-7xl mx-auto gap-stack-md">
-          <div className="flex flex-col items-center md:items-start gap-2">
-            <span className="font-headline-md text-headline-md font-bold text-on-surface">
-              EduFlow
-            </span>
-            <p className="font-body-sm text-body-sm text-on-surface-variant">
-              Empowering learners worldwide.
+        {/* Category Header */}
+        <section className="mb-stack-lg p-stack-lg rounded-xl bg-linear-to-br from-primary-container to-secondary-container text-on-primary-container relative overflow-hidden">
+          <div className="relative z-10 max-w-2xl">
+            <h1 className="font-display text-display mb-4">
+              {category || "All Courses"}
+            </h1>
+            <p className="font-body-lg text-body-lg opacity-90 leading-relaxed">
+              Master the art of building robust, scalable applications. From web
+              development to machine learning, our expert-led courses provide
+              hands-on experience with the industry&apos;s most in-demand
+              technologies.
             </p>
           </div>
+          <div className="absolute right-0 top-0 w-1/3 h-full opacity-10 pointer-events-none">
+            <span
+              className="material-symbols-outlined text-[240px]"
+              style={{ fontVariationSettings: "'wght' 100" }}
+            >
+              code
+            </span>
+          </div>
+        </section>
 
-          <nav className="flex flex-wrap justify-center gap-gutter">
-            <a
-              className="font-body-sm text-body-sm text-on-surface-variant hover:text-primary hover:underline transition-all"
-              href="#"
-            >
-              Privacy Policy
-            </a>
-            <a
-              className="font-body-sm text-body-sm text-on-surface-variant hover:text-primary hover:underline transition-all"
-              href="#"
-            >
-              Terms of Service
-            </a>
-            <a
-              className="font-body-sm text-body-sm text-on-surface-variant hover:text-primary hover:underline transition-all"
-              href="#"
-            >
-              Help Center
-            </a>
-            <a
-              className="font-body-sm text-body-sm text-on-surface-variant hover:text-primary hover:underline transition-all"
-              href="#"
-            >
-              Contact Us
-            </a>
-            <a
-              className="font-body-sm text-body-sm text-on-surface-variant hover:text-primary hover:underline transition-all"
-              href="#"
-            >
-              Careers
-            </a>
-          </nav>
-
-          <span className="font-body-sm text-body-sm text-secondary-fixed-dim md:text-on-surface-variant opacity-80">
-            Copyright 2024 EduFlow Inc. All rights reserved.
-          </span>
+        {/* Content: Sidebar + Grid */}
+        <div className="flex flex-col lg:flex-row gap-gutter">
+          <FilterSidebar
+            filters={filters}
+            onFilterChange={handleFilterChange}
+          />
+          <CourseList
+            courses={courses}
+            loading={loading}
+            total={total}
+            currentPage={page}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+            categoryName={category}
+          />
         </div>
-      </footer>
-    </div>
+      </div>
+    </main>
   );
 }

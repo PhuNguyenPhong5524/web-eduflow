@@ -22,7 +22,7 @@ function getStrength(val) {
 
 const ForgotPasswordPage = () => {
 
-    const [screen, setScreen] = useState(SCREEN.FORGOT);
+  const [screen, setScreen] = useState(SCREEN.FORGOT);
   const [email, setEmail] = useState("");
   const [sentEmail, setSentEmail] = useState("");
 
