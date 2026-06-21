@@ -1,33 +1,154 @@
-import { useState } from "react";
-
+import { useState, useRef, useEffect } from "react";
 const ratingOptions = [
   { id: "rating-4", label: "4.0 & Up", stars: 4 },
   { id: "rating-3", label: "3.0 & Up", stars: 3 },
 ];
-
 const levelOptions = ["Beginner", "Intermediate", "Advanced"];
 const priceOptions = ["Paid", "Free"];
 const durationOptions = ["0-3 Hours", "3-7 Hours", "7+ Hours"];
-
+const PRICE_DEBOUNCE_MS = 600;
+/**
+ * PriceRangeSection — Min/Max price inputs with debounce and validation.
+ */
+function PriceRangeSection({ minPrice, maxPrice, onFilterChange, isOpen, onToggle }) {
+  const [localMin, setLocalMin] = useState(minPrice || "");
+  const [localMax, setLocalMax] = useState(maxPrice || "");
+  const debounceMinRef = useRef(null);
+  const debounceMaxRef = useRef(null);
+  // Sync local state when URL params change externally (back/forward)
+  useEffect(() => {
+    setLocalMin(minPrice || "");
+  }, [minPrice]);
+  useEffect(() => {
+    setLocalMax(maxPrice || "");
+  }, [maxPrice]);
+  // Cleanup timers
+  useEffect(() => {
+    return () => {
+      if (debounceMinRef.current) clearTimeout(debounceMinRef.current);
+      if (debounceMaxRef.current) clearTimeout(debounceMaxRef.current);
+    };
+  }, []);
+  const handleMinChange = (value) => {
+    // Block negative input
+    const sanitized = value === "" ? "" : Math.max(0, Number(value)).toString();
+    setLocalMin(sanitized);
+    if (debounceMinRef.current) clearTimeout(debounceMinRef.current);
+    debounceMinRef.current = setTimeout(() => {
+      onFilterChange("minPrice", sanitized || null);
+    }, PRICE_DEBOUNCE_MS);
+  };
+  const handleMaxChange = (value) => {
+    const sanitized = value === "" ? "" : Math.max(0, Number(value)).toString();
+    setLocalMax(sanitized);
+    if (debounceMaxRef.current) clearTimeout(debounceMaxRef.current);
+    debounceMaxRef.current = setTimeout(() => {
+      onFilterChange("maxPrice", sanitized || null);
+    }, PRICE_DEBOUNCE_MS);
+  };
+  const handleClear = () => {
+    setLocalMin("");
+    setLocalMax("");
+    if (debounceMinRef.current) clearTimeout(debounceMinRef.current);
+    if (debounceMaxRef.current) clearTimeout(debounceMaxRef.current);
+    // Clear both at once
+    onFilterChange("minPrice", null);
+    onFilterChange("maxPrice", null);
+  };
+  // Validation: min > max
+  const hasError =
+    localMin !== "" && localMax !== "" && Number(localMin) > Number(localMax);
+  return (
+    <div className="mb-6">
+      <button
+        onClick={onToggle}
+        className="w-full font-label-md text-label-md text-on-surface mb-3 flex items-center justify-between"
+      >
+        Price Range
+        <span
+          className="material-symbols-outlined text-[18px] transition-transform"
+          style={{
+            transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
+          }}
+        >
+          expand_more
+        </span>
+      </button>
+      {isOpen ? (
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <input
+              type="number"
+              min="0"
+              placeholder="Min"
+              value={localMin}
+              onChange={(e) => handleMinChange(e.target.value)}
+              className={`w-full px-3 py-2 rounded-lg border text-body-sm bg-surface-container-lowest outline-none transition-colors ${
+                hasError
+                  ? "border-error focus:ring-error/30 focus:ring-2"
+                  : "border-outline-variant focus:ring-primary/30 focus:ring-2 focus:border-primary"
+              }`}
+            />
+            <span className="text-on-surface-variant text-body-sm shrink-0">
+              —
+            </span>
+            <input
+              type="number"
+              min="0"
+              placeholder="Max"
+              value={localMax}
+              onChange={(e) => handleMaxChange(e.target.value)}
+              className={`w-full px-3 py-2 rounded-lg border text-body-sm bg-surface-container-lowest outline-none transition-colors ${
+                hasError
+                  ? "border-error focus:ring-error/30 focus:ring-2"
+                  : "border-outline-variant focus:ring-primary/30 focus:ring-2 focus:border-primary"
+              }`}
+            />
+          </div>
+          {hasError && (
+            <p className="text-[12px] text-error flex items-center gap-1">
+              <span className="material-symbols-outlined text-[14px]">error</span>
+              Min price cannot exceed Max price
+            </p>
+          )}
+          {(localMin || localMax) && (
+            <button
+              onClick={handleClear}
+              className="text-body-sm text-primary hover:underline transition-colors flex items-center gap-1"
+            >
+              <span className="material-symbols-outlined text-[14px]">close</span>
+              Clear price range
+            </button>
+          )}
+        </div>
+      ) : null}
+    </div>
+  );
+}
 /**
  * FilterSidebar — collapsible filter panel for course list page.
  *
  * Props:
- *   - filters      : { price: string|null, rating: string|null, level: string|null }
+ *   - filters       : { category, price, rating, level }
+ *   - categories    : [{ _id, cate_name, icon_key, quantity }]
  *   - onFilterChange: (key: string, value: any) => void
  */
-export default function FilterSidebar({ filters, onFilterChange }) {
+export default function FilterSidebar({
+  filters,
+  categories = [],
+  onFilterChange,
+}) {
   const [openSections, setOpenSections] = useState({
+    category: true,
     rating: true,
     level: true,
     price: true,
+    priceRange: true,
     duration: true,
   });
-
   const toggleSection = (key) => {
     setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
   };
-
   return (
     <aside className="w-full lg:w-64 shrink-0">
       <div className="sticky top-24 space-y-stack-lg">
@@ -35,7 +156,68 @@ export default function FilterSidebar({ filters, onFilterChange }) {
           <h3 className="font-label-md text-label-md uppercase tracking-wider text-on-surface-variant mb-4">
             Filters
           </h3>
-
+          {/* ── Category ──────────────────────────────── */}
+          {categories.length > 0 && (
+            <div className="mb-6">
+              <button
+                onClick={() => toggleSection("category")}
+                className="w-full font-label-md text-label-md text-on-surface mb-3 flex items-center justify-between"
+              >
+                Category
+                <span
+                  className="material-symbols-outlined text-[18px] transition-transform"
+                  style={{
+                    transform: openSections.category
+                      ? "rotate(180deg)"
+                      : "rotate(0deg)",
+                  }}
+                >
+                  expand_more
+                </span>
+              </button>
+              {openSections.category ? (
+                <div className="space-y-2">
+                  {/* "All" option */}
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input
+                      className="w-4 h-4 border-outline-variant text-primary"
+                      name="category"
+                      type="radio"
+                      checked={!filters.category}
+                      onChange={() => onFilterChange("category", null)}
+                    />
+                    <span
+                      className={`text-body-sm ${!filters.category ? "text-on-surface font-medium" : "text-on-surface-variant"}`}
+                    >
+                      All Categories
+                    </span>
+                  </label>
+                  {categories.map((cat) => (
+                    <label
+                      key={cat._id}
+                      className="flex items-center gap-3 cursor-pointer"
+                    >
+                      <input
+                        className="w-4 h-4 border-outline-variant text-primary"
+                        name="category"
+                        type="radio"
+                        checked={filters.category === cat.cate_name}
+                        onChange={() =>
+                          onFilterChange("category", cat.cate_name)
+                        }
+                      />
+                      <span
+                        className={`text-body-sm ${filters.category === cat.cate_name ? "text-on-surface font-medium" : "text-on-surface-variant"}`}
+                      >
+                        {cat.cate_name}
+                        
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+          )}
           {/* ── Rating ─────────────────────────────────── */}
           <div className="mb-6">
             <button
@@ -104,7 +286,6 @@ export default function FilterSidebar({ filters, onFilterChange }) {
               </div>
             ) : null}
           </div>
-
           {/* ── Level ──────────────────────────────────── */}
           <div className="mb-6">
             <button
@@ -148,7 +329,6 @@ export default function FilterSidebar({ filters, onFilterChange }) {
               </div>
             ) : null}
           </div>
-
           {/* ── Price ──────────────────────────────────── */}
           <div className="mb-6">
             <button
@@ -194,7 +374,14 @@ export default function FilterSidebar({ filters, onFilterChange }) {
               </div>
             ) : null}
           </div>
-
+          {/* ── Price Range ─────────────────────────────── */}
+          <PriceRangeSection
+            minPrice={filters.minPrice}
+            maxPrice={filters.maxPrice}
+            onFilterChange={onFilterChange}
+            isOpen={openSections.priceRange}
+            onToggle={() => toggleSection("priceRange")}
+          />
           {/* ── Duration ──────────────────────────────── */}
           <div className="mb-6">
             <button

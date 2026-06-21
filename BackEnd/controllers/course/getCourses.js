@@ -1,16 +1,17 @@
 import courseModel from "../../models/course/course.js";
 import categoryModel from "../../models/category.js";
-
 // Ensure the Provider model is registered for populate
 import "../../models/provider.js";
-
 /**
  * GET /api/courses
  *
  * Query params:
  *   - q        : string   — keyword search by course_title
+ *   - sort     : string   — "price_asc" | "price_desc" | "newest" (default)
  *   - category : string   — filter by cate_name (e.g. "Development")
  *   - price    : string   — "Free" | "Paid"
+ *   - minPrice : number   — minimum price filter
+ *   - maxPrice : number   — maximum price filter
  *   - rating   : string   — placeholder (e.g. "4"), chưa query DB
  *   - level    : string   — placeholder (e.g. "Beginner"), chưa query DB
  *   - page     : number   — trang hiện tại (default 1)
@@ -21,21 +22,21 @@ export const getCourses = async (req, res) => {
     const {
       q,
       category,
+      sort,
       price,
+      minPrice,
+      maxPrice,
       rating, // TODO: bổ sung query khi schema có trường rating
       level, // TODO: bổ sung query khi schema có trường level
       page = 1,
       limit = 12,
     } = req.query;
-
     // ── Build filter object ───────────────────────────────────
     const filter = { isActive: true };
-
     // 0. Filter theo keyword tiêu đề khóa học
     if (q) {
       filter.course_title = { $regex: q, $options: "i" };
     }
-
     // 1. Filter theo category name
     //    Cần tìm _id của Category trước, rồi lọc courses theo category_id
     if (category) {
@@ -54,7 +55,6 @@ export const getCourses = async (req, res) => {
         });
       }
     }
-
     // 2. Filter theo Price (Paid / Free)
     //    "Free" → giá thực tế (price hoặc price_promotion) = 0
     //    "Paid" → giá thực tế > 0
@@ -71,36 +71,49 @@ export const getCourses = async (req, res) => {
         ];
       }
     }
-
-    // 3. Rating – placeholder: nhận param nhưng chưa query
+    // 3. Filter theo khoảng giá (Price Range: minPrice / maxPrice)
+    //    Merge với filter.price hiện có (nếu Paid đã set $gt: 0)
+    if (minPrice) {
+      const min = Number(minPrice);
+      if (!isNaN(min) && min >= 0) {
+        filter.price = { ...(filter.price || {}), $gte: min };
+      }
+    }
+    if (maxPrice) {
+      const max = Number(maxPrice);
+      if (!isNaN(max) && max >= 0) {
+        filter.price = { ...(filter.price || {}), $lte: max };
+      }
+    }
+    // 4. Rating – placeholder: nhận param nhưng chưa query
     if (rating) {
       // TODO: Khi schema có trường `rating`, bổ sung:
       // filter.rating = { $gte: Number(rating) };
     }
-
-    // 4. Level – placeholder: nhận param nhưng chưa query
+    // 5. Level – placeholder: nhận param nhưng chưa query
     if (level) {
       // TODO: Khi schema có trường `level`, bổ sung:
       // filter.level = level;
     }
-
+    // ── Sort option ───────────────────────────────────────────
+    let sortOption = { createdAt: -1 }; // default: newest first
+    if (sort === "price_asc") sortOption = { price: 1 };
+    else if (sort === "price_desc") sortOption = { price: -1 };
     // ── Pagination ────────────────────────────────────────────
     const pageNum = Math.max(1, Number(page));
     const limitNum = Math.max(1, Math.min(50, Number(limit))); // cap at 50
     const skip = (pageNum - 1) * limitNum;
-
     // ── Query ─────────────────────────────────────────────────
     const [courses, total] = await Promise.all([
       courseModel
         .find(filter)
         .populate({ path: "category_id", select: "cate_name" })
         .populate({ path: "provider_id", select: "provider_name" })
-        .sort({ createdAt: -1 })
+        .sort(sortOption)
         .skip(skip)
         .limit(limitNum),
       courseModel.countDocuments(filter),
     ]);
-
     // ── Map response ──────────────────────────────────────────
     const data = courses.map((c) => ({
       _id: c._id,
@@ -117,7 +130,6 @@ export const getCourses = async (req, res) => {
       feature: c.feature,
       createdAt: c.createdAt,
     }));
-
     return res.status(200).json({
       message: "Lấy danh sách khóa học thành công!",
       total,
