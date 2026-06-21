@@ -3,9 +3,11 @@ import { Table, Input, Select, Button, Tag, Popconfirm, Space, message } from 'a
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 
-import useGetCourse from "../../../hooks/useCourse/useGetCourse";
 import useLoading from "../../../hooks/useCourse/useLoading";
 import { useAuth } from "../../../contexts/AuthContext";
+import useGetCourse from '../../../hooks/useCourse/useGetCourse';
+import {exportCourseExcel} from '../../../services/adminCourseService';
+
 
 const ManagementCoursePage = () => {
   // --- Quản lý State Bộ lọc ---
@@ -20,7 +22,15 @@ const ManagementCoursePage = () => {
 
   // --- GỌI API THỰC TẾ QUA HOOK (Từ BoxShowCourse) ---
   // searchQuery được truyền thẳng vào biến keyword của hook để search từ Server
-  const { data: showCourses, isFetching, refetch } = useGetCourse(page, pageSize, searchQuery);
+  const {
+    data: showCourses,
+    isFetching,
+    refetch,
+  } = useGetCourse(
+    page,
+    pageSize,
+    searchQuery
+  );
   const loading = useLoading(isFetching, 300);
   const { user } = useAuth();
 
@@ -30,15 +40,15 @@ const ManagementCoursePage = () => {
   }, [searchQuery, selectedCategory, selectedFeature, selectedPrice]);
 
   // --- Chức năng Xóa khóa học qua API ---
-  const handleDeleteCourse = async (id) => {
-    try {
-      await axios.delete(`/api/courses/${id}`); // Thay đổi đường dẫn endpoint cho đúng với dự án của bạn
-      message.success("Xóa khóa học thành công!");
-      refetch(); // Tải lại danh sách từ server sau khi xóa thành công
-    } catch (error) {
-      message.error(error.response?.data?.message || "Xóa khóa học thất bại!");
-    }
-  };
+  // const handleDeleteCourse = async (id) => {
+  //   try {
+  //     await axios.delete(`/api/courses/${id}`); 
+  //     message.success("Xóa khóa học thành công!");
+  //     refetch(); // Tải lại danh sách từ server sau khi xóa thành công
+  //   } catch (error) {
+  //     message.error(error.response?.data?.message || "Xóa khóa học thất bại!");
+  //   }
+  // };
 
   // --- Chức năng Làm mới (Reset bộ lọc và gọi lại API) ---
   const handleRefresh = () => {
@@ -189,7 +199,7 @@ const ManagementCoursePage = () => {
           <Popconfirm
             title="Xóa khóa học"
             description="Bạn chắc chắn muốn xóa khóa học này?"
-            onConfirm={() => handleDeleteCourse(record._id)}
+            // onConfirm={() => handleDeleteCourse(record._id)}
             okText="Yes"
             cancelText="No"
             placement="topRight"
@@ -203,13 +213,43 @@ const ManagementCoursePage = () => {
     },
   ];
 
+  const handleExportExcel = async () => {
+    try {
+      const blob = await exportCourseExcel();
+
+      const url = window.URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+
+      link.href = url;
+      link.download = "courses.xlsx";
+
+      document.body.appendChild(link);
+
+      link.click();
+
+      link.remove();
+
+      window.URL.revokeObjectURL(url);
+
+      message.success("Xuất file Excel thành công!");
+    } catch (error) {
+      console.error(error);
+
+      message.error(
+        error?.response?.data?.message ||
+        "Xuất file Excel thất bại!"
+      );
+    }
+  };
+
   return (
      <div className="">
         {/* Page Header Area */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-gutter">
           <div>
             <h2 className="font-headline-lg text-headline-lg text-on-surface tracking-tight">Quản lý khóa học</h2>
-            <p className="text-on-surface-variant mt-1">Quản lý các chương trình học thuật tương thích trực tiếp với hệ thống dữ liệu API.</p>
+            <p className="text-[12px] mt-1">Quản lý các chương trình học thuật tương thích trực tiếp với hệ thống dữ liệu API.</p>
           </div>
           <div className="flex items-center gap-3">
             <Button onClick={handleRefresh} className="p-2.5 h-auto border border-outline-variant/40 rounded-xl flex items-center justify-center" type="text">
@@ -217,7 +257,7 @@ const ManagementCoursePage = () => {
             </Button>
             <Button type="primary" className="flex items-center gap-2 bg-primary text-white h-auto px-5 py-2.5 rounded-xl font-label-md border-none">
               <span className="material-symbols-outlined text-white">add</span>
-              Add New Course
+              Thêm khóa học mới
             </Button>
           </div>
         </div>
@@ -270,6 +310,13 @@ const ManagementCoursePage = () => {
               ]}
             />
           </div>
+          <Button
+            type="primary"
+            style={{ height: 'auto', padding: '4px 16px' }}
+            onClick={handleExportExcel}
+          >
+            Xuất file excel
+          </Button>
         </div>
 
         {/* Table Section */}
@@ -282,21 +329,24 @@ const ManagementCoursePage = () => {
             className="w-full"
             rowClassName="hover:bg-surface-container-low/30 transition-colors"
             pagination={{
-              current: page,
-              pageSize: pageSize,
-              total: showCourses?.totalCourses || showCourses?.total || filteredCourses.length, 
-              showSizeChanger: true,
-              pageSizeOptions: [5, 10, 20, 50],
-              position: ['bottomRight'],
-              onChange: (p, ps) => {
-                setPage(p);
-                setPageSize(ps);
-              },
-              showTotal: (total, range) => (
-                <p className="font-body-sm text-on-surface-variant m-0 self-center">
-                  Showing <span className="font-semibold text-on-surface">{range[0]} - {range[1]}</span> of <span className="font-semibold text-on-surface">{total}</span> courses
-                </p>
-              ),
+            current: page,
+            pageSize,
+            total: showCourses?.totalCourses || 0,
+            showSizeChanger: true,
+            pageSizeOptions: [5, 10, 20, 50],
+
+            placement: "bottomRight",
+
+            onChange: (p, ps) => {
+              setPage(p);
+              setPageSize(ps);
+            },
+
+            showTotal: (total, range) => (
+              <p className="font-body-sm text-on-surface-variant m-0">
+                Showing {range[0]} - {range[1]} of {total} courses
+              </p>
+            ),
             }}
           />
         </div>

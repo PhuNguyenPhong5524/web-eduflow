@@ -6,6 +6,9 @@ import courseSectionModel from "../../models/course/courseSection.js";
 
 import "../../models/category.js";
 import "../../models/provider.js";
+import providerModel from "../../models/provider.js";
+import ExcelJS from "exceljs";
+
 
 export const getFeaturedCourses = async (req, res) => {
   try {
@@ -105,3 +108,204 @@ export const getCourseById = async (req, res) => {
   }
 };
 
+// Get tất cả danh sách khóa học theo id của provider
+
+export const getAllCourseOfProvider = async (req, res) => {
+  try {
+    const { page = 1, limit = 10, search } = req.query;
+    const skip = (page - 1) * limit;
+    const userId = req.user.userId; // từ authMiddleware
+
+    // Tìm provider theo user đang login
+    const provider = await providerModel.findOne({
+      user_id: userId,
+      status: "approved",
+    });
+
+    if (!provider) {
+      return res.status(403).json({
+        message: "Bạn không có quyền xem khóa học",
+      });
+    }
+
+    // Filter CHỈ course của provider đó
+    const filter = {
+      isActive: true,
+      provider_id: provider._id,
+    };
+
+    // Search theo tên khóa học
+    if (search) {
+      filter.course_title = {
+        $regex: search.trim(),
+        $options: "i",
+      };
+    }
+
+    // Query
+    const courses = await courseModel
+      .find(filter)
+      .populate("category_id", "cate_name")
+      .populate("provider_id", "provider_name")
+      .skip(skip)
+      .limit(Number(limit))
+      .sort({ createdAt: -1 });
+
+    const totalCourses = await courseModel.countDocuments(filter);
+
+    const result = courses.map((c) => ({
+      _id: c._id,
+      category_id: c.category_id?._id,
+      category: c.category_id?.cate_name,
+      provider_id: c.provider_id?._id,
+      provider: c.provider_id?.provider_name,
+      course_title: c.course_title,
+      image_url: c.image_url,
+      price: c.price,
+      price_promotion: c.price_promotion,
+      students: c.students,
+      isActive: c.isActive,
+      feature: c.feature,
+    }));
+
+    return res.status(200).json({
+      message: "Lấy danh sách khóa học thành công!",
+      data: result,
+      page: Number(page),
+      limit: Number(limit),
+      totalCourses,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+export const exportCourseExcel = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+
+    const provider = await providerModel.findOne({
+      user_id: userId,
+      status: "approved",
+    });
+
+    if (!provider) {
+      return res.status(403).json({
+        message: "Bạn không có quyền export",
+      });
+    }
+
+    const courses = await courseModel
+      .find({
+        provider_id: provider._id,
+        isActive: true,
+      })
+      .populate("category_id", "cate_name")
+      .populate("provider_id", "provider_name");
+
+    const workbook = new ExcelJS.Workbook();
+
+    const worksheet = workbook.addWorksheet("Courses");
+    // Tạo header
+    worksheet.columns = [
+      {
+        header: "STT",
+        key: "stt",
+        width: 10,
+      },
+      {
+        header: "ID",
+        key: "_id",
+        width: 30,
+      },
+      {
+        header: "Tên khóa học",
+        key: "course_title",
+        width: 50,
+      },
+      {
+        header: "Danh mục",
+        key: "category",
+        width: 25,
+      },
+      {
+        header: "Nhà cung cấp",
+        key: "provider",
+        width: 30,
+      },
+      {
+        header: "Giá",
+        key: "price",
+        width: 15,
+      },
+      {
+        header: "Học viên",
+        key: "students",
+        width: 15,
+      },
+      {
+        header: "Featured",
+        key: "feature",
+        width: 15,
+      },
+    ];
+    // Tạo data
+    courses.forEach((course, index) => {
+      worksheet.addRow({
+        stt: index + 1,
+        _id: course._id.toString(),
+        course_title: course.course_title,
+        category: course.category_id?.cate_name,
+        provider: course.provider_id?.provider_name,
+        price: course.price,
+        students: course.students,
+        feature: course.feature ? "Yes" : "No",
+      });
+    });
+    // Định dạng giá
+    worksheet.getColumn("price").numFmt = '#,##0 "đ"';
+    // định dạng header
+    worksheet.getRow(1).font = {
+      bold: true,
+    };
+    //  định dạng màu header 
+    const headerRow = worksheet.getRow(1);
+
+    headerRow.font = {
+      bold: true,
+      color: { argb: "FFFFFF" },
+    };
+
+    headerRow.fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "4472C4" },
+    };
+    // center header
+    worksheet.getRow(1).alignment = {
+      vertical: "middle",
+      horizontal: "center",
+    };
+    // trả file về client
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    );
+    // định dạng tên file theo ngày
+    const date = new Date().toISOString().split("T")[0];
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="courses_${date}.xlsx"`
+    );
+
+    await workbook.xlsx.write(res);
+
+    res.end();
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message,
+    });
+  }
+};
