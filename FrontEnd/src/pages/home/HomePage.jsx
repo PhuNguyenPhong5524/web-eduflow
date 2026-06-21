@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   getCategories,
   getFeatureCourses,
@@ -59,12 +59,30 @@ function ProviderSkeleton() {
 
 export default function HomePage() {
   const mainRef = useRef(null);
+  const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
   const [courses, setCourses] = useState([]);
   const [providers, setProviders] = useState([]);
+  const [searchKeyword, setSearchKeyword] = useState("");
   const [loadingCat, setLoadingCat] = useState(true);
   const [loadingCourse, setLoadingCourse] = useState(true);
   const [loadingProv, setLoadingProv] = useState(true);
+
+  const handleSearch = () => {
+    const keyword = searchKeyword.trim();
+    if (keyword) {
+      navigate(`/all-courses?q=${encodeURIComponent(keyword)}`);
+      return;
+    }
+    navigate("/all-courses");
+  };
+
+  const handleSearchKeyDown = (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      handleSearch();
+    }
+  };
 
   useEffect(() => {
     getCategories()
@@ -164,9 +182,16 @@ export default function HomePage() {
                   className="w-full bg-transparent border-none focus:ring-0 text-body-md py-3 outline-none"
                   placeholder="What do you want to learn today?"
                   type="text"
+                  value={searchKeyword}
+                  onChange={(event) => setSearchKeyword(event.target.value)}
+                  onKeyDown={handleSearchKeyDown}
                 />
               </div>
-              <button className="w-full sm:w-auto px-8 py-3.5 bg-primary text-on-primary font-label-md text-label-md rounded-xl shadow-lg hover:shadow-primary/30 transition-all hover:-translate-y-0.5 active:translate-y-0">
+              <button
+                type="button"
+                onClick={handleSearch}
+                className="w-full sm:w-auto px-8 py-3.5 bg-primary text-on-primary font-label-md text-label-md rounded-xl shadow-lg hover:shadow-primary/30 transition-all hover:-translate-y-0.5 active:translate-y-0"
+              >
                 Browse Catalog
               </button>
             </div>

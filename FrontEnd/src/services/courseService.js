@@ -4,6 +4,7 @@ import api from "../lib/api";
  *
  * @param {Object} params
  * @param {string} [params.category]  — filter by cate_name
+ * @param {string} [params.q]         — keyword search by course title
  * @param {string} [params.price]     — "Free" | "Paid"
  * @param {string} [params.rating]    — placeholder
  * @param {string} [params.level]     — placeholder

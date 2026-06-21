@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useSearchParams } from "react-router-dom";
 import { getCourses } from "../../services/courseService";
 import FilterSidebar from "../../components/FilterSidebar";
@@ -12,45 +12,34 @@ export default function CourseSearchPage() {
 
   // Read filters from URL
   const category = searchParams.get("category") || "";
+  const q = searchParams.get("q") || "";
   const price = searchParams.get("price") || null;
   const rating = searchParams.get("rating") || null;
   const level = searchParams.get("level") || null;
   const page = Number(searchParams.get("page")) || 1;
 
-  // ── Data state ────────────────────────────────────────────
-  const [courses, setCourses] = useState([]);
-  const [total, setTotal] = useState(0);
-  const [totalPages, setTotalPages] = useState(0);
-  const [loading, setLoading] = useState(true);
-
-  // ── Fetch courses whenever URL params change ──────────────
-  const fetchCourses = useCallback(async () => {
-    setLoading(true);
-    try {
+  // ── Data query (URL params are the source of truth) ───────
+  const { data, isLoading } = useQuery({
+    queryKey: ["courses", q, category, price, rating, level, page],
+    queryFn: async () => {
       const { data: res } = await getCourses({
         category: category || undefined,
+        q: q || undefined,
         price: price || undefined,
         rating: rating || undefined,
         level: level || undefined,
         page,
         limit: ITEMS_PER_PAGE,
       });
-      setCourses(res.data);
-      setTotal(res.total);
-      setTotalPages(res.totalPages);
-    } catch (error) {
-      console.error("Failed to fetch courses:", error);
-      setCourses([]);
-      setTotal(0);
-      setTotalPages(0);
-    } finally {
-      setLoading(false);
-    }
-  }, [category, price, rating, level, page]);
+      return res;
+    },
+    placeholderData: (previousData) => previousData,
+  });
 
-  useEffect(() => {
-    fetchCourses();
-  }, [fetchCourses]);
+  const courses = data?.data ?? [];
+  const total = data?.total ?? 0;
+  const totalPages = data?.totalPages ?? 0;
+  const loading = isLoading;
 
   // ── Update URL params (filter change resets to page 1) ────
   const handleFilterChange = (key, value) => {
@@ -99,7 +88,7 @@ export default function CourseSearchPage() {
             chevron_right
           </span>
           <span className="font-label-md text-label-md text-primary">
-            {category || "All Courses"}
+            {q ? `Kết quả cho "${q}"` : category || "All Courses"}
           </span>
         </nav>
 
@@ -107,7 +96,7 @@ export default function CourseSearchPage() {
         <section className="mb-stack-lg p-stack-lg rounded-xl bg-linear-to-br from-primary-container to-secondary-container text-on-primary-container relative overflow-hidden">
           <div className="relative z-10 max-w-2xl">
             <h1 className="font-display text-display mb-4">
-              {category || "All Courses"}
+              {q ? `Kết quả cho "${q}"` : category || "All Courses"}
             </h1>
             <p className="font-body-lg text-body-lg opacity-90 leading-relaxed">
               Master the art of building robust, scalable applications. From web
@@ -140,6 +129,7 @@ export default function CourseSearchPage() {
             totalPages={totalPages}
             onPageChange={handlePageChange}
             categoryName={category}
+            keyword={q}
           />
         </div>
       </div>

@@ -8,6 +8,7 @@ import "../../models/provider.js";
  * GET /api/courses
  *
  * Query params:
+ *   - q        : string   — keyword search by course_title
  *   - category : string   — filter by cate_name (e.g. "Development")
  *   - price    : string   — "Free" | "Paid"
  *   - rating   : string   — placeholder (e.g. "4"), chưa query DB
@@ -18,16 +19,22 @@ import "../../models/provider.js";
 export const getCourses = async (req, res) => {
   try {
     const {
+      q,
       category,
       price,
       rating, // TODO: bổ sung query khi schema có trường rating
-      level,  // TODO: bổ sung query khi schema có trường level
+      level, // TODO: bổ sung query khi schema có trường level
       page = 1,
       limit = 12,
     } = req.query;
 
     // ── Build filter object ───────────────────────────────────
     const filter = { isActive: true };
+
+    // 0. Filter theo keyword tiêu đề khóa học
+    if (q) {
+      filter.course_title = { $regex: q, $options: "i" };
+    }
 
     // 1. Filter theo category name
     //    Cần tìm _id của Category trước, rồi lọc courses theo category_id
@@ -54,10 +61,7 @@ export const getCourses = async (req, res) => {
     if (price) {
       if (price === "Free") {
         // Khóa học miễn phí: price = 0 hoặc price_promotion = 0
-        filter.$or = [
-          { price: 0 },
-          { price_promotion: 0 },
-        ];
+        filter.$or = [{ price: 0 }, { price_promotion: 0 }];
       } else if (price === "Paid") {
         // Khóa học trả phí: price > 0 VÀ (price_promotion > 0 hoặc null)
         filter.price = { $gt: 0 };

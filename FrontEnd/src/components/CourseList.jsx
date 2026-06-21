@@ -68,7 +68,10 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
       {getPageNumbers().map((page, idx) => {
         if (page === "...") {
           return (
-            <span key={`ellipsis-${idx}`} className="text-on-surface-variant px-2">
+            <span
+              key={`ellipsis-${idx}`}
+              className="text-on-surface-variant px-2"
+            >
               ...
             </span>
           );
@@ -122,7 +125,10 @@ export default function CourseList({
   totalPages,
   onPageChange,
   categoryName,
+  keyword,
 }) {
+  const activeLabel = keyword || categoryName;
+
   return (
     <div className="flex-1">
       {/* Top bar */}
@@ -133,12 +139,12 @@ export default function CourseList({
             {total.toLocaleString("en-US")}
           </span>{" "}
           results
-          {categoryName ? (
+          {activeLabel ? (
             <>
               {" "}
               for{" "}
               <span className="text-on-surface font-semibold">
-                &ldquo;{categoryName}&rdquo;
+                &ldquo;{activeLabel}&rdquo;
               </span>
             </>
           ) : null}
