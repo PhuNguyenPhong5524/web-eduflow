@@ -1,47 +1,6 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-const INITIAL_CART_ITEMS = [
-  {
-    id: "course-1",
-    title: "Advanced UI Design Systems",
-    instructor: "Sarah Drasner",
-    duration: "12 hours total",
-    rating: "4.9",
-    reviews: 1240,
-    price: 89.99,
-    originalPrice: null,
-    tag: "Bestseller",
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuAEdObiqhi_Apcnw0uQqEGOzA5yF62u9Do2GeON0J3uh9pIVkb5Z6Io9xThatwAe1fy3pt6hfNlVj9K2Zgr9Rsav2hew231NGQF_18uj6spnd-2I7nL1O9HjZAYxVCjqWffkewKNUBw0UpoP9GNi6_UZpLDd-lv7UmecICWZcliB4pDlWtOkuVrZOmQOhkwHdvH_R_MAQT-ctKXB9RAxrQhZwDYFDqNf7dIJuBpO_z7nGYp6QutLV0j7l8hHe6-nXDtyptwtZDgJLA",
-  },
-  {
-    id: "course-2",
-    title: "Modern React Patterns 2024",
-    instructor: "Dan Abramov",
-    duration: "18 hours total",
-    rating: "5.0",
-    reviews: 2840,
-    price: 54.99,
-    originalPrice: 129.99,
-    tag: null,
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuC83s3mo3i7CCO-0ZcWcNezGGBJSIVz2Iq5i6R7fvARKDN4kBhsFiaT8nAwP_OcHqiNtO8B7vMF3i5Da7-va124-ZiP6cvHur3Chj8-ddX0xIQIiu8Cvl_vcevVr0ft_XnQ2rtOquDhe5u9PIrQ8QyK74bbFLTD1ZWknEvH6PrQWb21azN5r0gCo1GAWht5OeHVfasG6imPcmHlP_ZeJjYSm7Vctf8F-6FaXwotRrjqv9exvS0xViHRkkfhT_4dmfd-aowiGk1VavY",
-  },
-  {
-    id: "course-3",
-    title: "Data Science Fundamentals",
-    instructor: "Andrew Ng",
-    duration: "24 hours total",
-    rating: "4.8",
-    reviews: 8920,
-    price: 109.99,
-    originalPrice: null,
-    tag: null,
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuDIYw70MGqlYvB7pZwosAUsKFmwm2YbjeTKB_OH6N5WmIbst3-DQwxJwtSZqJ6vQdRj1UUTe7m3LyF5d32QSKPni5S4orbQXg2wD40wpf0rp9G1GgQdWZEz4yEUFw8xHqR01pV6xlBpGoPPUoSSpTTXwjK8vMc49aTRb9OaWPiprG8TICNzh4jM3zz61YpOnPYJDCss8xp9YxqHywTs9bmN5jPed9InuVayZ6_3Bx9V383fQrohSTMFwSEPCp_9uuH9wReT8SXc3JY",
-  },
-];
+import { useCart } from "../../contexts/CartContext";
 
 const RECOMMENDATIONS = [
   {
@@ -60,16 +19,21 @@ const RECOMMENDATIONS = [
   },
 ];
 
-const TAX = 4.99;
 const COUPON_DISCOUNT = 15;
 
+const currencyFormatter = new Intl.NumberFormat("vi-VN", {
+  style: "currency",
+  currency: "VND",
+  maximumFractionDigits: 0,
+});
+
 function formatMoney(value) {
-  return `$${value.toFixed(2)}`;
+  return currencyFormatter.format(value);
 }
 
 export default function ShoppingCartPage() {
   const navigate = useNavigate();
-  const [cartItems, setCartItems] = useState(INITIAL_CART_ITEMS);
+  const { cartItems, removeFromCart } = useCart();
   const [removingItemIds, setRemovingItemIds] = useState(new Set());
   const [couponCode, setCouponCode] = useState("");
   const [isCouponApplied, setIsCouponApplied] = useState(false);
@@ -78,7 +42,7 @@ export default function ShoppingCartPage() {
     setRemovingItemIds((prev) => new Set(prev).add(itemId));
 
     window.setTimeout(() => {
-      setCartItems((prev) => prev.filter((item) => item.id !== itemId));
+      removeFromCart(itemId);
       setRemovingItemIds((prev) => {
         const next = new Set(prev);
         next.delete(itemId);
@@ -113,7 +77,9 @@ export default function ShoppingCartPage() {
 
   const couponDiscount = isCouponApplied ? COUPON_DISCOUNT : 0;
   const totalDiscount = saleDiscount + couponDiscount;
-  const total = Math.max(originalPrice - totalDiscount + TAX, 0);
+  const taxableAmount = Math.max(originalPrice - totalDiscount, 0);
+  const tax = cartItems.length > 0 ? taxableAmount * 0.1 : 0;
+  const total = taxableAmount + tax;
 
   return (
     <main className="grow pt-24 pb-stack-lg px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto w-full min-h-screen">
@@ -283,7 +249,7 @@ export default function ShoppingCartPage() {
                 </div>
                 <div className="flex justify-between font-body-md text-on-surface-variant">
                   <span>Tax</span>
-                  <span>{formatMoney(TAX)}</span>
+                  <span>{formatMoney(tax)}</span>
                 </div>
                 <div className="h-px bg-outline-variant/30 my-4" />
                 <div className="flex justify-between items-center">

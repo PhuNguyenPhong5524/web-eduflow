@@ -1,23 +1,16 @@
 import { useState } from "react";
-import {
-  Form,
-  Input,
-  Button,
-  Card,
-  Typography,
-  message,
-  Alert,
-} from "antd";
-import {
-  LockOutlined,
-} from "@ant-design/icons";
-import { Link } from "react-router-dom";
+import { Form, Input, Button, Card, Typography, message, Alert } from "antd";
+import { LockOutlined } from "@ant-design/icons";
+import { Link, useNavigate } from "react-router-dom";
 import { changePassword } from "../../services/userService";
+import { useAuth } from "../../contexts/AuthContext";
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
 
 export default function ChangePasswordPage() {
   const [form] = Form.useForm();
+  const navigate = useNavigate();
+  const { logout } = useAuth();
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
@@ -28,17 +21,18 @@ export default function ChangePasswordPage() {
 
       await changePassword(
         values.currentPassword,
-        values.newPassword
+        values.newPassword,
+        values.confirmPassword,
       );
 
-      message.success("Đổi mật khẩu thành công!");
+      message.success("Đổi mật khẩu thành công. Vui lòng đăng nhập lại!");
+
+      await logout();
+      navigate("/login", { replace: true });
 
       form.resetFields();
     } catch (err) {
-      setError(
-        err?.response?.data?.message ||
-          "Không thể cập nhật mật khẩu."
-      );
+      setError(err?.response?.data?.message || "Không thể cập nhật mật khẩu.");
     } finally {
       setSaving(false);
     }
@@ -48,9 +42,7 @@ export default function ChangePasswordPage() {
     <div className="max-w-4xl mx-auto my-10">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold">
-          Thay đổi mật khẩu
-        </h1>
+        <h1 className="text-3xl font-bold">Thay đổi mật khẩu</h1>
 
         <div className="flex items-center gap-1 text-sm text-gray-500">
           <span>
@@ -77,19 +69,10 @@ export default function ChangePasswordPage() {
         }
       >
         {error && (
-          <Alert
-            type="error"
-            message={error}
-            showIcon
-            className="mb-5"
-          />
+          <Alert type="error" message={error} showIcon className="mb-5" />
         )}
 
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleSubmit}
-        >
+        <Form form={form} layout="vertical" onFinish={handleSubmit}>
           <Form.Item
             label="Mật khẩu hiện tại"
             name="currentPassword"
@@ -100,9 +83,7 @@ export default function ChangePasswordPage() {
               },
             ]}
           >
-            <Input.Password
-              placeholder="Nhập mật khẩu hiện tại"
-            />
+            <Input.Password placeholder="Nhập mật khẩu hiện tại" />
           </Form.Item>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -116,14 +97,11 @@ export default function ChangePasswordPage() {
                 },
                 {
                   min: 6,
-                  message:
-                    "Mật khẩu phải có ít nhất 6 ký tự",
+                  message: "Mật khẩu phải có ít nhất 6 ký tự",
                 },
               ]}
             >
-              <Input.Password
-                placeholder="Nhập mật khẩu mới"
-              />
+              <Input.Password placeholder="Nhập mật khẩu mới" />
             </Form.Item>
 
             <Form.Item
@@ -133,39 +111,27 @@ export default function ChangePasswordPage() {
               rules={[
                 {
                   required: true,
-                  message:
-                    "Vui lòng xác nhận mật khẩu mới",
+                  message: "Vui lòng xác nhận mật khẩu mới",
                 },
                 ({ getFieldValue }) => ({
                   validator(_, value) {
-                    if (
-                      !value ||
-                      getFieldValue("newPassword") === value
-                    ) {
+                    if (!value || getFieldValue("newPassword") === value) {
                       return Promise.resolve();
                     }
 
                     return Promise.reject(
-                      new Error(
-                        "Mật khẩu xác nhận không khớp"
-                      )
+                      new Error("Mật khẩu xác nhận không khớp"),
                     );
                   },
                 }),
               ]}
             >
-              <Input.Password
-                placeholder="Nhập lại mật khẩu mới"
-              />
+              <Input.Password placeholder="Nhập lại mật khẩu mới" />
             </Form.Item>
           </div>
 
           <div className="flex justify-end">
-            <Button
-              type="primary"
-              htmlType="submit"
-              loading={saving}
-            >
+            <Button type="primary" htmlType="submit" loading={saving}>
               Lưu thay đổi
             </Button>
           </div>
@@ -179,14 +145,11 @@ export default function ChangePasswordPage() {
         </Text>
 
         <div className="mt-2">
-          <Link
-            to="/support"
-            className="text-primary hover:underline"
-          >
+          <Link to="/support" className="text-primary hover:underline">
             Liên hệ bộ phận hỗ trợ bảo mật
           </Link>
         </div>
       </div>
     </div>
   );
-};
+}

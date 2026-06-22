@@ -4,9 +4,11 @@ import { Avatar, Dropdown, message, Modal } from "antd";
 import { DownOutlined } from "@ant-design/icons";
 import { useAuth } from "../../contexts/AuthContext";
 import { NavLink } from "react-router-dom";
+import { useCart } from "../../contexts/CartContext";
 
 const Header = () => {
   const { user, logout } = useAuth();
+  const { itemCount } = useCart();
   const navigate = useNavigate();
   const [searchKeyword, setSearchKeyword] = useState("");
 
@@ -143,13 +145,18 @@ const Header = () => {
           <div className="flex items-center gap-2">
             <button
               type="button"
-              className="p-2 hover:bg-primary-container/10 rounded-full transition-colors active:scale-95"
+              className="relative p-2 hover:bg-primary-container/10 rounded-full transition-colors active:scale-95"
               onClick={() => navigate("/cart")}
-              aria-label="Shopping cart"
+              aria-label={`Shopping cart with ${itemCount} item${itemCount === 1 ? "" : "s"}`}
             >
               <span className="material-symbols-outlined text-on-surface-variant">
                 shopping_cart
               </span>
+              {itemCount > 0 ? (
+                <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-error text-on-error text-[10px] font-bold leading-5 text-center">
+                  {itemCount > 99 ? "99+" : itemCount}
+                </span>
+              ) : null}
             </button>
             <button className="p-2 hover:bg-primary-container/10 rounded-full transition-colors active:scale-95">
               <span className="material-symbols-outlined text-on-surface-variant">

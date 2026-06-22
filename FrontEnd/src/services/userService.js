@@ -1,7 +1,11 @@
 import api from "../lib/api";
 
-export const changePassword = (currentPassword, newPassword) =>
-  api.post("/users/change-password", { currentPassword, newPassword });
+export const changePassword = (currentPassword, newPassword, confirmPassword) =>
+  api.put("/users/change-password", {
+    currentPassword,
+    newPassword,
+    confirmPassword,
+  });
 
 export const updateAvatar = (formData) =>
   api.patch("/users/avatar", formData, {
