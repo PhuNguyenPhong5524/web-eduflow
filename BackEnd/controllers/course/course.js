@@ -309,3 +309,64 @@ export const exportCourseExcel = async (req, res) => {
     });
   }
 };
+
+
+// Thêm khóa học mới 
+
+export const createCourse = async (req, res) => {
+  try {
+    const {
+      category_id,
+      course_title,
+      price,
+      image_url,
+      video_url,
+      description,
+      duration,
+      feature
+    } = req.body;
+
+    if (!category_id || !course_title || price === undefined) {
+      return res.status(400).json({
+        message: "Missing required fields"
+      });
+    }
+
+    // LẤY userId từ token
+    const userId = req.user.userId;
+
+    // TÌM provider THEO user_id
+    const provider = await providerModel.findOne({
+      user_id: userId,
+      status: "approved"
+    });
+
+    if (!provider) {
+      return res.status(403).json({
+        message: "Tài khoản chưa được duyệt làm nhà cung cấp!"
+      });
+    }
+
+    // tạo course với provider._id
+    const newCourse = await courseModel.create({
+      category_id,
+      provider_id: provider._id,
+      course_title,
+      price,
+      image_url,
+      video_url,
+      description,
+      duration,
+      feature
+    });
+
+    return res.status(201).json({
+      message: "Tạo course thành công",
+      course: newCourse
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message
+    });
+  }
+};

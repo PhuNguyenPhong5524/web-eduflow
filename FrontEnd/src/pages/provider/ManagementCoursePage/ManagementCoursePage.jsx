@@ -7,6 +7,7 @@ import useLoading from "../../../hooks/useCourse/useLoading";
 import { useAuth } from "../../../contexts/AuthContext";
 import useGetCourse from '../../../hooks/useCourse/useGetCourse';
 import {exportCourseExcel} from '../../../services/adminCourseService';
+import BoxAddinfoCourse from './BoxAddinfoCourse/BoxAddinfoCourse';
 
 
 const ManagementCoursePage = () => {
@@ -100,7 +101,7 @@ const ManagementCoursePage = () => {
       render: (id) => <span title={id}>{id?.substring(0, 8)}...</span>
     },
     {
-      title: 'Course Info',
+      title: 'Tên khóa học',
       key: 'courseInfo',
       render: (_, record) => (
         <div className="flex items-center gap-4 group">
@@ -122,20 +123,20 @@ const ManagementCoursePage = () => {
       ),
     },
     {
-      title: 'Category',
+      title: 'Danh mục',
       dataIndex: 'category',
       key: 'category',
       className: 'font-body-sm text-on-surface-variant',
       render: (text) => text ? <Tag color="pink">{text}</Tag> : <span className="text-gray-400">---</span>,
     },
     {
-      title: 'Price',
+      title: 'Giá',
       dataIndex: 'price',
       key: 'price',
       className: 'font-label-md text-on-surface font-semibold',
       render: (_, record) => {
-        const price = record.price === 0 ? 'Free' : `${record.price?.toLocaleString('vi-VN')} đ`;
-        const promo = record.price_promotion > 0 ? `${record.price_promotion?.toLocaleString('vi-VN')} đ` : null;
+        const price = record.price === 0 ? 'Free' : `${record.price?.toLocaleString('vi-VN')} `;
+        const promo = record.price_promotion > 0 ? `${record.price_promotion?.toLocaleString('vi-VN')} ` : null;
 
         return promo ? (
           <div>
@@ -149,7 +150,7 @@ const ManagementCoursePage = () => {
       }
     },
     {
-      title: 'Students',
+      title: 'Học viên',
       dataIndex: 'students',
       key: 'students',
       align: 'center',
@@ -159,13 +160,6 @@ const ManagementCoursePage = () => {
           {(students || 0).toLocaleString()}
         </div>
       ),
-    },
-    {
-      title: 'Duration',
-      dataIndex: 'duration',
-      key: 'duration',
-      align: 'center',
-      className: 'text-xs text-on-surface-variant'
     },
     {
       title: 'Type',
@@ -255,10 +249,9 @@ const ManagementCoursePage = () => {
             <Button onClick={handleRefresh} className="p-2.5 h-auto border border-outline-variant/40 rounded-xl flex items-center justify-center" type="text">
               <span className="material-symbols-outlined text-on-surface-variant">refresh</span>
             </Button>
-            <Button type="primary" className="flex items-center gap-2 bg-primary text-white h-auto px-5 py-2.5 rounded-xl font-label-md border-none">
-              <span className="material-symbols-outlined text-white">add</span>
-              Thêm khóa học mới
-            </Button>
+            <BoxAddinfoCourse 
+              refetch={refetch} 
+            />
           </div>
         </div>
 

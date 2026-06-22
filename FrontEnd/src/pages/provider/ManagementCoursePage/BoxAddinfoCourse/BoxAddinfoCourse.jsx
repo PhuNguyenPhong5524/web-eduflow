@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Modal, Form, Input, Button, Select } from "antd";
-import useFetchCategory from "../../../../../hooks/useCourse/useFetchCategory";
-import useAuth from "../../../../../hooks/useAuth";
-import usePostCourse from "../../../../../hooks/useCourse/usePostCourse";
+import useFetchCategory from "../../../../hooks/useCourse/useFetchCategory";
+import { useAuth } from "../../../../contexts/AuthContext";
+import usePostCourse from "../../../../hooks/useCourse/usePostCourse";
 import { notification } from "antd";
 
 import { useNavigate } from "react-router-dom";
@@ -17,7 +17,6 @@ const BoxAddinfoCourse = ({ refetch }) => {
   const { data: categoryData, isLoading: categoryLoading } = useFetchCategory();
   const { user } = useAuth();
   const { mutate: addCourse, isPending } = usePostCourse();
-
   const navigate = useNavigate();
   const handleSubmit = (values) => {
     const payload = {
@@ -47,17 +46,17 @@ const BoxAddinfoCourse = ({ refetch }) => {
         const status = error?.response?.status;
 
         if (status === 401) {
-          // ✅ Báo lỗi TRƯỚC
+          // Báo lỗi TRƯỚC
           notification.error({
             title: "Phiên đăng nhập đã hết hạn!",
             description: "Vui lòng đăng nhập lại",
           });
 
-          // ✅ Xóa token
+          // Xóa token
           localStorage.removeItem("accessToken");
           localStorage.removeItem("refreshToken");
 
-          // ✅ Chuyển trang SAU
+          // Chuyển trang SAU
           setTimeout(() => {
             navigate("/login");
           }, 1500);
@@ -74,16 +73,17 @@ const BoxAddinfoCourse = ({ refetch }) => {
 
   return (
     <>
-      <button
-        onClick={() => setOpen(true)}
+      <Button 
+        type="primary"
+        onClick={() => setOpen(true)} 
         className="
-          bg-[#FF7D35] text-white px-4 py-2 rounded
-          hover:scale-95 hover:opacity-70 transition cursor-pointer
+          flex items-center gap-2 bg-primary text-white h-auto px-5 py-2.5 
+          rounded-xl font-label-md border-none
         "
       >
-        + Thêm khóa học
-      </button>
-
+        <span className="material-symbols-outlined text-white">add</span>
+        Thêm khóa học mới
+      </Button>
       <Modal
         open={open}
         onCancel={() => setOpen(false)}
@@ -119,7 +119,7 @@ const BoxAddinfoCourse = ({ refetch }) => {
                 loading={categoryLoading}
                 placeholder="Chọn danh mục"
               >
-                {categoryData?.categories.map((item) => (
+                {categoryData?.data.map((item) => (
                   <Option key={item._id} value={item._id}>
                     {item.cate_name}
                   </Option>

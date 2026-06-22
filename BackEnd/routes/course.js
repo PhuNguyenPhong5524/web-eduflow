@@ -1,5 +1,6 @@
 import { Router } from "express";
 import {
+  createCourse,
   exportCourseExcel,
   getAllCourseOfProvider,
   getCourseById,
@@ -33,4 +34,15 @@ routerCourse.get("/courses/featured", getFeaturedCourses);
 routerCourse.get("/courses-feature", getFeaturedCourses);
 // Khóa học detail
 routerCourse.get("/courses/:id", getCourseById);
+
+// Thêm khóa học mới 
+routerCourse.post(
+  "/courses",
+  authMiddleware, 
+  authorizeRole('provider'), 
+  createCourse
+);
+
+
+
 export default routerCourse;

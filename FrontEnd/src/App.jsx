@@ -23,6 +23,7 @@ import DetailPage from "./pages/detailPage/DetailPage";
 import ProviderLayout from "./layouts/ProviderLayout";
 import ManagementCoursePage from "./pages/provider/ManagementCoursePage/ManagementCoursePage";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import BoxShowDetailCourses from "./pages/provider/ManagementCoursePage/BoxShowDetailCoures/BoxShowDetailCourses";
 
 const queryClient = new QueryClient();
 
@@ -95,6 +96,14 @@ function App() {
                 element={
                   <ProtectedRoute roles={["provider"]}>
                     <ManagementCoursePage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="courses/detail/:id"
+                element={
+                  <ProtectedRoute roles={["provider"]}>
+                    <BoxShowDetailCourses />
                   </ProtectedRoute>
                 }
               />
