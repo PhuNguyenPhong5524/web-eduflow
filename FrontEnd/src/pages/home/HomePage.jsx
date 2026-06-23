@@ -154,23 +154,20 @@ export default function HomePage() {
               >
                 auto_awesome
               </span>
-              <span className="font-label-sm text-label-sm text-primary tracking-wide">
-                TRUSTED BY 2M+ LEARNERS
+              <span className="font-label-sm text-label-sm text-primary tracking-wide uppercase">
+                Hơn 2 triệu học viên tin tưởng
               </span>
             </div>
 
             <h1 className="font-display text-display mb-8 leading-[1.1]">
-              Unlock Your Potential with{" "}
+              Khai phá tiềm năng cùng các khóa học từ{" "}
               <span className="bg-clip-text text-transparent bg-linear-to-r from-primary to-tertiary">
-                Expert-Led
-              </span>{" "}
-              Courses
+                Chuyên gia
+              </span>
             </h1>
 
             <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto mb-10 opacity-90">
-              Master new skills from the world&apos;s top instructors. Flexible
-              learning designed to help you reach your professional goals and
-              artistic dreams.
+              Làm chủ các kỹ năng mới từ những giảng viên hàng đầu thế giới. Chương trình học linh hoạt được thiết kế để giúp bạn đạt được mục tiêu nghề nghiệp và đam mê sáng tạo.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 max-w-2xl mx-auto glass-card p-2 rounded-2xl shadow-xl">
@@ -180,7 +177,7 @@ export default function HomePage() {
                 </span>
                 <input
                   className="w-full bg-transparent border-none focus:ring-0 text-body-md py-3 outline-none"
-                  placeholder="What do you want to learn today?"
+                  placeholder="Bạn muốn học gì hôm nay?"
                   type="text"
                   value={searchKeyword}
                   onChange={(event) => setSearchKeyword(event.target.value)}
@@ -192,13 +189,13 @@ export default function HomePage() {
                 onClick={handleSearch}
                 className="w-full sm:w-auto px-8 py-3.5 bg-primary text-on-primary font-label-md text-label-md rounded-xl shadow-lg hover:shadow-primary/30 transition-all hover:-translate-y-0.5 active:translate-y-0"
               >
-                Browse Catalog
+                Khám phá ngay
               </button>
             </div>
 
             <div className="mt-12 flex flex-wrap justify-center gap-8 opacity-60">
               <span className="font-label-md flex items-center gap-2 italic">
-                Trusted by
+                Được tin dùng bởi
               </span>
               <span className="font-headline-md font-extrabold tracking-tighter">
                 CLOUDSTRAT
@@ -218,17 +215,17 @@ export default function HomePage() {
           <div className="flex items-end justify-between mb-stack-lg">
             <div>
               <h2 className="font-headline-lg text-headline-lg mb-2">
-                Explore Popular Categories
+                Khám phá Danh mục Phổ biến
               </h2>
               <p className="font-body-md text-on-surface-variant">
-                Tailored paths for your personal growth.
+                Lộ trình được cá nhân hóa cho sự phát triển của bạn.
               </p>
             </div>
             <Link
               className="text-primary font-label-md hover:underline flex items-center gap-1 group"
               to="/courses/search"
             >
-              View All{" "}
+              Xem tất cả{" "}
               <span className="material-symbols-outlined group-hover:translate-x-1 transition-transform">
                 arrow_forward
               </span>
@@ -248,8 +245,8 @@ export default function HomePage() {
                 />
                 <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent" />
                 <div className="absolute bottom-0 left-0 p-8 text-white">
-                  <span className="px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-xs font-bold mb-4 inline-block">
-                    {categories[0].quantity}+ COURSES
+                  <span className="px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-xs font-bold mb-4 inline-block uppercase">
+                    {categories[0].quantity}+ Khóa học
                   </span>
                   <h3 className="font-headline-lg text-headline-lg mb-2">
                     {categories[0].cate_name}
@@ -291,10 +288,10 @@ export default function HomePage() {
           <div className="px-margin-mobile md:px-margin-desktop max-w-7xl mx-auto">
             <div className="text-center mb-12">
               <h2 className="font-headline-lg text-headline-lg mb-3">
-                Trending Courses
+                Khóa học Nổi bật
               </h2>
               <p className="font-body-md text-on-surface-variant">
-                The most highly-rated sessions this month.
+                Những khóa học được đánh giá cao nhất trong tháng.
               </p>
             </div>
 
@@ -316,7 +313,7 @@ export default function HomePage() {
                         />
                         {course.price_promotion !== null && (
                           <div className="absolute top-3 left-3 px-2 py-1 bg-error text-on-error rounded-lg font-label-sm text-[10px] tracking-wider uppercase">
-                            Sale
+                            Giảm giá
                           </div>
                         )}
                       </div>
@@ -445,7 +442,7 @@ export default function HomePage() {
                       15,000+
                     </p>
                     <p className="font-label-sm text-label-sm text-on-surface-variant">
-                      Certified Students
+                      Học viên Đạt chứng chỉ
                     </p>
                   </div>
                 </div>
@@ -455,30 +452,28 @@ export default function HomePage() {
             {/* Text side */}
             <div className="lg:w-1/2">
               <h2 className="font-headline-lg text-headline-lg mb-6">
-                Why EduFlow is the #1 Choice for Digital Learning
+                Vì sao EduFlow là Lựa chọn Số 1 cho Học tập Trực tuyến
               </h2>
               <p className="font-body-md text-on-surface-variant mb-10">
-                We believe in quality over quantity. Our platform is curated by
-                industry experts to ensure you&apos;re learning the most
-                relevant skills for today&apos;s market.
+                Chúng tôi tin vào chất lượng hơn số lượng. Nền tảng được tinh tuyển bởi các chuyên gia trong ngành, đảm bảo bạn học được những kỹ năng thực tiễn nhất cho thị trường hiện tại.
               </p>
 
               <div className="space-y-8">
                 {[
                   {
                     icon: "school",
-                    title: "Elite Instructors",
-                    desc: "Learn from professionals currently working at Google, Apple, and Netflix.",
+                    title: "Giảng viên Tinh hoa",
+                    desc: "Học hỏi từ các chuyên gia đang làm việc tại Google, Apple và Netflix.",
                   },
                   {
                     icon: "all_inclusive",
-                    title: "Lifetime Access",
-                    desc: "Buy once, learn forever. Get all future updates to the course at no extra cost.",
+                    title: "Truy cập Trọn đời",
+                    desc: "Mua một lần, học mãi mãi. Nhận toàn bộ các bản cập nhật tương lai của khóa học hoàn toàn miễn phí.",
                   },
                   {
                     icon: "groups",
-                    title: "Private Community",
-                    desc: "Join exclusive Discord channels for networking and collaborative learning.",
+                    title: "Cộng đồng Riêng tư",
+                    desc: "Tham gia các kênh Discord độc quyền để kết nối và học tập cùng nhau.",
                   },
                 ].map((item) => (
                   <div key={item.title} className="flex gap-4 group">
@@ -509,21 +504,20 @@ export default function HomePage() {
             <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-12">
               <div className="max-w-xl">
                 <h2 className="font-display text-[40px] text-inverse-on-surface mb-6 leading-tight">
-                  Ready to start your professional journey?
+                  Sẵn sàng bắt đầu hành trình phát triển sự nghiệp?
                 </h2>
                 <p className="font-body-lg text-white/70 mb-8">
-                  Join 2 million learners and start building your future today
-                  with 7 days of free premium access.
+                  Gia nhập cùng 2 triệu học viên và kiến tạo tương lai của bạn ngay hôm nay với 7 ngày trải nghiệm miễn phí gói cao cấp.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4">
                   <Link
                     to="/register"
                     className="px-8 py-4 bg-primary text-on-primary rounded-xl font-label-md text-label-md shadow-xl hover:shadow-primary/40 transition-all hover:-translate-y-0.5 text-center"
                   >
-                    Join Now for Free
+                    Tham gia miễn phí ngay
                   </Link>
                   <button className="px-8 py-4 border border-white/20 text-white rounded-xl font-label-md text-label-md hover:bg-white/10 transition-all">
-                    View All Plans
+                    Xem các gói cước
                   </button>
                 </div>
               </div>

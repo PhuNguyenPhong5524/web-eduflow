@@ -11,6 +11,7 @@ import InstructorDashboardPage from "./pages/provider/InstructorDashboardPage";
 import InstructorProfilePage from "./pages/provider/InstructorProfilePage";
 import AdminDashboardPage from "./pages/admin/AdminDashboardPage";
 import AdminUsersPage from "./pages/admin/AdminUsersPage";
+import AdminCategoriesPage from "./pages/admin/AdminCategoriesPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminLayout from "./layouts/AdminLayout";
 import CustomerLayout from "./layouts/CustomerLayout";
@@ -115,6 +116,16 @@ function App() {
                 <ProtectedRoute roles={["admin"]}>
                   <AdminLayout title="Users">
                     <AdminUsersPage />
+                  </AdminLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/categories"
+              element={
+                <ProtectedRoute roles={["admin"]}>
+                  <AdminLayout title="Categories">
+                    <AdminCategoriesPage />
                   </AdminLayout>
                 </ProtectedRoute>
               }

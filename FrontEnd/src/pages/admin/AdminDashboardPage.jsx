@@ -34,9 +34,9 @@ const NAV_ITEMS = [
   {
     icon: "category",
     label: "Categories",
-    to: "#",
+    to: "/admin/categories",
     active: false,
-    disabled: true,
+    disabled: false,
   },
   {
     icon: "settings",
