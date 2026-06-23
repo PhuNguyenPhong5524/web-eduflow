@@ -370,3 +370,81 @@ export const createCourse = async (req, res) => {
     });
   }
 };
+
+
+export const UpdateCourse = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const {
+      category_id,
+      course_title,
+      price,
+      image_url,
+      video_url,
+      description,
+      duration,
+      feature,
+    } = req.body;
+
+    if (!id) {
+      return res.status(400).json({
+        message: "Thiếu id khóa học",
+      });
+    }
+
+    if (!category_id || !course_title || price === undefined) {
+      return res.status(400).json({
+        message: "Missing required fields",
+      });
+    }
+
+    // lấy userId từ token
+    const userId = req.user.userId;
+
+    // tìm provider theo user
+    const provider = await providerModel.findOne({
+      user_id: userId,
+      status: "approved",
+    });
+
+    if (!provider) {
+      return res.status(403).json({
+        message: "Tài khoản chưa được duyệt làm nhà cung cấp!",
+      });
+    }
+
+    // kiểm tra course tồn tại & thuộc provider này
+    const course = await courseModel.findOne({
+      _id: id,
+      provider_id: provider._id,
+    });
+
+    if (!course) {
+      return res.status(404).json({
+        message: "Không tìm thấy khóa học hoặc không có quyền chỉnh sửa",
+      });
+    }
+
+    // cập nhật
+    course.category_id = category_id;
+    course.course_title = course_title;
+    course.price = price;
+    course.image_url = image_url;
+    course.video_url = video_url || "";
+    course.description = description;
+    course.duration = duration;
+    course.feature = feature ?? course.feature;
+
+    await course.save();
+
+    return res.status(200).json({
+      message: "Cập nhật khóa học thành công",
+      course,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message,
+    });
+  }
+};

@@ -5,6 +5,7 @@ import {
   getAllCourseOfProvider,
   getCourseById,
   getFeaturedCourses,
+  UpdateCourse,
 } from "../controllers/course/course.js";
 import { getCourses } from "../controllers/course/getCourses.js";
 import authorizeRole  from "../middleware/authorizeRole.js";
@@ -43,6 +44,12 @@ routerCourse.post(
   createCourse
 );
 
-
+// Cập nhật khóa học
+routerCourse.put(
+  "/courses/:id", 
+  authMiddleware, 
+  authorizeRole('provider'), 
+  UpdateCourse  
+);
 
 export default routerCourse;

@@ -1,89 +1,100 @@
-import { useState } from "react";
-import { Modal, Form, Input, Button, Select } from "antd";
-import useFetchCategory from "../../../../hooks/useCourse/useFetchCategory";
-import { useAuth } from "../../../../contexts/AuthContext";
-import usePostCourse from "../../../../hooks/useCourse/usePostCourse";
-import { notification } from "antd";
-
+import { useEffect, useState } from "react";
+import { Modal, Form, Input, Button, Select, notification } from "antd";
 import { useNavigate } from "react-router-dom";
 
+import useFetchCategory from "../../../../../../hooks/useCourse/useFetchCategory";
+import { useAuth } from "../../../../../../contexts/AuthContext";
+import useUpdateCourse from "../../../../../../hooks/useCourse/useUpdateCourse";
 
 const { Option } = Select;
 
-const BoxAddinfoCourse = ({ refetch }) => {
+const BoxEditInfoCourse = ({ course, refetch }) => {
   const [open, setOpen] = useState(false);
   const [form] = Form.useForm();
 
   const { data: categoryData, isLoading: categoryLoading } = useFetchCategory();
   const { user } = useAuth();
-  const { mutate: addCourse, isPending } = usePostCourse();
+  const { mutate: updateCourse, isPending } = useUpdateCourse();
+
   const navigate = useNavigate();
-  const handleSubmit = (values) => {
-    const payload = {
-      category_id: values.category,
-      course_title: values.courseName,
-      price: Number(values.price),
-      image_url: values.image_url,
-      video_url: values.video_url,
-      description: values.description,
-      duration: values.duration,
-      feature: false,
-    };
 
-    addCourse(payload, {
-      onSuccess: () => {
-        notification.success({
-          title: "Thành công",
-          description: "Lưu thông tin khóa học thành công!",
-        });
 
-        setOpen(false);
-        form.resetFields();
-        refetch?.();
-      },
+  useEffect(() => {
+    if (!open || !course || categoryLoading) return;
 
-      onError: (error) => {
-        const status = error?.response?.status;
-
-        if (status === 401) {
-          // Báo lỗi TRƯỚC
-          notification.error({
-            title: "Phiên đăng nhập đã hết hạn!",
-            description: "Vui lòng đăng nhập lại",
-          });
-
-          // Xóa token
-          localStorage.removeItem("accessToken");
-          localStorage.removeItem("refreshToken");
-
-          // Chuyển trang SAU
-          setTimeout(() => {
-            navigate("/login");
-          }, 1500);
-        } else {
-          notification.error({
-            title: "Thất bại",
-            description: "Lưu khóa học thất bại",
-          });
-        }
-      },
+    form.setFieldsValue({
+      category_id: course?.category_id?._id || course?.category_id,
+      courseName: course?.course_title,
+      price: course?.price,
+      image_url: course?.image_url,
+      video_url: course?.video_url || "",
+      duration: course?.duration,
+      description: course?.description,
     });
-  };
+  }, [open, course, categoryLoading]);
 
+  const handleSubmit = (values) => {
+    
+    const payload = {
+        category_id: values.category_id, 
+        course_title: values.courseName,
+        price: Number(values.price),
+        image_url: values.image_url,
+        video_url: values.video_url?.trim() || "",
+        description: values.description,
+        duration: values.duration,
+        feature: course?.feature ?? false,
+      };
+
+    updateCourse(
+      { id: course?._id, payload },
+      {
+        onSuccess: () => {
+          notification.success({
+            title: "Thành công",
+            description: "Cập nhật thông tin khóa học thành công!",
+          });
+
+          setOpen(false);
+          form.resetFields();
+          refetch?.();
+        },
+        onError: (error) => {
+          const status = error?.response?.status;
+
+          if (status === 401) {
+            notification.error({
+              title: "Phiên đăng nhập đã hết hạn!",
+              description: "Vui lòng đăng nhập lại",
+            });
+
+            localStorage.removeItem("accessToken");
+            localStorage.removeItem("refreshToken");
+
+            setTimeout(() => navigate("/login"), 1500);
+          } else {
+            notification.error({
+              title: "Thất bại",
+              description: error?.response?.data?.message || "Cập nhật khóa học thất bại",
+            });
+          }
+        },
+      }
+    );
+  };
 
   return (
     <>
-      <Button 
-        type="primary"
-        onClick={() => setOpen(true)} 
+      <button
+        onClick={() => setOpen(true)}
         className="
-          flex items-center gap-2 bg-primary text-white h-auto px-5 py-2.5 
-          rounded-xl font-label-md border-none
+          bg-[#4F46E5] text-white px-4 py-2 rounded
+          hover:scale-95 hover:opacity-70 transition cursor-pointer
         "
       >
-        <span className="material-symbols-outlined text-white">add</span>
-        Thêm khóa học mới
-      </Button>
+        Chỉnh sửa khóa học
+      </button>
+
       <Modal
         open={open}
         onCancel={() => setOpen(false)}
@@ -91,7 +102,7 @@ const BoxAddinfoCourse = ({ refetch }) => {
         destroyOnHidden
       >
         <h1 className="text-[20px] font-semibold mb-4">
-          Thêm khóa học mới
+          Chỉnh sửa khóa học
         </h1>
 
         <Form
@@ -102,22 +113,20 @@ const BoxAddinfoCourse = ({ refetch }) => {
         >
           {/* PROVIDER + CATEGORY */}
           <div className="flex gap-2">
-            <Form.Item
-              label="Nhà cung cấp"
-              className="w-full"
-            >
+            <Form.Item label="Nhà cung cấp" className="w-full">
               <Input value={user?.username} disabled />
             </Form.Item>
 
             <Form.Item
               label="Danh mục"
-              name="category"
+              name="category_id"
               className="w-full"
               rules={[{ required: true, message: "Chọn danh mục" }]}
             >
               <Select
                 loading={categoryLoading}
                 placeholder="Chọn danh mục"
+                allowClear
               >
                 {categoryData?.data.map((item) => (
                   <Option key={item._id} value={item._id}>
@@ -160,13 +169,14 @@ const BoxAddinfoCourse = ({ refetch }) => {
               <Input placeholder="https://..." />
             </Form.Item>
 
+            {/* video  */}
             <Form.Item
               label="Video giới thiệu"
               name="video_url"
               className="w-full"
-              rules={[{ required: true, message: "Nhập link video" }]}
+              rules={[]}
             >
-              <Input placeholder="https://..." />
+              <Input placeholder="https://... (có thể để trống)" />
             </Form.Item>
           </div>
 
@@ -191,10 +201,10 @@ const BoxAddinfoCourse = ({ refetch }) => {
           <Button
             htmlType="submit"
             loading={isPending}
-            type="primary"
-            className="w-full bg-[#FF7D35] text-white"
+            className="w-full bg-[#4F46E5] text-white"
+            style={{backgroundColor:"#4F46E5" , color:'#ffffff'}}
           >
-            Xác nhận thêm
+            Lưu chỉnh sửa
           </Button>
         </Form>
       </Modal>
@@ -202,4 +212,4 @@ const BoxAddinfoCourse = ({ refetch }) => {
   );
 };
 
-export default BoxAddinfoCourse;
+export default BoxEditInfoCourse;

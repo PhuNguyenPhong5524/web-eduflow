@@ -135,19 +135,15 @@ const ManagementCoursePage = () => {
       key: 'price',
       className: 'font-label-md text-on-surface font-semibold',
       render: (_, record) => {
-        const price = record.price === 0 ? 'Free' : `${record.price?.toLocaleString('vi-VN')} `;
-        const promo = record.price_promotion > 0 ? `${record.price_promotion?.toLocaleString('vi-VN')} ` : null;
-
-        return promo ? (
-          <div>
-            <span className="text-red-500 font-semibold">{promo}</span>
-            <br />
-            <span className="line-through text-gray-400 text-xs">{price}</span>
-          </div>
-        ) : (
-          <span>{price}</span>
-        );
-      }
+        return (
+          <span className="text-[#e70000] text-[14px] font-bold">
+              { record.price === 0 
+                  ? <span className="text-green-400 font-semibold">Free</span>
+                  : `${Number(record.price).toLocaleString('vi-VN')}`
+              }
+          </span>
+        ) 
+      },
     },
     {
       title: 'Học viên',
@@ -165,6 +161,7 @@ const ManagementCoursePage = () => {
       title: 'Type',
       dataIndex: 'feature',
       key: 'feature',
+      align: 'center',
       render: (feature) => {
         return feature ? (
           <Tag className="m-0 px-3 py-1 rounded-full text-xs font-label-md bg-orange-100 text-orange-700 border border-orange-200 ant-tag-custom">Featured</Tag>
@@ -176,15 +173,11 @@ const ManagementCoursePage = () => {
     {
       title: 'Actions',
       key: 'actions',
-      align: 'right',
+      align: 'center',
       render: (_, record) => (
-        <Space size={4} className="justify-end">
-          <Button type="text" className="p-2 h-auto flex items-center justify-center hover:bg-primary/10 hover:text-primary rounded-lg" title="Edit">
-            <span className="material-symbols-outlined text-[20px]">edit</span>
-          </Button>
-          
+        <Space size={4} className="justify-end">          
           {/* Tích hợp thẻ Link router dẫn sang chi tiết giống BoxShowCourse */}
-          <Link to={`${record._id}`}>
+          <Link to={`detail/${record._id}`}>
             <Button type="text" className="p-2 h-auto flex items-center justify-center hover:bg-secondary/10 hover:text-secondary rounded-lg" title="View">
               <span className="material-symbols-outlined text-[20px]">visibility</span>
             </Button>
