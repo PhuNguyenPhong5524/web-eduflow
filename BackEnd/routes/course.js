@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
   createCourse,
+  deleteCourse,
   exportCourseExcel,
   getAllCourseOfProvider,
   getCourseById,
@@ -10,6 +11,7 @@ import {
 import { getCourses } from "../controllers/course/getCourses.js";
 import authorizeRole  from "../middleware/authorizeRole.js";
 import authMiddleware  from "../middleware/authMiddleware.js";
+import { createCourseOverview, deleteCourseOverview, updateCourseOverview } from "../controllers/course/courseOverView.js";
 
 
 const routerCourse = Router();
@@ -44,12 +46,46 @@ routerCourse.post(
   createCourse
 );
 
+//Thêm tổng quan khóa học
+routerCourse.post(
+  "/courses/:courseId/overviews",
+  authMiddleware,
+  authorizeRole("provider"),
+  createCourseOverview
+);
+
+
 // Cập nhật khóa học
 routerCourse.put(
   "/courses/:id", 
   authMiddleware, 
   authorizeRole('provider'), 
   UpdateCourse  
+);
+
+// Cập nhật tổng quan khóa học
+routerCourse.put(
+  "/courses/:courseId/overviews/:overviewId",
+  authMiddleware,
+  authorizeRole("provider"),
+  updateCourseOverview
+);
+
+// Xóa khóa học
+
+routerCourse.delete(
+  "/courses/:id", 
+  authMiddleware, 
+  authorizeRole('provider'), 
+  deleteCourse
+);
+
+// Xóa tổng quan khóa học
+routerCourse.delete(
+  "/courses/:courseId/overviews/:overviewId",
+  authMiddleware,
+  authorizeRole("provider"),
+  deleteCourseOverview
 );
 
 export default routerCourse;

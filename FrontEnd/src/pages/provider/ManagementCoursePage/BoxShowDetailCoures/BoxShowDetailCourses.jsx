@@ -4,6 +4,7 @@ import { Link, useParams } from 'react-router-dom';
 import ChevronLeftIcon from '../../../../components/icons/ChevronLeftIcon';
 import useGetCourseDetail from '../../../../hooks/useCourse/useGetCourseDetail';
 import BoxShowCourseInfo from './BoxShowCourseInfo/BoxShowCourseInfo';
+import BoxShowCourseOverview from './BoxShowCourseInfo/BoxShowCourseOverview/BoxShowCourseOverview';
 const { Title, Text } = Typography;
 
 export default function ProviderCourseDetailManagementPage() {
@@ -25,19 +26,22 @@ export default function ProviderCourseDetailManagementPage() {
                   courseId={courseId}
                   showCourse={showCourse}
                   refetch={refetch}
-                  // isFetching={isFetching}
-                  // isLoading={isLoading}
               />
           ),
       },
       {
           key: "2",
-          label: "Nội dung bài học",
-          children: <></>,
+          label: "Tổng quan bài học",
+          children: 
+            <BoxShowCourseOverview 
+                courseId={courseId}
+                showCourse={showCourse.overviews}
+                refetch={refetch}
+            />,
       },
       {
           key: "3",
-          label: "Tổng Quan",
+          label: "Nội dung bài học",
           children: 
              <> </>
           ,
@@ -57,7 +61,7 @@ export default function ProviderCourseDetailManagementPage() {
     <div 
       className="
         h-full w-full overflow-y-auto overflow-x-hidden text-[#0b1c30] bg-[#f8f9ff] 
-        font-['Inter',sans-serif] antialiased selection:bg-[#4f46e5] selection:text-[#dad7ff]
+        font-['Inter',sans-serif] antialiased selection:bg-[#4f46e5] selection:text-[#dad7ff] 
       "
     >
       <div className="w-full mx-auto py-[10px] flex-grow">
@@ -79,7 +83,7 @@ export default function ProviderCourseDetailManagementPage() {
               Chi tiết khóa học
           </h1>
         </div>
-        <h1 className="font-['Geist'] text-[22px] font-semibold text-[#0b1c30] leading-[1.2] tracking-[-0.01em]">
+        <h1 className="font-['Geist'] text-[22px] font-semibold text-[#0b1c30] leading-[1.2] tracking-[-0.01em] mb-3">
           {showCourse.course.course_title}
         </h1>
         {/* Tabs Section */}

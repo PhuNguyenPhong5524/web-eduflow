@@ -19,7 +19,7 @@ import BoxEditInfoCourse from './BoxEditInfoCourse/BoxEditInfoCourse';
 
 const BoxShowCourseInfo = ({showCourse, refetch}) => {
     return (
-      <div>
+      <div className="pt-4 pb-6">
           <div className="flex justify-between items-center mb-3">
             <div className="border-l-[3px] border-l-[#4F46E5] pl-2">
                 <h2 className="font-semibold text-[#4F46E5] text-[18px]">Thực hiện</h2>
@@ -37,7 +37,7 @@ const BoxShowCourseInfo = ({showCourse, refetch}) => {
                     border border-gray-200 rounded-[5px] p-4 h-auto bg-[#ffffff] overflow-hidden
                 "
               >
-                <div className="aspect-video h-full w-full flex items-center justify-center bg-gray-100">
+                <div className="aspect-video h-full w-full flex items-center justify-center bg-gray-100 ">
                   {showCourse?.course.video_url?.trim() ? (
                       <iframe
                       className="w-full h-full"

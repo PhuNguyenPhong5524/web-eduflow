@@ -448,3 +448,77 @@ export const UpdateCourse = async (req, res) => {
     });
   }
 };
+
+
+// Xóa khóa học 
+
+export const deleteCourse = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.userId;
+
+    // Tìm provider theo user đang đăng nhập
+    const provider = await providerModel.findOne({
+      user_id: userId,
+      status: "approved",
+    });
+
+    if (!provider) {
+      return res.status(403).json({
+        message: "Bạn không có quyền xóa khóa học này!",
+      });
+    }
+
+    // Kiểm tra course tồn tại + thuộc provider đó
+    const course = await courseModel.findOne({
+      _id: id,
+      provider_id: provider._id,
+    });
+
+    if (!course) {
+      return res.status(404).json({
+        message: "Không tìm thấy khóa học hoặc bạn không có quyền!",
+      });
+    }
+
+    // Lấy tất cả section của course
+    const sections = await courseSectionModel
+      .find({ course_id: id })
+      .select("_id");
+
+    const sectionIds = sections.map((s) => s._id);
+
+    // Xóa lectures
+    if (sectionIds.length > 0) {
+      await lectureModel.deleteMany({
+        section_id: { $in: sectionIds },
+      });
+    }
+
+    // Xóa sections
+    await courseSectionModel.deleteMany({
+      course_id: id,
+    });
+
+    // Xóa overview
+    await courseOverviewModel.deleteMany({
+      course_id: id,
+    });
+
+    // Xóa request
+    await courseRequestModel.deleteMany({
+      course_id: id,
+    });
+
+    // Xóa course chính
+    await courseModel.findByIdAndDelete(id);
+
+    return res.status(200).json({
+      message: "Xóa khóa học và toàn bộ dữ liệu liên quan thành công!",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message,
+    });
+  }
+};

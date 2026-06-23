@@ -8,7 +8,7 @@ import { useAuth } from "../../../contexts/AuthContext";
 import useGetCourse from '../../../hooks/useCourse/useGetCourse';
 import {exportCourseExcel} from '../../../services/adminCourseService';
 import BoxAddinfoCourse from './BoxAddinfoCourse/BoxAddinfoCourse';
-
+import useDeleteCourse from "../../../hooks/useCourse/useDeleteCourse";
 
 const ManagementCoursePage = () => {
   // --- Quản lý State Bộ lọc ---
@@ -21,8 +21,6 @@ const ManagementCoursePage = () => {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
-  // --- GỌI API THỰC TẾ QUA HOOK (Từ BoxShowCourse) ---
-  // searchQuery được truyền thẳng vào biến keyword của hook để search từ Server
   const {
     data: showCourses,
     isFetching,
@@ -41,15 +39,27 @@ const ManagementCoursePage = () => {
   }, [searchQuery, selectedCategory, selectedFeature, selectedPrice]);
 
   // --- Chức năng Xóa khóa học qua API ---
-  // const handleDeleteCourse = async (id) => {
-  //   try {
-  //     await axios.delete(`/api/courses/${id}`); 
-  //     message.success("Xóa khóa học thành công!");
-  //     refetch(); // Tải lại danh sách từ server sau khi xóa thành công
-  //   } catch (error) {
-  //     message.error(error.response?.data?.message || "Xóa khóa học thất bại!");
-  //   }
-  // };
+  const { mutate: deleteCourse, isPending } = useDeleteCourse();
+
+  const handleDeleteCourse = (courseId) => {
+    deleteCourse(courseId, {
+      onSuccess: (data) => {
+        message.success(
+          data?.message || "Xóa khóa học thành công"
+        );
+
+        refetch();
+
+        // hoặc navigate("/provider/courses");
+      },
+      onError: (error) => {
+        message.error(
+          error?.response?.data?.message ||
+            "Xóa khóa học thất bại"
+        );
+      },
+    });
+  };
 
   // --- Chức năng Làm mới (Reset bộ lọc và gọi lại API) ---
   const handleRefresh = () => {
@@ -182,17 +192,20 @@ const ManagementCoursePage = () => {
               <span className="material-symbols-outlined text-[20px]">visibility</span>
             </Button>
           </Link>
-
           <Popconfirm
             title="Xóa khóa học"
-            description="Bạn chắc chắn muốn xóa khóa học này?"
-            // onConfirm={() => handleDeleteCourse(record._id)}
-            okText="Yes"
-            cancelText="No"
-            placement="topRight"
+            description="Khóa học, chương học, bài học, overview và dữ liệu liên quan sẽ bị xóa vĩnh viễn. Bạn có chắc chắn?"
+            okText="Xóa"
+            cancelText="Hủy"
+            okButtonProps={{
+              danger: true,
+              loading: isPending,
+            }}
+            placement="left"
+            onConfirm={() => handleDeleteCourse(record._id)}
           >
-            <Button type="text" className="p-2 h-auto flex items-center justify-center hover:bg-error/10 hover:text-error rounded-lg" title="Delete">
-              <span className="material-symbols-outlined text-[20px]">delete</span>
+            <Button danger type="text" className="p-2 h-auto flex items-center justify-center hover:bg-error/10 hover:text-error rounded-lg">
+               <span className="material-symbols-outlined text-[20px]">delete</span>
             </Button>
           </Popconfirm>
         </Space>
@@ -267,7 +280,7 @@ const ManagementCoursePage = () => {
               onChange={(value) => setSelectedCategory(value)}
               className="min-w-[160px]"
               options={[
-                { value: 'All', label: 'Category: All' },
+                { value: 'All', label: 'Danh mục: tất cả' },
                 { value: 'Phát triển web', label: 'Phát triển web' },
                 { value: 'Khoa học dữ liệu', label: 'Khoa học dữ liệu' },
                 { value: 'Ứng dụng di động', label: 'Ứng dụng di động' },
@@ -278,7 +291,7 @@ const ManagementCoursePage = () => {
               onChange={(value) => setSelectedFeature(value)}
               className="min-w-[140px]"
               options={[
-                { value: 'All', label: 'Type: All' },
+                { value: 'All', label: 'Loại: tất cả' },
                 { value: 'Featured', label: 'Featured' },
                 { value: 'Standard', label: 'Standard' },
               ]}
@@ -288,7 +301,7 @@ const ManagementCoursePage = () => {
               onChange={(value) => setSelectedPrice(value)}
               className="min-w-[150px]"
               options={[
-                { value: 'All', label: 'Price: All' },
+                { value: 'All', label: 'Giá: tất cả' },
                 { value: 'Free', label: 'Free' },
                 { value: 'Under 200k', label: 'Dưới 200.000đ' },
                 { value: '200k - 500k', label: '200k - 500k' },
@@ -306,7 +319,7 @@ const ManagementCoursePage = () => {
         </div>
 
         {/* Table Section */}
-        <div className="bg-surface-container-lowest rounded-2xl border border-outline-variant/30 shadow-sm overflow-hidden">
+        <div className="bg-surface-container-lowest rounded-2xl px-4 py-2 border border-outline-variant/30 shadow-sm overflow-hidden mt-4 ">
           <Table 
             rowKey="_id"
             columns={columns} 
@@ -315,25 +328,25 @@ const ManagementCoursePage = () => {
             className="w-full"
             rowClassName="hover:bg-surface-container-low/30 transition-colors"
             pagination={{
-            current: page,
-            pageSize,
-            total: showCourses?.totalCourses || 0,
-            showSizeChanger: true,
-            pageSizeOptions: [5, 10, 20, 50],
+              current: page,
+              pageSize,
+              total: showCourses?.totalCourses || 0,
+              showSizeChanger: true,
+              pageSizeOptions: [5, 10, 20, 50],
+              placement: "bottomCenter",
 
-            placement: "bottomRight",
+              onChange: (p, ps) => {
+                setPage(p);
+                setPageSize(ps);
+              },
 
-            onChange: (p, ps) => {
-              setPage(p);
-              setPageSize(ps);
-            },
-
-            showTotal: (total, range) => (
-              <p className="font-body-sm text-on-surface-variant m-0">
-                Showing {range[0]} - {range[1]} of {total} courses
-              </p>
-            ),
+              showTotal: (total, range) => (
+                <p className="font-body-sm text-on-surface-variant m-0 ">
+                  Showing {range[0]} - {range[1]} of {total} courses
+                </p>
+              ),
             }}
+            
           />
         </div>
       </div>
