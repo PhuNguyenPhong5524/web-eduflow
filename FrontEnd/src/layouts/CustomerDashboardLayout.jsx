@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useCart } from "../contexts/CartContext";
 import { Outlet } from "react-router-dom";
@@ -8,31 +8,28 @@ const NAV_ITEMS = [
   {
     icon: "dashboard",
     label: "Bảng điều khiển",
-    active: true,
     filled: true,
     link: "/user/dashboard",
   },
-  //   { icon: "school", label: "My Courses", active: false },
-  //   { icon: "favorite", label: "Wishlist", active: false },
   {
     icon: "key",
     label: "Thay đổi mật khẩu",
-    active: false,
+    filled: true,
     link: "/user/change-password",
   },
   {
     icon: "settings",
     label: "Cài đặt tài khoản",
-    active: false,
+    filled: true,
     link: "/user/account-settings",
   },
-  //   { icon: "help", label: "Help Center", active: false },
 ];
 
 const CustomerDashboardLayout = () => {
   const { user, logout } = useAuth();
   const { itemCount } = useCart();
   const navigate = useNavigate();
+  const location = useLocation();
   return (
     <div className="bg-surface font-body-md text-on-surface">
       {/* TopNavBar */}
@@ -93,31 +90,41 @@ const CustomerDashboardLayout = () => {
           </div>
 
           <nav className="flex-1 px-4 space-y-1">
-            {NAV_ITEMS.map(({ icon, label, active, filled, link }) => (
-              <Link
-                key={label}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl font-label-md transition-all ${
-                  active
-                    ? "bg-primary-container/20 text-primary border-l-4 border-primary"
-                    : "text-on-surface-variant hover:bg-surface-container-high"
-                }`}
-                to={link}
-              >
-                <span
-                  className="material-symbols-outlined"
-                  style={
-                    filled ? { fontVariationSettings: "'FILL' 1" } : undefined
-                  }
+            {NAV_ITEMS.map(({ icon, label, filled, link }) => {
+              const active = location.pathname === link;
+
+              return (
+                <Link
+                  key={label}
+                  to={link}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-xl font-label-md transition-all ${
+                    active
+                      ? "bg-primary-container/20 text-primary border-l-4 border-primary"
+                      : "text-on-surface-variant hover:bg-surface-container-high"
+                  }`}
                 >
-                  {icon}
-                </span>
-                {label}
-              </Link>
-            ))}
+                  <span
+                    className="material-symbols-outlined"
+                    style={
+                      filled ? { fontVariationSettings: "'FILL' 1" } : undefined
+                    }
+                  >
+                    {icon}
+                  </span>
+                  {label}
+                </Link>
+              );
+            })}
           </nav>
 
           <div className="px-6 mt-auto">
-            <button className="flex items-center gap-3 w-full px-4 py-3 mt-4 text-error font-label-md hover:bg-error-container/10 rounded-xl transition-all">
+            <button
+              onClick={() => {
+                logout();
+                navigate("/login");
+              }}
+              className="flex items-center gap-3 w-full px-4 py-3 mt-4 text-error font-label-md hover:bg-error-container/10 rounded-xl transition-all"
+            >
               <span className="material-symbols-outlined">logout</span>
               Logout
             </button>
@@ -137,6 +144,8 @@ const CustomerDashboardLayout = () => {
           { icon: "school", label: "Courses", active: false },
           { icon: "favorite", label: "Saved", active: false },
           { icon: "person", label: "Profile", active: false },
+          { icon: "help", label: "Help", active: false },
+          { icon: "settings", label: "Settings", active: false },
         ].map(({ icon, label, active }) => (
           <a
             key={label}
