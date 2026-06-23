@@ -28,7 +28,7 @@ const BoxShowCourseSection = ({
   onEditLecture,
   onDeleteLecture,
 }) => {
-  const sections = Array.isArray(showCoure) ? showCoure : [];
+  const sections = Array.isArray(showCourse) ? showCourse : [];
   const { mutate: deleteSection, isPending  } = useDeleteCourseSection();
 
 
