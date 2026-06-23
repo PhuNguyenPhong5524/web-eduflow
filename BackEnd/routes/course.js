@@ -12,6 +12,9 @@ import { getCourses } from "../controllers/course/getCourses.js";
 import authorizeRole  from "../middleware/authorizeRole.js";
 import authMiddleware  from "../middleware/authMiddleware.js";
 import { createCourseOverview, deleteCourseOverview, updateCourseOverview } from "../controllers/course/courseOverView.js";
+import { createCourseLecture, deleteCourseLecture, updateCourseLecture } from "../controllers/course/courseLecture.js";
+import { createCourseSection, deleteCourseSection, updateCourseSection } from "../controllers/course/courseSection.js";
+import { createCourseRequest, updateCourseRequest } from "../controllers/course/courseRequest.js";
 
 
 const routerCourse = Router();
@@ -38,6 +41,8 @@ routerCourse.get("/courses-feature", getFeaturedCourses);
 // Khóa học detail
 routerCourse.get("/courses/:id", getCourseById);
 
+// ************************************************************
+
 // Thêm khóa học mới 
 routerCourse.post(
   "/courses",
@@ -53,7 +58,35 @@ routerCourse.post(
   authorizeRole("provider"),
   createCourseOverview
 );
+// Thêm section khóa học
+routerCourse.post(
+  "/courses/:courseId/course-sections",
+  authMiddleware, 
+  authorizeRole('provider'), 
+  createCourseSection
+);
+// Thêm lecture khóa học
+routerCourse.post(
+  "/course-lectures",
+  createCourseLecture
+);
+//
+routerCourse.post(
+  "/sections/:sectionId/lectures",
+  authMiddleware,
+  authorizeRole("provider"),
+  createCourseLecture
+);
 
+// Thêm yêu cầu khóa học
+routerCourse.post(
+  "/courses/:courseId/requests",
+  authMiddleware,
+  authorizeRole("provider"),
+  createCourseRequest
+);
+
+// ************************************************************
 
 // Cập nhật khóa học
 routerCourse.put(
@@ -70,6 +103,30 @@ routerCourse.put(
   authorizeRole("provider"),
   updateCourseOverview
 );
+// Cập nhật lecture detail
+routerCourse.put(
+  "/lectures/:lectureId",
+  authMiddleware,
+  authorizeRole("provider"),
+  updateCourseLecture
+);
+// Cập nhật section
+routerCourse.put("/courses/:courseId/course-sections/:sectionId",
+  authMiddleware,
+  authorizeRole("provider"),
+  updateCourseSection
+);
+
+// Cập nhật yêu cầu khóa học
+routerCourse.put(
+  "/courses/requests/:courseRequestId",
+  authMiddleware,
+  authorizeRole("provider"),
+  updateCourseRequest
+);
+
+
+// ************************************************************
 
 // Xóa khóa học
 
@@ -88,4 +145,18 @@ routerCourse.delete(
   deleteCourseOverview
 );
 
+
+routerCourse.delete(
+  "/courses/:courseId/sections/:sectionId",
+  authMiddleware,
+  authorizeRole("provider"),
+  deleteCourseSection
+);
+
+routerCourse.delete(
+  "/lectures/:lectureId",
+  authMiddleware,
+  authorizeRole("provider"),
+  deleteCourseLecture
+);
 export default routerCourse;

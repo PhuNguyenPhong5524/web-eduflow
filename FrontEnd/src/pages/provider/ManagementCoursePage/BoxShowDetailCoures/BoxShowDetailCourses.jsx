@@ -5,6 +5,8 @@ import ChevronLeftIcon from '../../../../components/icons/ChevronLeftIcon';
 import useGetCourseDetail from '../../../../hooks/useCourse/useGetCourseDetail';
 import BoxShowCourseInfo from './BoxShowCourseInfo/BoxShowCourseInfo';
 import BoxShowCourseOverview from './BoxShowCourseInfo/BoxShowCourseOverview/BoxShowCourseOverview';
+import BoxShowCourseSection from './BoxShowCourseInfo/BoxShowCourseSection/BoxShowCourseSection';
+import BoxShowCourseRequest from './BoxShowCourseInfo/BoxShowCourseRequest/BoxShowCourseRequest';
 const { Title, Text } = Typography;
 
 export default function ProviderCourseDetailManagementPage() {
@@ -40,18 +42,27 @@ export default function ProviderCourseDetailManagementPage() {
             />,
       },
       {
-          key: "3",
-          label: "Nội dung bài học",
-          children: 
-             <> </>
-          ,
-      },
+        key: "3",
+        label: "Nội dung bài học",
+        children: 
+              <BoxShowCourseSection 
+                  courseId={courseId} 
+                  showCourse={showCourse.sections} 
+                  refetch={refetch} 
+                  isFetching={isFetching} 
+                  isLoading={isLoading} 
+              />,
+    },
       {
           key: "4",
           label: "Yêu cầu",
           children: 
-             <></>
-          ,
+              <BoxShowCourseRequest 
+                  courseId={courseId} 
+                  showCourse={showCourse.requests} 
+                  refetch={refetch} 
+                  
+              />,
       }
     
     ];
