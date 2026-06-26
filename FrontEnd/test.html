@@ -1,0 +1,383 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>EduFlow - Immersive Learning Player</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&amp;family=Inter:wght@100..900&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container-high": "#dce9ff",
+                    "on-secondary": "#ffffff",
+                    "tertiary": "#571ac0",
+                    "error": "#ba1a1a",
+                    "outline-variant": "#c7c4d8",
+                    "on-tertiary-fixed": "#23005c",
+                    "tertiary-fixed-dim": "#d0bcff",
+                    "on-background": "#0b1c30",
+                    "on-tertiary": "#ffffff",
+                    "error-container": "#ffdad6",
+                    "surface-bright": "#f8f9ff",
+                    "inverse-primary": "#c3c0ff",
+                    "secondary-fixed-dim": "#adc6ff",
+                    "secondary-container": "#2170e4",
+                    "surface": "#f8f9ff",
+                    "on-error-container": "#93000a",
+                    "on-surface-variant": "#464555",
+                    "primary-fixed-dim": "#c3c0ff",
+                    "primary-container": "#4f46e5",
+                    "on-tertiary-container": "#e3d5ff",
+                    "on-primary-fixed": "#0f0069",
+                    "tertiary-fixed": "#e9ddff",
+                    "on-secondary-fixed": "#001a42",
+                    "on-primary-container": "#dad7ff",
+                    "surface-container": "#e5eeff",
+                    "surface-tint": "#4d44e3",
+                    "on-secondary-container": "#fefcff",
+                    "surface-variant": "#d3e4fe",
+                    "primary-fixed": "#e2dfff",
+                    "primary": "#3525cd",
+                    "on-primary-fixed-variant": "#3323cc",
+                    "surface-container-lowest": "#ffffff",
+                    "on-primary": "#ffffff",
+                    "inverse-surface": "#213145",
+                    "on-secondary-fixed-variant": "#004395",
+                    "tertiary-container": "#6f3dd9",
+                    "on-error": "#ffffff",
+                    "secondary-fixed": "#d8e2ff",
+                    "surface-container-low": "#eff4ff",
+                    "background": "#f8f9ff",
+                    "surface-dim": "#cbdbf5",
+                    "outline": "#777587",
+                    "secondary": "#0058be",
+                    "surface-container-highest": "#d3e4fe",
+                    "on-tertiary-fixed-variant": "#5516be",
+                    "on-surface": "#0b1c30",
+                    "inverse-on-surface": "#eaf1ff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "stack-md": "16px",
+                    "gutter": "24px",
+                    "container-max": "1280px",
+                    "unit": "4px",
+                    "margin-desktop": "40px",
+                    "stack-lg": "32px",
+                    "stack-sm": "8px",
+                    "margin-mobile": "16px"
+            },
+            "fontFamily": {
+                    "headline-md": ["Geist"],
+                    "headline-lg": ["Geist"],
+                    "body-sm": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "label-sm": ["Geist"],
+                    "label-md": ["Geist"],
+                    "display": ["Geist"],
+                    "body-md": ["Inter"],
+                    "headline-lg-mobile": ["Geist"]
+            },
+            "fontSize": {
+                    "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                    "headline-lg": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "body-sm": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "label-sm": ["12px", {"lineHeight": "1", "fontWeight": "600"}],
+                    "label-md": ["14px", {"lineHeight": "1", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                    "display": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "headline-lg-mobile": ["24px", {"lineHeight": "1.2", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(226, 232, 240, 0.5);
+        }
+        .dark .glass-card {
+            background: rgba(33, 49, 69, 0.7);
+            border-color: rgba(70, 69, 85, 0.3);
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #c7c4d8;
+            border-radius: 10px;
+        }
+        .video-container {
+            aspect-ratio: 16/9;
+            background: #020617;
+            position: relative;
+            overflow: hidden;
+            border-radius: 1rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md transition-colors duration-300">
+
+<div class="pt-24 pb-stack-lg px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
+<!-- Immersive Player Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Left: Main Content Canvas -->
+<div class="lg:col-span-8 space-y-stack-lg">
+<!-- Breadcrumbs & Back -->
+<div class="flex items-center gap-2 mb-2">
+<button class="flex items-center text-primary font-label-md hover:underline group">
+<span class="material-symbols-outlined mr-1 group-hover:-translate-x-1 transition-transform">arrow_back</span>
+                        Back to Course Overview
+                    </button>
+<span class="text-outline-variant">/</span>
+<span class="text-on-surface-variant font-label-md">Module 3: Advanced UI Architecture</span>
+</div>
+<!-- Immersive Video Player -->
+<div class="video-container group">
+<img class="w-full h-full object-cover opacity-60" data-alt="A high-resolution cinematic shot of a modern coding environment on a large monitor. The screen displays vibrant, syntax-highlighted code in an integrated development environment with a dark theme. Soft, ambient blue and indigo light spills from the screen onto a clean, minimalist mahogany desk. The atmosphere is deeply focused and intellectually stimulating, representing a state of professional flow." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBeuMTHWDlsuahpn0uGYpshe2Tbhhy1rFHzi9vUNzwREAbcsLNnVS_UmcT5dRmYrQEyNGfzQia9oJfdcDat8mBM4-RAhMeCO74ou4uD1HJwMyzLJKMFEaNAYQhoy7edGsaWse41qWlhw-uPFQqHie6T3hh-jD6GrBhAcYyZABl3ComtMjQL6Odq4fVgj3fqQf7fhghM6A6rBoDC2P7MKJQGSLZmMxe6-e_HGtiM6oOhsT-KkmiaHxRA5Cgt7WOMXnXlBArTZRgR7EQ">
+<!-- Overlays & Controls (Faked for UI) -->
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-stack-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+<div class="flex items-center justify-between text-white w-full">
+<div class="flex items-center gap-stack-md">
+<span class="material-symbols-outlined cursor-pointer hover:scale-110 transition-transform" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+<span class="material-symbols-outlined cursor-pointer hover:scale-110 transition-transform">skip_next</span>
+<span class="material-symbols-outlined cursor-pointer hover:scale-110 transition-transform">volume_up</span>
+<span class="text-label-md font-mono">12:45 / 24:00</span>
+</div>
+<div class="flex items-center gap-stack-md">
+<span class="material-symbols-outlined cursor-pointer hover:scale-110 transition-transform">closed_caption</span>
+<span class="material-symbols-outlined cursor-pointer hover:scale-110 transition-transform">settings</span>
+<span class="material-symbols-outlined cursor-pointer hover:scale-110 transition-transform">fullscreen</span>
+</div>
+</div>
+<div class="w-full h-1 bg-white/30 rounded-full mt-4 cursor-pointer relative">
+<div class="absolute top-0 left-0 h-full w-[53%] bg-primary shadow-[0_0_8px_#3525cd] rounded-full"></div>
+</div>
+</div>
+<!-- Center Play Button (Visible when paused/idle) -->
+<div class="absolute inset-0 flex items-center justify-center group-hover:hidden transition-all">
+<div class="h-20 w-20 rounded-full bg-primary/90 text-white flex items-center justify-center shadow-xl backdrop-blur-sm">
+<span class="material-symbols-outlined text-[48px]" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</div>
+</div>
+</div>
+<!-- Video Metadata -->
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-stack-md">
+<div>
+<h1 class="font-headline-md text-headline-md text-on-background">3.4 Mastering System Design Tokens</h1>
+<p class="text-body-sm text-on-surface-variant mt-1">Uploaded Oct 24 • High-Performance Design Series</p>
+</div>
+<div class="flex items-center gap-stack-sm">
+<button class="px-stack-md py-stack-sm rounded-xl border border-outline-variant flex items-center gap-2 hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-[20px]">thumb_up</span>
+<span class="font-label-md">1.2k</span>
+</button>
+<button class="px-stack-md py-stack-sm rounded-xl border border-outline-variant flex items-center gap-2 hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-[20px]">share</span>
+<span class="font-label-md">Share</span>
+</button>
+<button class="px-stack-md py-stack-sm rounded-xl bg-secondary-container text-on-secondary-container flex items-center gap-2 hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined text-[20px]">download</span>
+<span class="font-label-md">Offline</span>
+</button>
+</div>
+</div>
+<!-- Tabs Section -->
+<div class="border-b border-outline-variant/30 mt-stack-lg">
+<div class="flex gap-stack-lg">
+<button class="pb-stack-md font-label-md text-primary border-b-2 border-primary" id="tab-overview" onclick="switchTab('overview')">Overview</button>
+<button class="pb-stack-md font-label-md text-on-surface-variant hover:text-primary transition-colors" id="tab-resources" onclick="switchTab('resources')">Resources</button>
+<button class="pb-stack-md font-label-md text-on-surface-variant hover:text-primary transition-colors" id="tab-reviews" onclick="switchTab('reviews')">Reviews</button>
+</div>
+</div>
+<!-- Tab Content: Overview -->
+<div class="tab-pane active pt-stack-md space-y-stack-md" id="content-overview">
+<p class="text-body-md text-on-surface-variant leading-relaxed">
+                        In this comprehensive session, we dive deep into the architecture of design tokens. Learn how to bridge the gap between Figma design systems and production-ready Tailwind configurations. We'll cover semantic naming conventions, fluid scaling, and dark-mode optimization strategies that ensure your UIs remain consistent across every screen size.
+                    </p>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-stack-md">
+<div class="glass-card p-stack-md rounded-xl">
+<h3 class="font-label-md text-primary mb-2 flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">lightbulb</span> Key Takeaways
+                            </h3>
+<ul class="text-body-sm text-on-surface-variant space-y-2">
+<li class="flex items-start gap-2"><span class="material-symbols-outlined text-secondary text-[16px] mt-1">check_circle</span> Understanding Primitive vs. Semantic tokens.</li>
+<li class="flex items-start gap-2"><span class="material-symbols-outlined text-secondary text-[16px] mt-1">check_circle</span> Dynamic spacing systems for fluid hybrid grids.</li>
+<li class="flex items-start gap-2"><span class="material-symbols-outlined text-secondary text-[16px] mt-1">check_circle</span> Automated handoff workflows.</li>
+</ul>
+</div>
+<div class="glass-card p-stack-md rounded-xl">
+<h3 class="font-label-md text-primary mb-2 flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">person</span> Instructor
+                            </h3>
+<div class="flex items-center gap-stack-md">
+<img alt="Instructor Profile" class="h-12 w-12 rounded-full object-cover" data-alt="Close-up portrait of a male instructor with glasses, wearing a sleek black turtleneck, in a high-tech studio environment with soft bokeh background lights. The aesthetic is clean and academic yet modern and approachable." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDQfLdiRmLgEIH3_MUTbTiJTUAiygf_fhKIJcibFgXWpPbVbDPJH7eP_2o4uFh-CDzkQ6QFqeZAYt7HTWfW_Adb4OToLRcRRMXpV-jXtYyQs7GlUKgG0Qqx_SZhgmSIr7SfqhwnPEBbbIaLkAOjtpDPEdLP_qahGoyFIAV2fE7CiTK2LWR_gEu9vBoegljjY_o1EL3N4J2-eBQgvh9qGoN2xh3slUzr_52zYQecXG_P5rAl2AiyP-iR-kJCtN9MeimdcxGxBN1z4-o">
+<div>
+<p class="font-label-md text-on-surface">Prof. Adrian Sterling</p>
+<p class="text-body-sm text-on-surface-variant">Lead Architect at DesignSystems.io</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Hidden Tab Content (Resources) -->
+<div class="tab-pane hidden pt-stack-md" id="content-resources">
+<div class="space-y-stack-sm">
+<div class="flex items-center justify-between p-stack-md glass-card rounded-xl hover:bg-surface-container transition-colors cursor-pointer">
+<div class="flex items-center gap-stack-md">
+<span class="material-symbols-outlined text-primary">description</span>
+<div>
+<p class="font-label-md">System Tokens Cheat Sheet.pdf</p>
+<p class="text-label-sm text-on-surface-variant">2.4 MB • PDF Document</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline">download</span>
+</div>
+<div class="flex items-center justify-between p-stack-md glass-card rounded-xl hover:bg-surface-container transition-colors cursor-pointer">
+<div class="flex items-center gap-stack-md">
+<span class="material-symbols-outlined text-primary">code</span>
+<div>
+<p class="font-label-md">Tailwind-Config-Master.js</p>
+<p class="text-label-sm text-on-surface-variant">14 KB • JavaScript Source</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline">download</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Right: Sidebar Content -->
+<div class="lg:col-span-4 space-y-stack-lg">
+<div class="glass-card rounded-2xl overflow-hidden sticky top-24 flex flex-col h-[calc(100vh-140px)]">
+<div class="p-stack-md border-b border-outline-variant/30 flex items-center justify-between bg-surface-container-low">
+<div>
+<h2 class="font-label-md text-on-surface">Course Content</h2>
+<p class="text-label-sm text-on-surface-variant">24% Complete • 12/48 Lessons</p>
+</div>
+<button class="material-symbols-outlined text-outline">filter_list</button>
+</div>
+<div class="flex-1 overflow-y-auto p-stack-sm space-y-1">
+<!-- Module Section -->
+<div class="pt-stack-md pb-stack-sm px-stack-md">
+<p class="text-label-sm font-bold text-on-surface-variant uppercase tracking-wider">Module 1: Foundations</p>
+</div>
+<div class="lesson-item flex items-center gap-stack-md p-stack-md rounded-xl hover:bg-primary-container/5 cursor-pointer">
+<span class="material-symbols-outlined text-secondary text-[20px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<div class="flex-1">
+<p class="text-body-sm font-medium">1.1 Introduction to Flow</p>
+<p class="text-label-sm text-on-surface-variant">08:24</p>
+</div>
+</div>
+<div class="lesson-item flex items-center gap-stack-md p-stack-md rounded-xl hover:bg-primary-container/5 cursor-pointer">
+<span class="material-symbols-outlined text-secondary text-[20px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<div class="flex-1">
+<p class="text-body-sm font-medium">1.2 History of Design Systems</p>
+<p class="text-label-sm text-on-surface-variant">15:10</p>
+</div>
+</div>
+<!-- Module Section -->
+<div class="pt-stack-md pb-stack-sm px-stack-md">
+<p class="text-label-sm font-bold text-on-surface-variant uppercase tracking-wider">Module 2: Visual Language</p>
+</div>
+<div class="lesson-item flex items-center gap-stack-md p-stack-md rounded-xl bg-primary-container/10 border-l-4 border-primary">
+<span class="material-symbols-outlined text-primary text-[20px]">play_circle</span>
+<div class="flex-1">
+<p class="text-body-sm font-bold text-primary">2.1 Color Theory &amp; Accessibility</p>
+<p class="text-label-sm text-primary">Now Playing</p>
+</div>
+</div>
+<div class="lesson-item flex items-center gap-stack-md p-stack-md rounded-xl hover:bg-primary-container/5 cursor-pointer">
+<span class="material-symbols-outlined text-outline text-[20px]">circle</span>
+<div class="flex-1">
+<p class="text-body-sm font-medium">2.2 Dynamic Typography Levels</p>
+<p class="text-label-sm text-on-surface-variant">12:30</p>
+</div>
+</div>
+<!-- Module Section -->
+<div class="pt-stack-md pb-stack-sm px-stack-md">
+<p class="text-label-sm font-bold text-on-surface-variant uppercase tracking-wider">Module 3: Advanced Architecture</p>
+</div>
+<div class="lesson-item flex items-center gap-stack-md p-stack-md rounded-xl hover:bg-primary-container/5 cursor-pointer opacity-80">
+<span class="material-symbols-outlined text-outline text-[20px]">lock</span>
+<div class="flex-1">
+<p class="text-body-sm font-medium text-on-surface-variant">3.1 State Logic &amp; Transitions</p>
+<p class="text-label-sm text-on-surface-variant">19:45</p>
+</div>
+</div>
+<!-- More items for scroll simulation -->
+<div class="lesson-item flex items-center gap-stack-md p-stack-md rounded-xl hover:bg-primary-container/5 cursor-pointer opacity-80">
+<span class="material-symbols-outlined text-outline text-[20px]">lock</span>
+<div class="flex-1">
+<p class="text-body-sm font-medium text-on-surface-variant">3.2 Composable Layout Systems</p>
+<p class="text-label-sm text-on-surface-variant">22:00</p>
+</div>
+</div>
+<div class="lesson-item flex items-center gap-stack-md p-stack-md rounded-xl hover:bg-primary-container/5 cursor-pointer opacity-80">
+<span class="material-symbols-outlined text-outline text-[20px]">lock</span>
+<div class="flex-1">
+<p class="text-body-sm font-medium text-on-surface-variant">3.3 Responsive Grid Mastering</p>
+<p class="text-label-sm text-on-surface-variant">14:15</p>
+</div>
+</div>
+</div>
+<div class="p-stack-md bg-surface-container-highest">
+<button class="w-full bg-primary text-white py-stack-md rounded-xl font-label-md hover:bg-primary/90 transition-all flex items-center justify-center gap-2">
+                            Next Lesson <span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Footer (Shared Component) -->
+
+<script>
+        function switchTab(tabName) {
+            // Remove active styles from all buttons
+            document.querySelectorAll('[id^="tab-"]').forEach(btn => {
+                btn.classList.remove('text-primary', 'border-b-2', 'border-primary');
+                btn.classList.add('text-on-surface-variant');
+            });
+
+            // Hide all tab panes
+            document.querySelectorAll('.tab-pane').forEach(pane => {
+                pane.classList.add('hidden');
+                pane.classList.remove('active');
+            });
+
+            // Add active styles to clicked button
+            const activeBtn = document.getElementById('tab-' + tabName);
+            activeBtn.classList.remove('text-on-surface-variant');
+            activeBtn.classList.add('text-primary', 'border-b-2', 'border-primary');
+
+            // Show target pane
+            const activePane = document.getElementById('content-' + tabName);
+            if (activePane) {
+                activePane.classList.remove('hidden');
+                activePane.classList.add('active');
+            } else {
+                // For demonstration if tab content doesn't exist
+                console.log('Tab content for ' + tabName + ' coming soon!');
+            }
+        }
+    </script>
+</body></html>

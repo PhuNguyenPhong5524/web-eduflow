@@ -24,6 +24,7 @@ import ProviderLayout from "./layouts/ProviderLayout";
 import ManagementCoursePage from "./pages/provider/ManagementCoursePage/ManagementCoursePage";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import BoxShowDetailCourses from "./pages/provider/ManagementCoursePage/BoxShowDetailCoures/BoxShowDetailCourses";
+import MyCoursePage from "./pages/mycourse/MyCoursePage";
 
 const queryClient = new QueryClient();
 
@@ -44,10 +45,17 @@ function App() {
                 path="development"
                 element={<Navigate to="courses/search" replace />}
               />
-
               <Route
                 path="courses-provider"
                 element={<InstructorProfilePage />}
+              />
+              <Route
+                path="my-course/:id"
+                element={
+                  // <ProtectedRoute roles={["customer"]}>
+                    <MyCoursePage />
+                  // </ProtectedRoute>
+                }
               />
             </Route>
 
