@@ -1,4 +1,8 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { message } from "antd";
+import { useCart } from "../../contexts/CartContext";
+import { checkoutCart } from "../../services/cartService";
 
 const PAYMENT_OPTIONS = [
   {
@@ -18,38 +22,59 @@ const PAYMENT_OPTIONS = [
   },
 ];
 
-const ORDER_ITEMS = [
-  {
-    id: "order-1",
-    title: "Advanced UI/UX Design Masterclass",
-    instructor: "Sarah Chen",
-    price: 129,
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuBHrcMkhjqiZufxcNKgRvejYDYrGuMu7Z2lzVZYmcN4tiIw3M1L7jzCtzQXhJlip7OMIOzEFVH1lPEkPpojgRsxAraqEg-7RLYMzs8sPOgisr8bxaCQkCu4qfoiRNiINd4Sy5mC8Uj_0o9udbNmCS6cDrO655GR2xJU81WbjElsAjZbK2QXShRU7880hQbNMleWY6pOoMPin-bwFdd_Wo8HatjKW2Eat_Zb9V_rLdLa5PQd_uUknu1oF6I4q_3RlbMoDGW3ZhmQ8Pg",
-  },
-  {
-    id: "order-2",
-    title: "Full-Stack Development Boot Camp",
-    instructor: "Michael Ross",
-    price: 199,
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuCGylulyYSVfvkkq2SQS7GmQPL-Z6wu5b5bXF96y0R9Pe0KnQr2LtOjJDJoXIF0jVWBpCzV6MhP7UEy8mIyGcS_HKmRk0kvYiqK2IRwBv-JlT-yqoXakizg_nWFpiOOUzbxfsWkvZ_I3aCY0Yeu3gnKds2SpEOWb9dXC-WkumGorQoBTPZXKnMeRuYipQhSl_bQRTFVPNVDeL0skOwM0wBb_L0bbxidha8WKTRBS7Kio8wZAl0Y_WKe2bcX4JSyaMpUPXrlJGqvsDk",
-  },
-];
+const currencyFormatter = new Intl.NumberFormat("vi-VN", {
+  style: "currency",
+  currency: "VND",
+  maximumFractionDigits: 0,
+});
 
 function formatMoney(value) {
-  return `$${value.toFixed(2)}`;
+  return currencyFormatter.format(value);
 }
 
 export default function CheckoutPage() {
+  const navigate = useNavigate();
+  const { cartItems, clearCart } = useCart();
   const [paymentType, setPaymentType] = useState("card");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const subtotal = ORDER_ITEMS.reduce((sum, item) => sum + item.price, 0);
-  const tax = 0;
-  const total = subtotal + tax;
+  const subtotal = useMemo(
+    () => cartItems.reduce((sum, item) => sum + item.price, 0),
+    [cartItems],
+  );
+  const saleDiscount = useMemo(
+    () =>
+      cartItems.reduce(
+        (sum, item) =>
+          sum + Math.max((item.originalPrice ?? item.price) - item.price, 0),
+        0,
+      ),
+    [cartItems],
+  );
+  const taxableAmount = Math.max(subtotal - saleDiscount, 0);
+  const tax = cartItems.length > 0 ? taxableAmount * 0.1 : 0;
+  const total = taxableAmount + tax;
+
+  const handleCompletePurchase = async () => {
+    if (cartItems.length === 0 || isSubmitting) return;
+
+    setIsSubmitting(true);
+
+    try {
+      await checkoutCart({ payment_method: paymentType });
+      await clearCart();
+      message.success("Checkout thành công!");
+      navigate("/user/dashboard");
+    } catch (error) {
+      const backendMessage = error?.response?.data?.message;
+      message.error(backendMessage || "Checkout thất bại. Vui lòng thử lại.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
-    <main className="pt-24 pb-stack-lg px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto w-full min-h-screen">
+    <main className="max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop mt-[60px] py-stack-lg min-h-screen">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         <section className="lg:col-span-7 space-y-8">
           <div className="space-y-6">
@@ -201,7 +226,7 @@ export default function CheckoutPage() {
               </h2>
 
               <div className="space-y-4">
-                {ORDER_ITEMS.map((item) => (
+                {cartItems.map((item) => (
                   <div key={item.id} className="flex gap-4">
                     <div className="w-20 h-20 rounded-lg overflow-hidden shrink-0 bg-surface-container-high">
                       <img
@@ -223,6 +248,11 @@ export default function CheckoutPage() {
                     </div>
                   </div>
                 ))}
+                {cartItems.length === 0 ? (
+                  <p className="font-body-sm text-body-sm text-on-surface-variant">
+                    Giỏ hàng của bạn đang trống.
+                  </p>
+                ) : null}
               </div>
 
               <hr className="border-outline-variant/30" />
@@ -231,6 +261,10 @@ export default function CheckoutPage() {
                 <div className="flex justify-between font-body-sm text-body-sm text-on-surface-variant">
                   <span>Subtotal</span>
                   <span>{formatMoney(subtotal)}</span>
+                </div>
+                <div className="flex justify-between font-body-sm text-body-sm text-on-surface-variant">
+                  <span>Discount</span>
+                  <span>-{formatMoney(saleDiscount)}</span>
                 </div>
                 <div className="flex justify-between font-body-sm text-body-sm text-on-surface-variant">
                   <span>Taxes</span>
@@ -244,9 +278,13 @@ export default function CheckoutPage() {
 
               <button
                 type="button"
+                onClick={handleCompletePurchase}
+                disabled={cartItems.length === 0 || isSubmitting}
                 className="w-full py-4 rounded-xl font-label-md text-label-md text-on-primary shadow-lg transition-transform active:scale-[0.98] flex items-center justify-center gap-2 group bg-linear-to-r from-primary-container to-primary"
               >
-                <span>Complete Purchase</span>
+                <span>
+                  {isSubmitting ? "Processing..." : "Complete Purchase"}
+                </span>
                 <span className="material-symbols-outlined group-hover:translate-x-1 transition-transform">
                   arrow_forward
                 </span>

@@ -4,7 +4,6 @@
 function StarRow({ stars }) {
   const wholeStars = Math.floor(stars);
   const hasHalf = stars % 1 >= 0.25; // 0.5 → half star
-
   return (
     <div className="flex text-yellow-500">
       {Array.from({ length: wholeStars }).map((_, idx) => (
@@ -37,7 +36,6 @@ function StarRow({ stars }) {
     </div>
   );
 }
-
 /**
  * Format price for display.
  * price_promotion takes priority over price.
@@ -47,11 +45,9 @@ function formatPrice(price, pricePromotion) {
     pricePromotion !== null && pricePromotion !== undefined
       ? pricePromotion
       : price;
-
   if (effectivePrice === 0) return "Free";
   return `$${effectivePrice.toLocaleString("en-US", { minimumFractionDigits: 2 })}`;
 }
-
 /**
  * CourseCard — single course card matching the static HTML design.
  *
@@ -68,17 +64,14 @@ export default function CourseCard({ course }) {
     students,
     feature,
   } = course;
-
   // Determine badge text
   const badge = feature ? "Best Seller" : null;
-
   // Stars / rating placeholder — schema chưa có rating, dùng giá trị cứng
   const stars = 4.5;
   const ratingText = "4.5";
   const reviewCount = students
     ? `(${students.toLocaleString("en-US")})`
     : "";
-
   return (
     <div className="group bg-surface-container-lowest border border-outline-variant/30 rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300">
       {/* Thumbnail */}
@@ -97,16 +90,14 @@ export default function CourseCard({ course }) {
           </div>
         ) : null}
       </div>
-
       {/* Content */}
       <div className="p-4 space-y-3">
-        <h3 className="font-headline-md text-headline-md leading-tight group-hover:text-primary transition-colors line-clamp-2">
+        <h3 className="font-headline-md text-[16px] md:text-[18px] leading-tight group-hover:text-primary transition-colors line-clamp-2">
           {course_title}
         </h3>
         <p className="text-body-sm text-on-surface-variant">
           {provider || "Unknown Instructor"}
         </p>
-
         {/* Rating row */}
         <div className="flex items-center gap-1">
           <span className="font-label-md text-label-md text-on-surface">
@@ -119,11 +110,10 @@ export default function CourseCard({ course }) {
             </span>
           ) : null}
         </div>
-
         {/* Price & Favorite */}
         <div className="flex items-center justify-between pt-2">
           <div className="flex items-center gap-2">
-            <span className="font-headline-md text-headline-md text-on-surface">
+            <span className="font-headline-md text-[18px] text-on-surface font-semibold">
               {formatPrice(price, price_promotion)}
             </span>
             {price_promotion !== null &&
