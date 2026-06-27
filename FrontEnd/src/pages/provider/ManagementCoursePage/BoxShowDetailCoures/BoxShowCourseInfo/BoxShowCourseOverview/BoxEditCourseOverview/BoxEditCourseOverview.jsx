@@ -27,7 +27,7 @@ const BoxEditCourseOverview = ({ overview, courseId, refetch }) => {
       {
         onSuccess: () => {
           notification.success({
-            message: "Thành công",
+            title: "Thành công",
             description: "Cập nhật tổng quan khóa học thành công",
           });
           setOpen(false);
@@ -35,7 +35,7 @@ const BoxEditCourseOverview = ({ overview, courseId, refetch }) => {
         },
         onError: (err) => {
           notification.error({
-            message: "Thất bại",
+            title: "Thất bại",
             description: err?.response?.data?.message,
           });
         },

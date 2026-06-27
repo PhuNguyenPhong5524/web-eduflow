@@ -149,6 +149,7 @@ const BoxShowCourseSection = ({
         </button>
         <BoxAddCourseSection 
           refetch={refetch}
+          courseId={courseId}
         />
       </div>
 

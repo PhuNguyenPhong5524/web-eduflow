@@ -109,6 +109,14 @@ function App() {
                     </ProtectedRoute>
                   }
                 />
+                <Route
+                  path="courses/detail/:id"
+                  element={
+                    <ProtectedRoute roles={["provider"]}>
+                      <BoxShowDetailCourses />
+                    </ProtectedRoute>
+                  }
+                />
               </Route>
 
               {/* Admin */}

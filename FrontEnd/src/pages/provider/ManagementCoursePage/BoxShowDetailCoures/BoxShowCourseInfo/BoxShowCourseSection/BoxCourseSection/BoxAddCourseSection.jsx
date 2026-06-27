@@ -4,10 +4,9 @@ import { useNavigate } from "react-router-dom";
 import usePostCourseSection from "../../../../../../../hooks/useCourse/usePostCourseSection";
 import { useParams } from "react-router";
 
-const BoxAddCourseSection = ({ refetch }) => {
+const BoxAddCourseSection = ({ refetch, courseId}) => {
   const [open, setOpen] = useState(false);
   const [form] = Form.useForm();
-  const { _id: courseId } = useParams();
   const navigate = useNavigate();
 
   const { mutate: addSection, isPending } = usePostCourseSection();
