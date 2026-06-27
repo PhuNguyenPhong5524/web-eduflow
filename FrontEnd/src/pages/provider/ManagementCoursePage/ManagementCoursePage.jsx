@@ -3,9 +3,12 @@ import { Table, Input, Select, Button, Tag, Popconfirm, Space, message } from 'a
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 
-import useGetCourse from "../../../hooks/useCourse/useGetCourse";
 import useLoading from "../../../hooks/useCourse/useLoading";
 import { useAuth } from "../../../contexts/AuthContext";
+import useGetCourse from '../../../hooks/useCourse/useGetCourse';
+import {exportCourseExcel} from '../../../services/adminCourseService';
+import BoxAddinfoCourse from './BoxAddinfoCourse/BoxAddinfoCourse';
+import useDeleteCourse from "../../../hooks/useCourse/useDeleteCourse";
 
 const ManagementCoursePage = () => {
   // --- Quản lý State Bộ lọc ---
@@ -18,9 +21,15 @@ const ManagementCoursePage = () => {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
-  // --- GỌI API THỰC TẾ QUA HOOK (Từ BoxShowCourse) ---
-  // searchQuery được truyền thẳng vào biến keyword của hook để search từ Server
-  const { data: showCourses, isFetching, refetch } = useGetCourse(page, pageSize, searchQuery);
+  const {
+    data: showCourses,
+    isFetching,
+    refetch,
+  } = useGetCourse(
+    page,
+    pageSize,
+    searchQuery
+  );
   const loading = useLoading(isFetching, 300);
   const { user } = useAuth();
 
@@ -30,14 +39,26 @@ const ManagementCoursePage = () => {
   }, [searchQuery, selectedCategory, selectedFeature, selectedPrice]);
 
   // --- Chức năng Xóa khóa học qua API ---
-  const handleDeleteCourse = async (id) => {
-    try {
-      await axios.delete(`/api/courses/${id}`); // Thay đổi đường dẫn endpoint cho đúng với dự án của bạn
-      message.success("Xóa khóa học thành công!");
-      refetch(); // Tải lại danh sách từ server sau khi xóa thành công
-    } catch (error) {
-      message.error(error.response?.data?.message || "Xóa khóa học thất bại!");
-    }
+  const { mutate: deleteCourse, isPending } = useDeleteCourse();
+
+  const handleDeleteCourse = (courseId) => {
+    deleteCourse(courseId, {
+      onSuccess: (data) => {
+        message.success(
+          data?.message || "Xóa khóa học thành công"
+        );
+
+        refetch();
+
+        // hoặc navigate("/provider/courses");
+      },
+      onError: (error) => {
+        message.error(
+          error?.response?.data?.message ||
+            "Xóa khóa học thất bại"
+        );
+      },
+    });
   };
 
   // --- Chức năng Làm mới (Reset bộ lọc và gọi lại API) ---
@@ -90,7 +111,7 @@ const ManagementCoursePage = () => {
       render: (id) => <span title={id}>{id?.substring(0, 8)}...</span>
     },
     {
-      title: 'Course Info',
+      title: 'Tên khóa học',
       key: 'courseInfo',
       render: (_, record) => (
         <div className="flex items-center gap-4 group">
@@ -112,34 +133,30 @@ const ManagementCoursePage = () => {
       ),
     },
     {
-      title: 'Category',
+      title: 'Danh mục',
       dataIndex: 'category',
       key: 'category',
       className: 'font-body-sm text-on-surface-variant',
       render: (text) => text ? <Tag color="pink">{text}</Tag> : <span className="text-gray-400">---</span>,
     },
     {
-      title: 'Price',
+      title: 'Giá',
       dataIndex: 'price',
       key: 'price',
       className: 'font-label-md text-on-surface font-semibold',
       render: (_, record) => {
-        const price = record.price === 0 ? 'Free' : `${record.price?.toLocaleString('vi-VN')} đ`;
-        const promo = record.price_promotion > 0 ? `${record.price_promotion?.toLocaleString('vi-VN')} đ` : null;
-
-        return promo ? (
-          <div>
-            <span className="text-red-500 font-semibold">{promo}</span>
-            <br />
-            <span className="line-through text-gray-400 text-xs">{price}</span>
-          </div>
-        ) : (
-          <span>{price}</span>
-        );
-      }
+        return (
+          <span className="text-[#e70000] text-[14px] font-bold">
+              { record.price === 0 
+                  ? <span className="text-green-400 font-semibold">Free</span>
+                  : `${Number(record.price).toLocaleString('vi-VN')}`
+              }
+          </span>
+        ) 
+      },
     },
     {
-      title: 'Students',
+      title: 'Học viên',
       dataIndex: 'students',
       key: 'students',
       align: 'center',
@@ -151,16 +168,10 @@ const ManagementCoursePage = () => {
       ),
     },
     {
-      title: 'Duration',
-      dataIndex: 'duration',
-      key: 'duration',
-      align: 'center',
-      className: 'text-xs text-on-surface-variant'
-    },
-    {
       title: 'Type',
       dataIndex: 'feature',
       key: 'feature',
+      align: 'center',
       render: (feature) => {
         return feature ? (
           <Tag className="m-0 px-3 py-1 rounded-full text-xs font-label-md bg-orange-100 text-orange-700 border border-orange-200 ant-tag-custom">Featured</Tag>
@@ -172,30 +183,29 @@ const ManagementCoursePage = () => {
     {
       title: 'Actions',
       key: 'actions',
-      align: 'right',
+      align: 'center',
       render: (_, record) => (
-        <Space size={4} className="justify-end">
-          <Button type="text" className="p-2 h-auto flex items-center justify-center hover:bg-primary/10 hover:text-primary rounded-lg" title="Edit">
-            <span className="material-symbols-outlined text-[20px]">edit</span>
-          </Button>
-          
+        <Space size={4} className="justify-end">          
           {/* Tích hợp thẻ Link router dẫn sang chi tiết giống BoxShowCourse */}
-          <Link to={`${record._id}`}>
+          <Link to={`detail/${record._id}`}>
             <Button type="text" className="p-2 h-auto flex items-center justify-center hover:bg-secondary/10 hover:text-secondary rounded-lg" title="View">
               <span className="material-symbols-outlined text-[20px]">visibility</span>
             </Button>
           </Link>
-
           <Popconfirm
             title="Xóa khóa học"
-            description="Bạn chắc chắn muốn xóa khóa học này?"
+            description="Khóa học, chương học, bài học, overview và dữ liệu liên quan sẽ bị xóa vĩnh viễn. Bạn có chắc chắn?"
+            okText="Xóa"
+            cancelText="Hủy"
+            okButtonProps={{
+              danger: true,
+              loading: isPending,
+            }}
+            placement="left"
             onConfirm={() => handleDeleteCourse(record._id)}
-            okText="Yes"
-            cancelText="No"
-            placement="topRight"
           >
-            <Button type="text" className="p-2 h-auto flex items-center justify-center hover:bg-error/10 hover:text-error rounded-lg" title="Delete">
-              <span className="material-symbols-outlined text-[20px]">delete</span>
+            <Button danger type="text" className="p-2 h-auto flex items-center justify-center hover:bg-error/10 hover:text-error rounded-lg">
+               <span className="material-symbols-outlined text-[20px]">delete</span>
             </Button>
           </Popconfirm>
         </Space>
@@ -203,22 +213,51 @@ const ManagementCoursePage = () => {
     },
   ];
 
+  const handleExportExcel = async () => {
+    try {
+      const blob = await exportCourseExcel();
+
+      const url = window.URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+
+      link.href = url;
+      link.download = "courses.xlsx";
+
+      document.body.appendChild(link);
+
+      link.click();
+
+      link.remove();
+
+      window.URL.revokeObjectURL(url);
+
+      message.success("Xuất file Excel thành công!");
+    } catch (error) {
+      console.error(error);
+
+      message.error(
+        error?.response?.data?.message ||
+        "Xuất file Excel thất bại!"
+      );
+    }
+  };
+
   return (
      <div className="">
         {/* Page Header Area */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-gutter">
           <div>
             <h2 className="font-headline-lg text-headline-lg text-on-surface tracking-tight">Quản lý khóa học</h2>
-            <p className="text-on-surface-variant mt-1">Quản lý các chương trình học thuật tương thích trực tiếp với hệ thống dữ liệu API.</p>
+            <p className="text-[12px] mt-1">Quản lý các chương trình học thuật tương thích trực tiếp với hệ thống dữ liệu API.</p>
           </div>
           <div className="flex items-center gap-3">
             <Button onClick={handleRefresh} className="p-2.5 h-auto border border-outline-variant/40 rounded-xl flex items-center justify-center" type="text">
               <span className="material-symbols-outlined text-on-surface-variant">refresh</span>
             </Button>
-            <Button type="primary" className="flex items-center gap-2 bg-primary text-white h-auto px-5 py-2.5 rounded-xl font-label-md border-none">
-              <span className="material-symbols-outlined text-white">add</span>
-              Add New Course
-            </Button>
+            <BoxAddinfoCourse 
+              refetch={refetch} 
+            />
           </div>
         </div>
 
@@ -241,7 +280,7 @@ const ManagementCoursePage = () => {
               onChange={(value) => setSelectedCategory(value)}
               className="min-w-[160px]"
               options={[
-                { value: 'All', label: 'Category: All' },
+                { value: 'All', label: 'Danh mục: tất cả' },
                 { value: 'Phát triển web', label: 'Phát triển web' },
                 { value: 'Khoa học dữ liệu', label: 'Khoa học dữ liệu' },
                 { value: 'Ứng dụng di động', label: 'Ứng dụng di động' },
@@ -252,7 +291,7 @@ const ManagementCoursePage = () => {
               onChange={(value) => setSelectedFeature(value)}
               className="min-w-[140px]"
               options={[
-                { value: 'All', label: 'Type: All' },
+                { value: 'All', label: 'Loại: tất cả' },
                 { value: 'Featured', label: 'Featured' },
                 { value: 'Standard', label: 'Standard' },
               ]}
@@ -262,7 +301,7 @@ const ManagementCoursePage = () => {
               onChange={(value) => setSelectedPrice(value)}
               className="min-w-[150px]"
               options={[
-                { value: 'All', label: 'Price: All' },
+                { value: 'All', label: 'Giá: tất cả' },
                 { value: 'Free', label: 'Free' },
                 { value: 'Under 200k', label: 'Dưới 200.000đ' },
                 { value: '200k - 500k', label: '200k - 500k' },
@@ -270,10 +309,17 @@ const ManagementCoursePage = () => {
               ]}
             />
           </div>
+          <Button
+            type="primary"
+            style={{ height: 'auto', padding: '4px 16px' }}
+            onClick={handleExportExcel}
+          >
+            Xuất file excel
+          </Button>
         </div>
 
         {/* Table Section */}
-        <div className="bg-surface-container-lowest rounded-2xl border border-outline-variant/30 shadow-sm overflow-hidden">
+        <div className="bg-surface-container-lowest rounded-2xl px-4 py-2 border border-outline-variant/30 shadow-sm overflow-hidden mt-4 ">
           <Table 
             rowKey="_id"
             columns={columns} 
@@ -283,21 +329,24 @@ const ManagementCoursePage = () => {
             rowClassName="hover:bg-surface-container-low/30 transition-colors"
             pagination={{
               current: page,
-              pageSize: pageSize,
-              total: showCourses?.totalCourses || showCourses?.total || filteredCourses.length, 
+              pageSize,
+              total: showCourses?.totalCourses || 0,
               showSizeChanger: true,
               pageSizeOptions: [5, 10, 20, 50],
-              position: ['bottomRight'],
+              placement: "bottomCenter",
+
               onChange: (p, ps) => {
                 setPage(p);
                 setPageSize(ps);
               },
+
               showTotal: (total, range) => (
-                <p className="font-body-sm text-on-surface-variant m-0 self-center">
-                  Showing <span className="font-semibold text-on-surface">{range[0]} - {range[1]}</span> of <span className="font-semibold text-on-surface">{total}</span> courses
+                <p className="font-body-sm text-on-surface-variant m-0 ">
+                  Showing {range[0]} - {range[1]} of {total} courses
                 </p>
               ),
             }}
+            
           />
         </div>
       </div>

@@ -84,6 +84,7 @@ import routerChangePassword from "./routes/auth/changePassword.js";
 import routerCategory from "./routes/category.js";
 import routerProvider from "./routes/provider.js";
 import routerCourse from "./routes/course.js";
+import routerCart from "./routes/cart.js";
 import routerRefreshToken from "./routes/auth/refreshToken.js";
 import routerForgotPassword from "./routes/auth/forgotPassword.js";
 import routerLogout from "./routes/auth/logout.js";
@@ -159,6 +160,9 @@ app.use("/", routerProvider);
 
 // Khóa học
 app.use("/", routerCourse);
+
+// Giỏ hàng + Checkout
+app.use("/", routerCart);
 
 app.get("/", (req, res) => {
   res.send("Hello World!");

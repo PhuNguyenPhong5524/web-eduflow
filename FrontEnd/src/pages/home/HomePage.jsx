@@ -5,6 +5,7 @@ import {
   getFeatureCourses,
   getProviders,
 } from "../../services/homeService";
+import { useCart } from "../../contexts/CartContext";
 
 // Map icon_key from DB to Material Symbol names
 const ICON_MAP = {
@@ -60,6 +61,7 @@ function ProviderSkeleton() {
 export default function HomePage() {
   const mainRef = useRef(null);
   const navigate = useNavigate();
+  const { addToCart } = useCart();
   const [categories, setCategories] = useState([]);
   const [courses, setCourses] = useState([]);
   const [providers, setProviders] = useState([]);
@@ -343,7 +345,12 @@ export default function HomePage() {
                               </span>
                             )}
                           </div>
-                          <button className="p-2 bg-surface-container-highest rounded-full hover:bg-primary hover:text-white transition-colors">
+                          <button
+                            type="button"
+                            onClick={() => addToCart(course)}
+                            className="p-2 bg-surface-container-highest rounded-full hover:bg-primary hover:text-white transition-colors"
+                            aria-label={`Add ${course.course_title} to cart`}
+                          >
                             <span className="material-symbols-outlined">
                               add_shopping_cart
                             </span>

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
-
+import { useCart } from "../../contexts/CartContext";
 
 const COURSES = [
   {
@@ -119,6 +119,8 @@ function HeroContinueBar({ progress }) {
 
 export default function DashboardPage() {
   const { user, logout } = useAuth();
+  const { addToCart } = useCart();
+  const { itemCount } = useCart();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -138,7 +140,6 @@ export default function DashboardPage() {
             Tiếp tục hành trình học tập của bạn hoặc khám phá các khóa học mới!
           </p>
         </div>
-
       </header>
 
       {/* My Courses */}
@@ -246,7 +247,11 @@ export default function DashboardPage() {
                 </div>
                 <div className="text-right shrink-0">
                   <p className="font-bold text-primary">{item.price}</p>
-                  <button className="text-[12px] text-secondary hover:underline">
+                  <button
+                    type="button"
+                    onClick={() => addToCart(item)}
+                    className="text-[12px] text-secondary hover:underline"
+                  >
                     Add to cart
                   </button>
                 </div>
@@ -307,6 +312,5 @@ export default function DashboardPage() {
         </section>
       </div>
     </div>
-        
   );
 }

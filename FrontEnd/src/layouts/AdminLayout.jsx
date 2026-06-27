@@ -7,7 +7,7 @@ const MENU_ITEMS = [
   { icon: "group", label: "Users", to: "/admin/users" },
   { icon: "co_present", label: "Providers", to: "#", disabled: true },
   { icon: "school", label: "Courses", to: "#", disabled: true },
-  { icon: "category", label: "Categories", to: "#", disabled: true },
+  { icon: "category", label: "Categories", to: "/admin/categories " },
   { icon: "settings", label: "Settings", to: "/security-settings" },
 ];
 

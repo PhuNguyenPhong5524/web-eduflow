@@ -8,7 +8,7 @@ const MENU_ITEMS = [
   { icon: "school", label: "My Courses", to: "/provider/courses" },
   // { icon: "co_present", label: "Providers", to: "#", disabled: true },
   // { icon: "category", label: "Categories", to: "#", disabled: true },
-  // { icon: "settings", label: "Settings", to: "/security-settings" },
+  { icon: "settings", label: "Settings", to: "/provider/settings" },
 ];
 
 const ProviderLayout = ({title= "Nhà cung cấp"}) =>{
@@ -102,7 +102,7 @@ const handleLogout = () => {
             </div>
 
             <Link
-              to="/admin/users"
+              to="/provider/settings"
               className="block w-full rounded-lg bg-primary py-2 text-center font-label-sm text-label-sm text-on-primary transition-opacity hover:opacity-90"
             >
               Manage Users

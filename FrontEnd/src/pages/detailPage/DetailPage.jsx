@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { getCourseDetail } from "../../services/courseService";
-import BoxModalVideo from './BoxModalShowVideo/BoxModalVideo';
+import BoxModalVideo from "./BoxModalShowVideo/BoxModalVideo";
 
 const CourseDetailPage = () => {
   // Logic cho Sticky Sidebar
@@ -24,42 +24,42 @@ const CourseDetailPage = () => {
       }
     };
 
-    window.addEventListener('scroll', handleScrollAndResize);
-    window.addEventListener('resize', handleScrollAndResize);
+    window.addEventListener("scroll", handleScrollAndResize);
+    window.addEventListener("resize", handleScrollAndResize);
 
     // Initial check
     handleScrollAndResize();
 
     return () => {
-      window.removeEventListener('scroll', handleScrollAndResize);
-      window.removeEventListener('resize', handleScrollAndResize);
+      window.removeEventListener("scroll", handleScrollAndResize);
+      window.removeEventListener("resize", handleScrollAndResize);
     };
   }, []);
 
   //Hiệu ứng xuất hiện mượt mà khi scroll (Scroll Reveal)
   useEffect(() => {
-  if (!course) return;
+    if (!course) return;
 
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add("opacity-100", "translate-y-0");
-          entry.target.classList.remove("opacity-0", "translate-y-12");
-        }
-      });
-    },
-    {
-      threshold: 0.15,
-    }
-  );
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("opacity-100", "translate-y-0");
+            entry.target.classList.remove("opacity-0", "translate-y-12");
+          }
+        });
+      },
+      {
+        threshold: 0.15,
+      },
+    );
 
-  const hiddenElements = document.querySelectorAll(".scroll-reveal");
+    const hiddenElements = document.querySelectorAll(".scroll-reveal");
 
-  hiddenElements.forEach((el) => observer.observe(el));
+    hiddenElements.forEach((el) => observer.observe(el));
 
-  return () => observer.disconnect();
-}, [course]);
+    return () => observer.disconnect();
+  }, [course]);
 
   // Logic cho Accordion (Mở/Đóng nội dung khóa học)
   const [expandedSections, setExpandedSections] = useState({});
@@ -73,9 +73,7 @@ const CourseDetailPage = () => {
 
   const isAllExpanded =
     course?.sections?.length > 0 &&
-    course.sections.every(
-      (section) => expandedSections[section._id]
-    );
+    course.sections.every((section) => expandedSections[section._id]);
 
   const handleExpandAll = () => {
     if (isAllExpanded) {
@@ -83,8 +81,8 @@ const CourseDetailPage = () => {
     } else {
       setExpandedSections(
         Object.fromEntries(
-          course.sections.map((section) => [section._id, true])
-        )
+          course.sections.map((section) => [section._id, true]),
+        ),
       );
     }
   };
@@ -102,11 +100,16 @@ const CourseDetailPage = () => {
     fetchCourse();
   }, [id]);
 
-  if (!course) return <div className='mt-18 px-margin-desktop max-w-7xl mx-auto'> Loading...</div>;
-  
+  if (!course)
+    return (
+      <div className="mt-18 px-margin-desktop max-w-7xl mx-auto">
+        {" "}
+        Loading...
+      </div>
+    );
+
   return (
     <div className="bg-background text-on-surface font-body-md min-h-screen relative pt-[40px]">
-      
       {/* Course Header (Phần Hero thông tin khóa học) */}
       <header className="bg-inverse-surface text-surface-container-lowest py-12">
         <div className="px-margin-desktop max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-gutter relative">
@@ -119,7 +122,9 @@ const CourseDetailPage = () => {
               <span className="material-symbols-outlined text-sm">chevron_right</span>
               <span className="font-label-md text-label-md text-primary-fixed">Advanced UI/UX Principles</span>
             </nav> */}
-            <h1 className="font-display text-3xl md:text-4xl font-semibold mb-4 leading-tight">{course.course.course_title}</h1>
+            <h1 className="font-display text-3xl md:text-4xl font-semibold mb-4 leading-tight">
+              {course.course.course_title}
+            </h1>
             <p className="font-body-lg text-body-lg mb-6 max-w-3xl opacity-90 line-clamp-2">
               {course.course.description}
             </p>
@@ -127,26 +132,53 @@ const CourseDetailPage = () => {
               <div className="flex items-center gap-1">
                 <span className="text-secondary-fixed font-bold">4.9</span>
                 <div className="flex text-secondary-fixed">
-                  <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                  <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                  <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                  <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                  <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+                  <span
+                    className="material-symbols-outlined text-sm"
+                    style={{ fontVariationSettings: "'FILL' 1" }}
+                  >
+                    star
+                  </span>
+                  <span
+                    className="material-symbols-outlined text-sm"
+                    style={{ fontVariationSettings: "'FILL' 1" }}
+                  >
+                    star
+                  </span>
+                  <span
+                    className="material-symbols-outlined text-sm"
+                    style={{ fontVariationSettings: "'FILL' 1" }}
+                  >
+                    star
+                  </span>
+                  <span
+                    className="material-symbols-outlined text-sm"
+                    style={{ fontVariationSettings: "'FILL' 1" }}
+                  >
+                    star
+                  </span>
+                  <span
+                    className="material-symbols-outlined text-sm"
+                    style={{ fontVariationSettings: "'FILL' 1" }}
+                  >
+                    star
+                  </span>
                 </div>
                 <span className="text-white/70">(2,450 ratings)</span>
               </div>
               <div className="h-4 w-px bg-white/20"></div>
-              <span className="text-white/70">{course.course.students} Đã đăng kí khóa học</span>
+              <span className="text-white/70">
+                {course.course.students} Đã đăng kí khóa học
+              </span>
             </div>
             <div className="flex items-center gap-2">
-                <p className="text-sm">Được tạo bởi </p>
-                <div 
-                  className="
+              <p className="text-sm">Được tạo bởi </p>
+              <div
+                className="
                     text-primary-fixed text-[14px] underline decoration-primary-fixed/30 
-                    hover:decoration-primary-fixed" 
-                >
-                  {course.course.provider_name}
-                </div>
+                    hover:decoration-primary-fixed"
+              >
+                {course.course.provider_name}
+              </div>
             </div>
           </div>
         </div>
@@ -155,30 +187,50 @@ const CourseDetailPage = () => {
       {/* Main Content Area */}
       <div className="px-margin-desktop max-w-7xl mx-auto py-stack-lg relative mt-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
-          
           {/* Left Content Area */}
           <div className="lg:col-span-8 space-y-12">
-            
             {/*Thêm class: scroll-reveal opacity-0 translate-y-12 transition-all duration-700 ease-out */}
             {/* What You'll Learn */}
             <section className="scroll-reveal opacity-0 translate-y-12 transition-all duration-700 ease-out p-6 border border-outline-variant/30 rounded-lg">
-              <h2 className="font-headline-md text-headline-md mb-6">Tổng quan khóa học</h2>
+              <h2 className="font-headline-md text-headline-md mb-6">
+                Tổng quan khóa học
+              </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
                 <div className="flex gap-3">
-                  <span className="material-symbols-outlined text-on-surface-variant">check</span>
-                  <span className="text-sm">Understand cognitive biases that influence how users interact with complex dashboards.</span>
+                  <span className="material-symbols-outlined text-on-surface-variant">
+                    check
+                  </span>
+                  <span className="text-sm">
+                    Understand cognitive biases that influence how users
+                    interact with complex dashboards.
+                  </span>
                 </div>
                 <div className="flex gap-3">
-                  <span className="material-symbols-outlined text-on-surface-variant">check</span>
-                  <span className="text-sm">Learn to structure massive data sets into digestible, intuitive navigation systems.</span>
+                  <span className="material-symbols-outlined text-on-surface-variant">
+                    check
+                  </span>
+                  <span className="text-sm">
+                    Learn to structure massive data sets into digestible,
+                    intuitive navigation systems.
+                  </span>
                 </div>
                 <div className="flex gap-3">
-                  <span className="material-symbols-outlined text-on-surface-variant">check</span>
-                  <span className="text-sm">Build scalable component libraries that maintain consistency across large platforms.</span>
+                  <span className="material-symbols-outlined text-on-surface-variant">
+                    check
+                  </span>
+                  <span className="text-sm">
+                    Build scalable component libraries that maintain consistency
+                    across large platforms.
+                  </span>
                 </div>
                 <div className="flex gap-3">
-                  <span className="material-symbols-outlined text-on-surface-variant">check</span>
-                  <span className="text-sm">Turn complex metrics into actionable insights through precise chart and graph design.</span>
+                  <span className="material-symbols-outlined text-on-surface-variant">
+                    check
+                  </span>
+                  <span className="text-sm">
+                    Turn complex metrics into actionable insights through
+                    precise chart and graph design.
+                  </span>
                 </div>
               </div>
             </section>
@@ -194,7 +246,7 @@ const CourseDetailPage = () => {
                   {course.sections?.length || 0} sections •{" "}
                   {course.sections?.reduce(
                     (total, section) => total + section.lectures.length,
-                    0
+                    0,
                   ) || 0}{" "}
                   bài học
                 </span>
@@ -274,13 +326,13 @@ const CourseDetailPage = () => {
 
             {/* Requirements */}
             <section className="scroll-reveal opacity-0 translate-y-12 transition-all duration-700 ease-out">
-              <h2 className="font-headline-md text-headline-md mb-4">Yêu cầu khóa học</h2>
+              <h2 className="font-headline-md text-headline-md mb-4">
+                Yêu cầu khóa học
+              </h2>
               <ul className="list-disc ml-5 space-y-2 text-sm text-on-surface-variant">
-                {
-                  course.requests.map((rq) => (
-                    <li key={rq._id}>{rq.request_name}</li>
-                  ))
-                }
+                {course.requests.map((rq) => (
+                  <li key={rq._id}>{rq.request_name}</li>
+                ))}
               </ul>
             </section>
 
@@ -293,93 +345,147 @@ const CourseDetailPage = () => {
             </section>
 
             {/* Instructor Bio */}
-            <section className="scroll-reveal opacity-0 translate-y-12 transition-all duration-700 ease-out scroll-mt-24" id="instructor">
-              <h2 className="font-headline-md text-headline-md mb-6">Giảng viên</h2>
+            <section
+              className="scroll-reveal opacity-0 translate-y-12 transition-all duration-700 ease-out scroll-mt-24"
+              id="instructor"
+            >
+              <h2 className="font-headline-md text-headline-md mb-6">
+                Giảng viên
+              </h2>
               <div className="flex flex-col gap-4">
                 <div>
-                  <h3 className="text-xl font-bold text-primary underline underline-offset-4 decoration-primary/30">{course.course.provider_name}</h3>
-                  <p className="text-on-surface-variant text-sm mt-1">Senior Product Design Lead @ TechNexus</p>
+                  <h3 className="text-xl font-bold text-primary underline underline-offset-4 decoration-primary/30">
+                    {course.course.provider_name}
+                  </h3>
+                  <p className="text-on-surface-variant text-sm mt-1">
+                    Senior Product Design Lead @ TechNexus
+                  </p>
                 </div>
                 <div className="flex gap-8 items-start">
-                  <img alt="Marcus Sterling" className="w-28 h-28 rounded-full object-cover shadow-sm" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAvtcD6oC7w8QaKBKPo44FHxbvq-wIVSEWgTUZobOKYRYLAyGwFn6mxhmhUu_39HKM3_JEGptqciRfWcuZqapXIpQYd5PAsjjpP17uhsY-cnQrMu6VtCXBrTxYYvK-3ENJiLlC_ry72jdSzkHjj-umumKc2Mi5RFpJhz2gLwvCotyqf1WWMq-CoUrxQHsfHm06XjlcYkBpI5l_wtravSGxB0wQ2frm6CK-zhs9n4btb6WINfzO0Gp0nBETHem131JTL5grXnUyPv_8" />
+                  <img
+                    alt="Marcus Sterling"
+                    className="w-28 h-28 rounded-full object-cover shadow-sm"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuAvtcD6oC7w8QaKBKPo44FHxbvq-wIVSEWgTUZobOKYRYLAyGwFn6mxhmhUu_39HKM3_JEGptqciRfWcuZqapXIpQYd5PAsjjpP17uhsY-cnQrMu6VtCXBrTxYYvK-3ENJiLlC_ry72jdSzkHjj-umumKc2Mi5RFpJhz2gLwvCotyqf1WWMq-CoUrxQHsfHm06XjlcYkBpI5l_wtravSGxB0wQ2frm6CK-zhs9n4btb6WINfzO0Gp0nBETHem131JTL5grXnUyPv_8"
+                  />
                   <div className="flex-1 space-y-2">
                     <div className="flex items-center gap-2 text-sm">
-                      <span className="material-symbols-outlined text-lg text-on-surface" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+                      <span
+                        className="material-symbols-outlined text-lg text-on-surface"
+                        style={{ fontVariationSettings: "'FILL' 1" }}
+                      >
+                        star
+                      </span>
                       <span className="font-bold">4.9</span> Instructor Rating
                     </div>
                     <div className="flex items-center gap-2 text-sm">
-                      <span className="material-symbols-outlined text-lg text-on-surface" style={{ fontVariationSettings: "'FILL' 1" }}>reviews</span>
+                      <span
+                        className="material-symbols-outlined text-lg text-on-surface"
+                        style={{ fontVariationSettings: "'FILL' 1" }}
+                      >
+                        reviews
+                      </span>
                       <span className="font-bold">12,402</span> Reviews
                     </div>
                     <div className="flex items-center gap-2 text-sm">
-                      <span className="material-symbols-outlined text-lg text-on-surface" style={{ fontVariationSettings: "'FILL' 1" }}>person</span>
+                      <span
+                        className="material-symbols-outlined text-lg text-on-surface"
+                        style={{ fontVariationSettings: "'FILL' 1" }}
+                      >
+                        person
+                      </span>
                       <span className="font-bold">45,821</span> Students
                     </div>
                     <div className="flex items-center gap-2 text-sm">
-                      <span className="material-symbols-outlined text-lg text-on-surface" style={{ fontVariationSettings: "'FILL' 1" }}>play_circle</span>
+                      <span
+                        className="material-symbols-outlined text-lg text-on-surface"
+                        style={{ fontVariationSettings: "'FILL' 1" }}
+                      >
+                        play_circle
+                      </span>
                       <span className="font-bold">3</span> Courses
                     </div>
                   </div>
                 </div>
                 <p className="text-sm text-on-surface-variant leading-relaxed mt-2">
-                  Marcus has spent the last 15 years leading design teams at Fortune 500 companies and high-growth startups. His work focuses on making complex software feel invisible, allowing users to achieve their goals with zero friction.
+                  Marcus has spent the last 15 years leading design teams at
+                  Fortune 500 companies and high-growth startups. His work
+                  focuses on making complex software feel invisible, allowing
+                  users to achieve their goals with zero friction.
                 </p>
               </div>
             </section>
-
           </div>
 
           {/* Sticky Sidebar Card */}
-        <aside className="lg:col-span-4 relative z-[50]">
-            <div 
-                className="w-full lg:max-w-[360px] bg-surface-container-lowest shadow-2xl border border-outline-variant/20 rounded-lg overflow-hidden z-[50] 
-                        lg:sticky lg:top-20 lg:-mt-[320px] transition-all duration-300 ease-out"
+          <aside className="lg:col-span-4 relative z-50">
+            <div
+              className="w-full lg:max-w-90 bg-surface-container-lowest shadow-2xl border border-outline-variant/20 rounded-lg overflow-hidden z-50 
+                        lg:sticky lg:top-20 lg:-mt-80 transition-all duration-300 ease-out"
             >
-                {/* Course Preview */}
-                <div className="relative aspect-video group cursor-pointer">
-                    <img 
-                      alt="Course Preview" 
-                      className="w-full h-full object-cover" 
-                      src={course.course.image_url} 
-                    />
-                    <BoxModalVideo videoLink={course.course.video_url} />
-                    <p className="absolute bottom-4 left-0 right-0 text-center text-white font-bold text-sm">Xem trước khóa học</p>
+              {/* Course Preview */}
+              <div className="relative aspect-video group cursor-pointer">
+                <img
+                  alt="Course Preview"
+                  className="w-full h-full object-cover"
+                  src={course.course.image_url}
+                />
+                <BoxModalVideo videoLink={course.course.video_url} />
+                <p className="absolute bottom-4 left-0 right-0 text-center text-white font-bold text-sm">
+                  Xem trước khóa học
+                </p>
+              </div>
+
+              <div className="p-6">
+                <div className="flex items-center flex-wrap gap-3 mb-6">
+                  <div className="flex items-end gap-2">
+                    <span className="text-2xl font-bold text-on-surface">
+                      {Number(course.course.price).toLocaleString("vi-VN", {
+                        style: "currency",
+                        currency: "VND",
+                      })}
+                    </span>
+                    <span className="text-on-surface-variant line-through text-lg">
+                      $149.99
+                    </span>
+                  </div>
+                  <span className="text-on-surface-variant font-bold bg-[#FFCDD2] py-1 px-2 rounded">
+                    40% off
+                  </span>
                 </div>
-                
-                <div className="p-6">
-                    <div className="flex items-center flex-wrap gap-3 mb-6">
-                        <div className="flex items-end gap-2">
-                          <span className="text-2xl font-bold text-on-surface">{Number(course.course.price).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</span>
-                          <span className="text-on-surface-variant line-through text-lg">$149.99</span>
-                        </div>
-                        <span className="text-on-surface-variant font-bold bg-[#FFCDD2] py-1 px-2 rounded">40% off</span>
-                    </div>
-                    
-                    <div className="space-y-3 mb-6">
-                        <button className="w-full py-4 bg-[#4f46e5] text-white font-bold rounded hover:opacity-90 active:scale-[0.98] transition-all">Thêm giỏ hàng</button>
-                        <button className="w-full py-4 border border-on-surface text-on-surface font-bold rounded hover:bg-surface-container-low active:scale-[0.98] transition-all">Mua ngay</button>
-                    </div>
-                    
-                    <div className="space-y-4">
-                        <h4 className="font-bold text-sm text-on-surface">Khóa học này bao gồm:</h4>
-                        <ul className="space-y-3">
-                            <li className="flex items-center gap-3 text-sm text-on-surface-variant">
-                                <span className="material-symbols-outlined text-lg">video_library</span>
-                                <span>{course.course.duration} giờ video khóa học</span>
-                            </li>
-                            <li className="flex items-center gap-3 text-sm text-on-surface-variant">
-                                <span className="material-symbols-outlined text-lg">devices</span>
-                                <span>Truy cập trên thiết bị di động và máy tính</span>
-                            </li>
-                        </ul>
-                    </div>
+
+                <div className="space-y-3 mb-6">
+                  <button className="w-full py-4 bg-primary-container text-white font-bold rounded hover:opacity-90 active:scale-[0.98] transition-all">
+                    Thêm giỏ hàng
+                  </button>
+                  <button className="w-full py-4 border border-on-surface text-on-surface font-bold rounded hover:bg-surface-container-low active:scale-[0.98] transition-all">
+                    Mua ngay
+                  </button>
                 </div>
+
+                <div className="space-y-4">
+                  <h4 className="font-bold text-sm text-on-surface">
+                    Khóa học này bao gồm:
+                  </h4>
+                  <ul className="space-y-3">
+                    <li className="flex items-center gap-3 text-sm text-on-surface-variant">
+                      <span className="material-symbols-outlined text-lg">
+                        video_library
+                      </span>
+                      <span>{course.course.duration} giờ video khóa học</span>
+                    </li>
+                    <li className="flex items-center gap-3 text-sm text-on-surface-variant">
+                      <span className="material-symbols-outlined text-lg">
+                        devices
+                      </span>
+                      <span>Truy cập trên thiết bị di động và máy tính</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
             </div>
-        </aside>
-          
+          </aside>
         </div>
       </div>
-
     </div>
   );
 };
