@@ -45,6 +45,7 @@ routerCourse.get("/courses/:id", getCourseById);
 routerCourse.get(
   "/my-courses/:id",
   authMiddleware,
+  authorizeRole("customer"),
   getPurchasedCourseById
 );
 

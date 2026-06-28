@@ -1,8 +1,8 @@
-import courseModel from "../models/course/course";
-import lectureModel from "../models/course/courseLecture";
-import courseOverviewModel from "../models/course/courseOverview";
-import courseRequestModel from "../models/course/courseRequest";
-import courseSectionModel from "../models/course/courseSection";
+import courseModel from "../models/course/course.js";
+import lectureModel from "../models/course/courseLecture.js";
+import courseOverviewModel from "../models/course/courseOverview.js";
+import courseRequestModel from "../models/course/courseRequest.js";
+import courseSectionModel from "../models/course/courseSection.js";
 
 export const getCourseDetail = async (courseId) => {
   const course = await courseModel

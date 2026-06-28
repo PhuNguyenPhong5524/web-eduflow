@@ -492,68 +492,31 @@ export const deleteCourse = async (req, res) => {
 
 export const getPurchasedCourseById = async (req, res) => {
   try {
-    const { id } = req.params; // courseId
+    const { id } = req.params;
     const userId = req.user.userId;
 
-    // Kiểm tra user đã mua khóa học chưa
-    const order = await orderModel.findOne({
+    const purchased = await orderModel.exists({
       user: userId,
       payment_status: "paid",
-      order_status: "completed",
       "items.course": id,
     });
 
-    if (!order) {
-      return res.status(403).json({ 
+    if (!purchased) {
+      return res.status(403).json({
         message: "Bạn chưa mua khóa học này.",
       });
     }
 
-    // Lấy thông tin khóa học
-    const course = await courseModel
-      .findById(id)
-      .populate("category_id", "cate_name")
-      .populate("provider_id", "provider_name")
-      .lean();
+    const data = await getCourseDetail(id);
 
-    if (!course) {
+    if (!data) {
       return res.status(404).json({
         message: "Không tìm thấy khóa học",
       });
     }
 
-    const [requests, overviews, sections] = await Promise.all([
-      courseRequestModel.find({ course_id: id }).lean(),
-      courseOverviewModel.find({ course_id: id }).lean(),
-      courseSectionModel.find({ course_id: id }).lean(),
-    ]);
+    return res.status(200).json(data);
 
-    const lectures = await lectureModel.find({
-      section_id: { $in: sections.map((s) => s._id) },
-    }).lean();
-
-    const sectionsWithLectures = sections.map((section) => ({
-      ...section,
-      lectures: lectures.filter(
-        (lecture) =>
-          lecture.section_id.toString() === section._id.toString()
-      ),
-    }));
-
-    const resultCourse = {
-      ...course,
-      category_id: course.category_id?._id,
-      category_name: course.category_id?.cate_name,
-      provider_id: course.provider_id?._id,
-      provider_name: course.provider_id?.provider_name,
-    };
-
-    return res.status(200).json({
-      course: resultCourse,
-      requests,
-      overviews,
-      sections: sectionsWithLectures,
-    });
   } catch (error) {
     return res.status(500).json({
       message: error.message,
