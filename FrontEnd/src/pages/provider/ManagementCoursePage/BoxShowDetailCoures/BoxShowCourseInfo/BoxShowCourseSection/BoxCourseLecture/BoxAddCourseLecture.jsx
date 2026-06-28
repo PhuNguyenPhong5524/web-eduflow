@@ -40,7 +40,7 @@ const BoxAddCourseLecture = ({ sectionId, refetch }) => {
   };
 
   return (
-    <>
+    <div className="mb-[8px]">
       <button
         onClick={() => setOpen(true)}
         className="
@@ -113,7 +113,7 @@ const BoxAddCourseLecture = ({ sectionId, refetch }) => {
           </Form.Item>
         </Form>
       </Modal>
-    </>
+    </div>
   );
 };
 

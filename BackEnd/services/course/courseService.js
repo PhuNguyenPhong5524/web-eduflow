@@ -1,8 +1,9 @@
-import courseModel from "../models/course/course.js";
-import lectureModel from "../models/course/courseLecture.js";
-import courseOverviewModel from "../models/course/courseOverview.js";
-import courseRequestModel from "../models/course/courseRequest.js";
-import courseSectionModel from "../models/course/courseSection.js";
+import courseModel from "../../models/course/course.js";
+import lectureModel from "../../models/course/courseLecture.js";
+import courseOverviewModel from "../../models/course/courseOverview.js";
+import courseRequestModel from "../../models/course/courseRequest.js";
+import courseSectionModel from "../../models/course/courseSection.js";
+import quizModel from "../../models/quiz/quiz.js";
 
 export const getCourseDetail = async (courseId) => {
   const course = await courseModel
@@ -22,13 +23,24 @@ export const getCourseDetail = async (courseId) => {
   const lectures = await lectureModel.find({
     section_id: { $in: sections.map((s) => s._id) },
   }).lean();
-
+  const quizzes = await quizModel.find({
+      section_id: {
+          $in: sections.map(section => section._id)
+      }
+  }).lean();
   const sectionsWithLectures = sections.map((section) => ({
     ...section,
+
     lectures: lectures.filter(
       (lecture) =>
         lecture.section_id.toString() === section._id.toString()
     ),
+
+    quiz:
+      quizzes.find(
+        (quiz) =>
+          quiz.section_id.toString() === section._id.toString()
+      ) || null,
   }));
 
   return {

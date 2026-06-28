@@ -15,6 +15,8 @@ import BoxAddCourseSection from "./BoxCourseSection/BoxAddCourseSection";
 import BoxAddCourseLecture from "./BoxCourseLecture/BoxAddCourseLecture";
 import useLoading from "../../../../../../hooks/useCourse/useLoading";
 import useDeleteCourseSection from "../../../../../../hooks/useCourse/useDeleteCourseSection";
+import BoxAddCourseQuiz from "./BoxCourseQuiz/BoxAddCourseQuiz";
+import BoxShowCourseQuiz from "./BoxCourseQuiz/BoxShowCourseQuizz";
 
 const BoxShowCourseSection = ({
   showCourse,
@@ -117,6 +119,17 @@ const BoxShowCourseSection = ({
           sectionId={section._id}
           refetch={refetch}
         />
+        {section.quiz ? (
+            <BoxShowCourseQuiz
+              quiz={section.quiz}
+              refetch={refetch}
+            />
+          ) : (
+            <BoxAddCourseQuiz
+              sectionId={section._id}
+              refetch={refetch}
+            />
+        )}
       </div>
     ),
   }));

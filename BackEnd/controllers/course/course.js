@@ -1,4 +1,4 @@
-import courseModel from "../../models/order.js";
+import courseModel from "../../models/course/course.js";
 import lectureModel from "../../models/course/courseLecture.js";
 import courseOverviewModel from "../../models/course/courseOverview.js";
 import courseRequestModel from "../../models/course/courseRequest.js";
@@ -10,7 +10,7 @@ import providerModel from "../../models/provider.js";
 import ExcelJS from "exceljs";
 
 import orderModel from "../../models/order.js";
-import { getCourseDetail } from "../../services/courseService.js";
+import { getCourseDetail } from "../../services/course/courseService.js";
 
 export const getFeaturedCourses = async (req, res) => {
   try {
