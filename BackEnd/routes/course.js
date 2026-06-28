@@ -6,6 +6,7 @@ import {
   getAllCourseOfProvider,
   getCourseById,
   getFeaturedCourses,
+  getPurchasedCourseById,
   UpdateCourse,
 } from "../controllers/course/course.js";
 import { getCourses } from "../controllers/course/getCourses.js";
@@ -40,6 +41,12 @@ routerCourse.get("/courses/featured", getFeaturedCourses);
 routerCourse.get("/courses-feature", getFeaturedCourses);
 // Khóa học detail
 routerCourse.get("/courses/:id", getCourseById);
+// Chi tiết khóa học đã mua 
+routerCourse.get(
+  "/my-courses/:id",
+  authMiddleware,
+  getPurchasedCourseById
+);
 
 // ************************************************************
 
