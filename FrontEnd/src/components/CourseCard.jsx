@@ -1,3 +1,6 @@
+import { useWishlist } from "../contexts/WishlistContext";
+import { useAuth } from "../contexts/AuthContext";
+
 /**
  * StarRow – renders 5 stars (filled / half / empty) based on a numeric rating.
  */
@@ -64,14 +67,22 @@ export default function CourseCard({ course }) {
     students,
     feature,
   } = course;
+
+  const { user } = useAuth();
+  const { isWishlisted, toggleWishlist } = useWishlist();
+  const wishlisted = isWishlisted(course._id);
+
+  const handleWishlist = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleWishlist(course._id);
+  };
   // Determine badge text
   const badge = feature ? "Best Seller" : null;
   // Stars / rating placeholder — schema chưa có rating, dùng giá trị cứng
   const stars = 4.5;
   const ratingText = "4.5";
-  const reviewCount = students
-    ? `(${students.toLocaleString("en-US")})`
-    : "";
+  const reviewCount = students ? `(${students.toLocaleString("en-US")})` : "";
   return (
     <div className="group bg-surface-container-lowest border border-outline-variant/30 rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300">
       {/* Thumbnail */}
@@ -89,6 +100,27 @@ export default function CourseCard({ course }) {
             {badge}
           </div>
         ) : null}
+        {/* Wishlist heart — only for logged-in customers */}
+        {user?.role === "customer" && (
+          <button
+            type="button"
+            onClick={handleWishlist}
+            className="absolute top-3 left-3 w-8 h-8 flex items-center justify-center rounded-full bg-white/80 backdrop-blur-sm shadow hover:scale-110 transition-transform"
+            aria-label={
+              wishlisted ? "Xóa khỏi yêu thích" : "Thêm vào yêu thích"
+            }
+          >
+            <span
+              className="material-symbols-outlined text-[18px] transition-colors"
+              style={{
+                fontVariationSettings: wishlisted ? "'FILL' 1" : "'FILL' 0",
+                color: wishlisted ? "#e53935" : "#666",
+              }}
+            >
+              favorite
+            </span>
+          </button>
+        )}
       </div>
       {/* Content */}
       <div className="p-4 space-y-3">
@@ -124,7 +156,10 @@ export default function CourseCard({ course }) {
                 </span>
               )}
           </div>
-          <button className="material-symbols-outlined text-outline hover:text-primary transition-colors">
+          <button
+            className="material-symbols-outlined text-outline hover:text-error transition-colors"
+            style={{ fontVariationSettings: "'FILL' 0" }}
+          >
             favorite
           </button>
         </div>

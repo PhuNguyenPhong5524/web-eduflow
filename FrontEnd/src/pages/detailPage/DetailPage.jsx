@@ -1,40 +1,35 @@
-import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import { getCourseDetail } from "../../services/courseService";
 import BoxModalVideo from "./BoxModalShowVideo/BoxModalVideo";
+import { useWishlist } from "../../contexts/WishlistContext";
+import { useAuth } from "../../contexts/AuthContext";
+import { useCart } from "../../contexts/CartContext";
 
 const CourseDetailPage = () => {
-  // Logic cho Sticky Sidebar
-  const [isSticky, setIsSticky] = useState(false);
-  // Get api detail
   const { id } = useParams();
-
   const [course, setCourse] = useState(null);
 
-  useEffect(() => {
-    const handleScrollAndResize = () => {
-      if (window.innerWidth >= 1024) {
-        if (window.scrollY > 350) {
-          setIsSticky(true);
-        } else {
-          setIsSticky(false);
-        }
-      } else {
-        setIsSticky(false);
-      }
-    };
+  const { user } = useAuth();
+  const { isWishlisted, toggleWishlist } = useWishlist();
+  const { addToCart } = useCart();
+  const navigate = useNavigate();
 
-    window.addEventListener("scroll", handleScrollAndResize);
-    window.addEventListener("resize", handleScrollAndResize);
+  const handleAddToCart = () => {
+    addToCart({
+      _id: course.course._id,
+      course_title: course.course.course_title,
+      image_url: course.course.image_url,
+      price: course.course.price_promotion ?? course.course.price,
+      price_promotion: course.course.price_promotion ?? null,
+      provider: course.course.provider_name,
+    });
+  };
 
-    // Initial check
-    handleScrollAndResize();
-
-    return () => {
-      window.removeEventListener("scroll", handleScrollAndResize);
-      window.removeEventListener("resize", handleScrollAndResize);
-    };
-  }, []);
+  const handleBuyNow = () => {
+    handleAddToCart();
+    navigate("/checkout");
+  };
 
   //Hiệu ứng xuất hiện mượt mà khi scroll (Scroll Reveal)
   useEffect(() => {
@@ -417,11 +412,8 @@ const CourseDetailPage = () => {
           </div>
 
           {/* Sticky Sidebar Card */}
-          <aside className="lg:col-span-4 relative z-50">
-            <div
-              className="w-full lg:max-w-90 bg-surface-container-lowest shadow-2xl border border-outline-variant/20 rounded-lg overflow-hidden z-50 
-                        lg:sticky lg:top-20 lg:-mt-80 transition-all duration-300 ease-out"
-            >
+          <aside className="lg:col-span-4">
+            <div className="w-full bg-surface-container-lowest shadow-2xl border border-outline-variant/20 rounded-lg overflow-hidden lg:sticky lg:top-24 z-40">
               {/* Course Preview */}
               <div className="relative aspect-video group cursor-pointer">
                 <img
@@ -454,12 +446,44 @@ const CourseDetailPage = () => {
                 </div>
 
                 <div className="space-y-3 mb-6">
-                  <button className="w-full py-4 bg-primary-container text-white font-bold rounded hover:opacity-90 active:scale-[0.98] transition-all">
+                  <button
+                    type="button"
+                    onClick={handleAddToCart}
+                    className="w-full py-4 bg-primary-container text-white font-bold rounded hover:opacity-90 active:scale-[0.98] transition-all"
+                  >
                     Thêm giỏ hàng
                   </button>
-                  <button className="w-full py-4 border border-on-surface text-on-surface font-bold rounded hover:bg-surface-container-low active:scale-[0.98] transition-all">
+                  <button
+                    type="button"
+                    onClick={handleBuyNow}
+                    className="w-full py-4 border border-on-surface text-on-surface font-bold rounded hover:bg-surface-container-low active:scale-[0.98] transition-all"
+                  >
                     Mua ngay
                   </button>
+                  {user?.role === "customer" && (
+                    <button
+                      type="button"
+                      onClick={() => toggleWishlist(course.course._id)}
+                      className="w-full py-3 flex items-center justify-center gap-2 border border-outline-variant rounded hover:bg-surface-container-low transition-all text-sm font-semibold"
+                    >
+                      <span
+                        className="material-symbols-outlined text-[20px] transition-colors"
+                        style={{
+                          fontVariationSettings: isWishlisted(course.course._id)
+                            ? "'FILL' 1"
+                            : "'FILL' 0",
+                          color: isWishlisted(course.course._id)
+                            ? "#e53935"
+                            : undefined,
+                        }}
+                      >
+                        favorite
+                      </span>
+                      {isWishlisted(course.course._id)
+                        ? "Đã lưu yêu thích"
+                        : "Lưu vào yêu thích"}
+                    </button>
+                  )}
                 </div>
 
                 <div className="space-y-4">
