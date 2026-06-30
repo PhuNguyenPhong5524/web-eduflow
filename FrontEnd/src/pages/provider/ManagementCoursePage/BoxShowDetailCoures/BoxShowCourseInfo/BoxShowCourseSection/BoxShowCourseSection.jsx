@@ -119,9 +119,9 @@ const BoxShowCourseSection = ({
           sectionId={section._id}
           refetch={refetch}
         />
-        {section.quiz ? (
+        {section.quizzes?.length > 0 ? (
             <BoxShowCourseQuiz
-              quiz={section.quiz}
+              quiz={section.quizzes[0]}
               refetch={refetch}
             />
           ) : (

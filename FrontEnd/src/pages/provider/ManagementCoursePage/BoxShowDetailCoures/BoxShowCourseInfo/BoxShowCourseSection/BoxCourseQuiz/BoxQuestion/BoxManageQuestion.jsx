@@ -36,65 +36,6 @@ const BoxManageQuestion = ({
   // } = useGetQuestionByQuiz(quiz._id);
 
   // Fake data trước để build UI
-  const questions = [
-  {
-    _id: "1",
-    order: 1,
-    question: "HTML là viết tắt của gì?",
-    answers: [
-      {
-        _id: "1",
-        answer_label: "A",
-        answer_text: "Hyper Text Markup Language",
-        is_correct: true,
-      },
-      {
-        _id: "2",
-        answer_label: "B",
-        answer_text: "Hyper Tool Markup Language",
-      },
-      {
-        _id: "3",
-        answer_label: "C",
-        answer_text: "Home Tool Markup Language",
-      },
-      {
-        _id: "4",
-        answer_label: "D",
-        answer_text: "Hyper Type Markdown Language",
-      },
-    ],
-  },
-
-  {
-    _id: "2",
-    order: 2,
-    question: "CSS dùng để làm gì?",
-    answers: [
-      {
-        _id: "5",
-        answer_label: "A",
-        answer_text: "Tạo Database",
-      },
-      {
-        _id: "6",
-        answer_label: "B",
-        answer_text: "Thiết kế giao diện",
-        is_correct: true,
-      },
-      {
-        _id: "7",
-        answer_label: "C",
-        answer_text: "Lưu dữ liệu",
-      },
-      {
-        _id: "8",
-        answer_label: "D",
-        answer_text: "Quản lý Server",
-      },
-    ],
-  },
-];
 
   const isLoading = false;
   const isFetching = false;
@@ -161,7 +102,7 @@ const BoxManageQuestion = ({
         {/* Empty */}
 
         {!isLoading &&
-          questions.length === 0 && (
+          quiz.questions.length === 0 && (
             <Empty
               description="Quiz chưa có câu hỏi"
             />
@@ -170,13 +111,13 @@ const BoxManageQuestion = ({
         {/* List */}
 
         {!isLoading &&
-          questions.length > 0 && (
+          quiz.questions.length > 0 && (
             <Space
               orientation="vertical"
               size={16}
               className="w-full"
             >
-              {questions.map((question) => (
+              {quiz.questions.map((question) => (
                 <BoxQuestionCard
                   key={question._id}
                   question={question}

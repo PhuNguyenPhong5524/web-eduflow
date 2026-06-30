@@ -31,7 +31,7 @@ const BoxQuestionCard = ({ question, onEdit, onDelete }) => {
                 className={`flex items-center justify-between px-3 py-2 rounded-lg ${
                   answer.is_correct
                     ? "bg-green-50 border border-green-300"
-                    : "bg-gray-50 border"
+                    : "bg-gray-50 border-[0.5px] border-gray-300 "
                 }`}
               >
                 <div>
@@ -60,7 +60,7 @@ const BoxQuestionCard = ({ question, onEdit, onDelete }) => {
 
         </div>
 
-        <Space direction="vertical">
+        <Space orientation="vertical">
 
           <Button
             icon={<EditOutlined />}

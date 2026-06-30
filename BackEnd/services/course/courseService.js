@@ -4,6 +4,9 @@ import courseOverviewModel from "../../models/course/courseOverview.js";
 import courseRequestModel from "../../models/course/courseRequest.js";
 import courseSectionModel from "../../models/course/courseSection.js";
 import quizModel from "../../models/quiz/quiz.js";
+import quizQuestionModel from "../../models/quiz/quizQuestion.js";
+import quizAnswerModel from "../../models/quiz/quizAnswer.js";
+
 
 export const getCourseDetail = async (courseId) => {
   const course = await courseModel
@@ -23,24 +26,48 @@ export const getCourseDetail = async (courseId) => {
   const lectures = await lectureModel.find({
     section_id: { $in: sections.map((s) => s._id) },
   }).lean();
+
   const quizzes = await quizModel.find({
       section_id: {
           $in: sections.map(section => section._id)
       }
   }).lean();
-  const sectionsWithLectures = sections.map((section) => ({
+  const questions = await quizQuestionModel.find({
+    quiz_id: {
+      $in: quizzes.map(q => q._id)
+    }
+  }).lean();
+  const answers = await quizAnswerModel.find({
+    question_id: {
+      $in: questions.map(q => q._id)
+    }
+  }).lean();
+  const questionsWithAnswers = questions.map(question => ({
+    ...question,
+    answers: answers.filter(
+      answer =>
+        answer.question_id.toString() === question._id.toString()
+    )
+  }));
+  const quizzesWithQuestions = quizzes.map(quiz => ({
+    ...quiz,
+    questions: questionsWithAnswers.filter(
+      question =>
+        question.quiz_id.toString() === quiz._id.toString()
+    )
+  }));
+  const sectionsWithLectures = sections.map(section => ({
     ...section,
 
     lectures: lectures.filter(
-      (lecture) =>
+      lecture =>
         lecture.section_id.toString() === section._id.toString()
     ),
 
-    quiz:
-      quizzes.find(
-        (quiz) =>
-          quiz.section_id.toString() === section._id.toString()
-      ) || null,
+    quizzes: quizzesWithQuestions.filter(
+      quiz =>
+        quiz.section_id.toString() === section._id.toString()
+    )
   }));
 
   return {

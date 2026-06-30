@@ -8,7 +8,6 @@ const BoxEditCourseSection = ({ section, refetch }) => {
   const [open, setOpen] = useState(false);
   const [form] = Form.useForm();
   const { id: courseId } = useParams();
-  console.log("section", section._id);
   const { mutate: updateSection, isPending, queryKey } = useUpdateCourseSection();
 
   useEffect(() => {
