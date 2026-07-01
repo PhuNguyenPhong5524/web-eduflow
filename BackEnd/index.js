@@ -88,6 +88,7 @@ import routerCart from "./routes/cart.js";
 import routerRefreshToken from "./routes/auth/refreshToken.js";
 import routerForgotPassword from "./routes/auth/forgotPassword.js";
 import routerLogout from "./routes/auth/logout.js";
+import routerDashboard from "./routes/dashboard.js";
 
 dotenv.config();
 
@@ -170,6 +171,8 @@ app.get("/", (req, res) => {
 
 // Refresh token
 app.use("/", routerRefreshToken);
+
+app.use("/", routerDashboard);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
