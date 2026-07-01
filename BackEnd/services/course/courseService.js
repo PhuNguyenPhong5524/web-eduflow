@@ -60,3 +60,68 @@ export const getCourseDetail = async (courseId) => {
     sections: sectionsWithLectures,
   };
 };
+
+
+export const getCourseLearningDetail = async (userId, courseId) => {
+  const order = await orderModel.findOne({
+    user_id: userId,
+    course_id: courseId,
+    status: "completed",
+  });
+
+  if (!order) {
+    throw new Error("Bạn chưa mua khóa học này");
+  }
+  const course = await courseModel
+    .findById(courseId)
+    .populate("category_id", "cate_name")
+    .populate("provider_id", "provider_name")
+    .lean();
+
+  if (!course) {
+    throw new Error("Khóa học không tồn tại");
+  }
+
+  const [overviews, sections] = await Promise.all([
+    courseOverviewModel.find({ course_id: courseId }).lean(),
+    courseSectionModel.find({ course_id: courseId }).lean(),
+  ]);
+
+  const lectures = await lectureModel.find({
+    section_id: {
+      $in: sections.map((section) => section._id),
+    },
+  }).lean();
+
+  const quizzes = await quizModel.find({
+    section_id: {
+      $in: sections.map((section) => section._id),
+    },
+  }).lean();
+
+  const sectionsWithData = sections.map((section) => ({
+    ...section,
+
+    lectures: lectures.filter(
+      (lecture) =>
+        lecture.section_id.toString() === section._id.toString()
+    ),
+
+    quizzes: quizzes.filter(
+      (quiz) =>
+        quiz.section_id.toString() === section._id.toString()
+    ),
+  }));
+
+  return {
+    course: {
+      ...course,
+      category_id: course.category_id?._id,
+      category_name: course.category_id?.cate_name,
+      provider_id: course.provider_id?._id,
+      provider_name: course.provider_id?.provider_name,
+    },
+    overviews,
+    sections: sectionsWithData,
+  };
+};

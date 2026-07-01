@@ -55,7 +55,14 @@ function App() {
                   path="development"
                   element={<Navigate to="courses/search" replace />}
                 />
-
+                <Route
+                  path="my-courses/:id"
+                  element={
+                    <ProtectedRoute roles={["customer"]}>
+                      <MyCoursePage />
+                    </ProtectedRoute>
+                  }
+                />
                 <Route
                   path="courses-provider"
                   element={<InstructorProfilePage />}
@@ -160,18 +167,10 @@ function App() {
                 }
               />
               <Route
-                path="courses/detail/:id"
+                path="/courses/detail/:id"
                 element={
                   <ProtectedRoute roles={["provider"]}>
                     <BoxShowDetailCourses />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="my-courses"
-                element={
-                  <ProtectedRoute roles={["customer"]}>
-                    <MyCoursePage />
                   </ProtectedRoute>
                 }
               />

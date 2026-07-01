@@ -11,6 +11,7 @@ import ExcelJS from "exceljs";
 
 import orderModel from "../../models/order.js";
 import { getCourseDetail } from "../../services/course/courseService.js";
+import * as courseService from "../../services/course/courseService.js";
 
 export const getFeaturedCourses = async (req, res) => {
   try {
@@ -519,6 +520,24 @@ export const getPurchasedCourseById = async (req, res) => {
 
   } catch (error) {
     return res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+export const getCourseLearningDetail = async (req, res) => {
+  try {
+    const { courseId } = req.params;
+    const data = await courseService.getCourseLearningDetail(courseId);
+
+    return res.status(200).json({
+      success: true,
+      message: "Lấy chi tiết khóa học thành công",
+      data,
+    });
+  } catch (error) {
+    return res.status(400).json({
+      success: false,
       message: error.message,
     });
   }

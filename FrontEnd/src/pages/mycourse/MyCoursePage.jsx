@@ -58,14 +58,11 @@ const MyCoursePage = () => {
   // Nội dung Tab: Overview
   const OverviewContent = () => (
     <div className="pt-4 space-y-4">
-      <p className="text-base text-[#464555] leading-relaxed">
-        In this comprehensive session, we dive deep into the architecture of design tokens. Learn how to bridge the gap between Figma design systems and production-ready Tailwind configurations. We'll cover semantic naming conventions, fluid scaling, and dark-mode optimization strategies that ensure your UIs remain consistent across every screen size.
-      </p>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Key Takeaways */}
         <div className="glass-card p-4 rounded-xl">
           <h3 className="text-sm font-medium tracking-wide text-[#3525CD] mb-2 flex items-center gap-2">
-            <BulbOutlined className="text-[18px]" /> Key Takeaways
+            <BulbOutlined className="text-[18px]" /> Tổng quan về khóa học
           </h3>
           <ul className="text-sm text-[#464555] space-y-2">
             <li className="flex items-start gap-2">
@@ -128,9 +125,9 @@ const MyCoursePage = () => {
 
   // Items cho ANTD Tabs
   const tabItems = [
-    { key: 'overview', label: 'Overview', children: <OverviewContent /> },
-    { key: 'resources', label: 'Resources', children: <ResourcesContent /> },
-    { key: 'reviews', label: 'Reviews', children: <div className="pt-4 text-[#464555]">Reviews section coming soon...</div> },
+    { key: 'overview', label: 'Tổng quan', children: <OverviewContent /> },
+    { key: 'request', label: 'Yêu cầu', children: <>Yêu cầu về khóa học</> },
+    { key: 'description', label: 'Mô tả', children: <div className="pt-4 text-[#464555]">Description section coming soon...</div> },
   ];
 
   return (
@@ -150,11 +147,11 @@ const MyCoursePage = () => {
                     title: (
                       <a href="#" className="flex items-center text-[#3525CD] text-sm font-medium hover:underline group">
                         <ArrowLeftOutlined className="mr-1 group-hover:-translate-x-1 transition-transform" />
-                        Back to Course Overview
+                        Quản lý khóa học của tôi
                       </a>
                     ),
                   },
-                  { title: <span className="text-[#464555] text-sm font-medium">Module 3: Advanced UI Architecture</span> },
+                  { title: <span className="text-[#464555] text-sm font-medium">React Ultimate - React.JS Cơ Bản Từ Z Đến A Cho Beginners</span> },
                 ]}
               />
             </div>
@@ -200,14 +197,11 @@ const MyCoursePage = () => {
                 <p className="text-sm text-[#464555] mt-1">Uploaded Oct 24 • High-Performance Design Series</p>
               </div>
               <div className="flex items-center gap-2">
-                <Button icon={<LikeOutlined />} size="large" className="rounded-xl border-[#c7c4d8] text-sm font-medium hover:bg-[#e5eeff]">
-                  1.2k
-                </Button>
                 <Button icon={<ShareAltOutlined />} size="large" className="rounded-xl border-[#c7c4d8] text-sm font-medium hover:bg-[#e5eeff]">
-                  Share
+                  Chia sẻ
                 </Button>
                 <Button type="primary" icon={<DownloadOutlined />} size="large" className="rounded-xl bg-[#2170e4] border-none text-[#fefcff] text-sm font-medium hover:opacity-90">
-                  Offline
+                  Tải xuống
                 </Button>
               </div>
             </div>
@@ -228,8 +222,8 @@ const MyCoursePage = () => {
               
               <div className="p-4 border-b border-[#c7c4d8]/30 flex items-center justify-between bg-[#eff4ff]">
                 <div>
-                  <h2 className="text-sm font-medium tracking-wide text-[#0b1c30]">Course Content</h2>
-                  <p className="text-xs font-semibold text-[#464555]">24% Complete • 12/48 Lessons</p>
+                  <h2 className="text-sm font-medium tracking-wide text-[#0b1c30]">Nội dung khóa học</h2>
+                  <p className="text-xs font-semibold text-[#464555]">Đã hoàn thành 24% • 12/48 bài giảng</p>
                 </div>
                 <Button type="text" icon={<FilterOutlined className="text-xl text-[#777587]" />} />
               </div>
