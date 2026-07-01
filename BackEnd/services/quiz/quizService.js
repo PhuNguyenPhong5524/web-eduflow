@@ -155,24 +155,67 @@ export const createQuestion = async (data) => {
 
 // Update question
 
+// export const updateQuestion = async (questionId, data) => {
+
+//     const question = await quizQuestionModel.findByIdAndUpdate(
+//         questionId,
+//         data,
+//         {
+//             new: true,
+//             runValidators: true
+//         }
+//     );
+
+//     if (!question) {
+//         throw new Error("Câu hỏi không tồn tại");
+//     }
+
+//     return question;
+// };
+
+
 export const updateQuestion = async (questionId, data) => {
+    const { question, answers } = data;
 
-    const question = await quizQuestionModel.findByIdAndUpdate(
-        questionId,
-        data,
-        {
-            new: true,
-            runValidators: true
-        }
-    );
+    const questionExist = await quizQuestionModel.findById(questionId);
 
-    if (!question) {
+    if (!questionExist) {
         throw new Error("Câu hỏi không tồn tại");
     }
 
-    return question;
-};
+    if (!answers || answers.length !== 4) {
+        throw new Error("Phải có đúng 4 đáp án");
+    }
 
+    const correctAnswer = answers.filter(item => item.is_correct);
+
+    if (correctAnswer.length !== 1) {
+        throw new Error("Chỉ được có 1 đáp án đúng");
+    }
+
+    // Cập nhật câu hỏi
+    questionExist.question = question;
+    await questionExist.save();
+
+    // Lấy đáp án cũ
+    const oldAnswers = await quizAnswerModel
+        .find({ question_id: questionId })
+        .sort({ answer_label: 1 });
+
+    // Cập nhật từng đáp án
+    await Promise.all(
+        oldAnswers.map((answer, index) =>
+            quizAnswerModel.findByIdAndUpdate(answer._id, {
+                answer_text: answers[index].answer_text,
+                is_correct: answers[index].is_correct,
+            })
+        )
+    );
+
+    return {
+        message: "Cập nhật câu hỏi thành công",
+    };
+};
 // Delete question
 
 export const deleteQuestionSV = async (questionId) => {

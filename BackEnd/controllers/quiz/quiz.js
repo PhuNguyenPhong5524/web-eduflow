@@ -1,4 +1,5 @@
-import { createQuiz, updateQuiz, getQuestionByQuiz, deleteQuestionSV, deleteQuiz } from "../../services/quiz/quizService.js";
+import { createQuiz, updateQuiz, getQuestionByQuiz, deleteQuestionSV, deleteQuiz, updateQuestion } from "../../services/quiz/quizService.js";
+
 
 export const createQuizController = async (req, res) => {
 
@@ -94,4 +95,29 @@ export const deleteQuestion = async (req, res) => {
             message: error.message || "Xóa câu hỏi và đáp án thất bại",
         });
     }
+};
+
+
+
+export const updateQuestionQuiz = async (req, res) => {
+  try {
+    const { questionId } = req.params;
+
+    const result = await updateQuestion(
+      questionId,
+      req.body
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: result.message,
+    });
+  } catch (error) {
+    console.error(error); // thêm dòng này
+
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
 };

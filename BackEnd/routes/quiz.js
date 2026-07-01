@@ -1,10 +1,11 @@
 import { Router } from "express";
-import { createQuizController, deleteQuestion, deleteQuizController, getQuestionAndAnswers, updateQuizController } from "../controllers/quiz/quiz.js";
+import { createQuizController, deleteQuestion, deleteQuizController, getQuestionAndAnswers, updateQuestionQuiz, updateQuizController } from "../controllers/quiz/quiz.js";
 
 
 import authMiddleware  from "../middleware/authMiddleware.js";
 import authorizeRole  from "../middleware/authorizeRole.js";
 import { createQuestionController, updateQuestionController } from "../controllers/quiz/quizQuestion.js";
+import { updateQuestion } from "../services/quiz/quizService.js";
 
 
 const routerQuizCourse = Router();
@@ -52,6 +53,15 @@ routerQuizCourse.put(
     authorizeRole("provider"),
     updateQuestionController
 );
+
+routerQuizCourse.put(
+    "/questions/:questionId",
+    authMiddleware,
+    authorizeRole("provider"),
+    updateQuestionQuiz
+);
+
+
 // Xóa quizz
 routerQuizCourse.delete(
     "/quiz/:id",

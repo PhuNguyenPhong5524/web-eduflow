@@ -1,6 +1,7 @@
 import { Card, Typography, Tag, Space, Button, Divider, Popconfirm, notification } from "antd";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import useDeleteQuestion from "../../../../../../../../hooks/useCourse/quizz/useDeleteQuestion";
+import BoxEditQuestion from "./BoxEditQuestion";
 
 const { Title, Text } = Typography;
 
@@ -64,12 +65,9 @@ const BoxQuestionCard = ({ question, onEdit, onDelete }) => {
 
         <Space orientation="vertical">
 
-          <Button
-            icon={<EditOutlined />}
-            onClick={onEdit}
-          >
-            Sửa
-          </Button>
+          <BoxEditQuestion 
+            question={question}
+          />
           <Popconfirm
             title="Bạn chắc chắn muốn xóa câu hỏi?"
             description="Toàn bộ đáp án của câu hỏi sẽ bị xóa."
@@ -84,7 +82,7 @@ const BoxQuestionCard = ({ question, onEdit, onDelete }) => {
               deleteQuestion(question._id, {
                 onSuccess: (data) => {
                   notification.success({
-                    message: "Thành công",
+                    title: "Thành công",
                     description: data.message,
                   });
 
@@ -92,7 +90,7 @@ const BoxQuestionCard = ({ question, onEdit, onDelete }) => {
                 },
                 onError: (error) => {
                   notification.error({
-                    message: "Thất bại",
+                    title: "Thất bại",
                     description:
                       error?.response?.data?.message ||
                       "Xóa câu hỏi thất bại",
