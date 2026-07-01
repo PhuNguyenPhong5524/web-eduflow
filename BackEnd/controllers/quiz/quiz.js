@@ -1,4 +1,4 @@
-import { createQuiz, deleteQuiz, updateQuiz } from "../../services/quiz/quizService.js";
+import { createQuiz, updateQuiz, getQuestionByQuiz, deleteQuestionSV, deleteQuiz } from "../../services/quiz/quizService.js";
 
 export const createQuizController = async (req, res) => {
 
@@ -53,5 +53,45 @@ export const deleteQuizController = async (req, res) => {
             message: error.message
         });
 
+    }
+};
+
+
+export const getQuestionAndAnswers = async (req, res) => {
+    try {
+        const { quizId } = req.params;
+
+        const data = await getQuestionByQuiz(quizId);
+
+        return res.status(200).json({
+            success: true,
+            message: "Lấy danh sách câu hỏi thành công",
+            data
+        });
+
+    } catch (error) {
+        return res.status(400).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
+
+
+export const deleteQuestion = async (req, res) => {
+    try {
+        const { questionId } = req.params;
+
+        const result = await deleteQuestionSV(questionId);
+
+        return res.status(200).json({
+            success: true,
+            message: result.message,
+        });
+    } catch (error) {
+        return res.status(400).json({
+            success: false,
+            message: error.message || "Xóa câu hỏi và đáp án thất bại",
+        });
     }
 };

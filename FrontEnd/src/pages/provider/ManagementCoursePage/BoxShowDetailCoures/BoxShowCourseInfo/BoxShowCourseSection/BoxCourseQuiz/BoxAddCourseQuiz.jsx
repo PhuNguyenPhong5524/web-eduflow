@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Modal, Form, Input, Button, notification } from "antd";
 import { useNavigate } from "react-router-dom";
-import usePostQuiz from "../../../../../../../hooks/useCourse/usePostQuizzCourse";
+import usePostQuiz from "../../../../../../../hooks/useCourse/quizz/usePostQuizzCourse";
 
 const BoxAddCourseQuiz = ({ refetch, sectionId}) => {
   const [open, setOpen] = useState(false);

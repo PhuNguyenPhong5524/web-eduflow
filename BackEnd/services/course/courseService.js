@@ -32,30 +32,7 @@ export const getCourseDetail = async (courseId) => {
           $in: sections.map(section => section._id)
       }
   }).lean();
-  const questions = await quizQuestionModel.find({
-    quiz_id: {
-      $in: quizzes.map(q => q._id)
-    }
-  }).lean();
-  const answers = await quizAnswerModel.find({
-    question_id: {
-      $in: questions.map(q => q._id)
-    }
-  }).lean();
-  const questionsWithAnswers = questions.map(question => ({
-    ...question,
-    answers: answers.filter(
-      answer =>
-        answer.question_id.toString() === question._id.toString()
-    )
-  }));
-  const quizzesWithQuestions = quizzes.map(quiz => ({
-    ...quiz,
-    questions: questionsWithAnswers.filter(
-      question =>
-        question.quiz_id.toString() === quiz._id.toString()
-    )
-  }));
+
   const sectionsWithLectures = sections.map(section => ({
     ...section,
 
@@ -64,7 +41,7 @@ export const getCourseDetail = async (courseId) => {
         lecture.section_id.toString() === section._id.toString()
     ),
 
-    quizzes: quizzesWithQuestions.filter(
+    quizzes: quizzes.filter(
       quiz =>
         quiz.section_id.toString() === section._id.toString()
     )

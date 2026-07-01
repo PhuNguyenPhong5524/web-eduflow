@@ -16,32 +16,22 @@ import {
 import BoxQuestionCard from "./BoxQuestionCard";
 import BoxAddQuestion from "./BoxAddQuestion";
 
-// hook sẽ làm sau
-// import useGetQuestionByQuiz from "../../../../../../../hooks/useQuiz/useGetQuestionByQuiz";
-
+import useGetQuestionByQuiz from "../../../../../../../../hooks/useCourse/quizz/useGetQuestionByQuiz";
+import useLoading from "../../../../../../../../hooks/useCourse/useLoading";
 const { Title, Text } = Typography;
 
 const BoxManageQuestion = ({
   quiz,
-  refetchQuiz,
 }) => {
   const [open, setOpen] = useState(false);
 
-  // Sau sẽ dùng API này
-  // const {
-  //   data,
-  //   isLoading,
-  //   isFetching,
-  //   refetch,
-  // } = useGetQuestionByQuiz(quiz._id);
-
-  // Fake data trước để build UI
-
-  const isLoading = false;
-  const isFetching = false;
-
-  const refetch = () => {};
-
+  const {
+    data,
+    isLoading,
+    isFetching,
+    refetch,
+  } = useGetQuestionByQuiz(quiz._id);
+  const loading = useLoading(isFetching, 300);
   return (
     <>
       <Button
@@ -62,11 +52,11 @@ const BoxManageQuestion = ({
               level={4}
               style={{ marginBottom: 2 }}
             >
-                Tiêu đề: {quiz.title}
+                Tiêu đề: {data?.title}
             </Title>
 
             <Text type="secondary">
-                Mô tả: {quiz.description}
+                Mô tả: {data?.description}
             </Text>
           </div>
         }
@@ -77,15 +67,15 @@ const BoxManageQuestion = ({
         <div className="flex justify-between mb-6">
 
           <Button
-            icon={<ReloadOutlined spin={isFetching} />}
-            onClick={refetch}
-            loading={isFetching}
+              icon={<ReloadOutlined spin={loading} />}
+              onClick={refetch}
+              loading={loading}
           >
-            Làm mới
+              Làm mới
           </Button>
 
           <BoxAddQuestion
-            quizId={quiz._id}
+            quizId={data?._id}
             refetch={refetch}
           /> 
 
@@ -102,7 +92,7 @@ const BoxManageQuestion = ({
         {/* Empty */}
 
         {!isLoading &&
-          quiz.questions.length === 0 && (
+          data?.questions.length === 0 && (
             <Empty
               description="Quiz chưa có câu hỏi"
             />
@@ -111,13 +101,13 @@ const BoxManageQuestion = ({
         {/* List */}
 
         {!isLoading &&
-          quiz.questions.length > 0 && (
+          data?.questions.length > 0 && (
             <Space
               orientation="vertical"
               size={16}
               className="w-full"
             >
-              {quiz.questions.map((question) => (
+              {data?.questions.map((question) => (
                 <BoxQuestionCard
                   key={question._id}
                   question={question}

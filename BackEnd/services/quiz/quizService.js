@@ -73,6 +73,40 @@ export const deleteQuiz = async (quizId) => {
 import quizQuestionModel from "../../models/quiz/quizQuestion.js";
 import quizAnswerModel from "../../models/quiz/quizAnswer.js";
 
+export const getQuestionByQuiz = async (quiz_id) => {
+    const quiz = await quizModel.findById(quiz_id).lean();
+
+    if (!quiz) {
+        throw new Error("Quiz không tồn tại");
+    }
+
+    const questions = await quizQuestionModel
+        .find({ quiz_id })
+        .sort({ order: 1 })
+        .lean();
+
+    const answers = await quizAnswerModel
+        .find({
+            question_id: {
+                $in: questions.map(question => question._id)
+            }
+        })
+        .lean();
+
+    const questionsWithAnswers = questions.map(question => ({
+        ...question,
+        answers: answers.filter(
+            answer =>
+                answer.question_id.toString() === question._id.toString()
+        )
+    }));
+
+    return {
+        ...quiz,
+        questions: questionsWithAnswers
+    };
+};
+
 export const createQuestion = async (data) => {
 
     const { quiz_id, question, answers } = data;
@@ -93,14 +127,16 @@ export const createQuestion = async (data) => {
         throw new Error("Chỉ được có 1 đáp án đúng");
     }
 
-    const totalQuestion = await quizQuestionModel.countDocuments({
-        quiz_id
-    });
+    const lastQuestion = await quizQuestionModel
+    .findOne({ quiz_id })
+    .sort({ order: -1 });
+
+    const order = lastQuestion ? lastQuestion.order + 1 : 1;
 
     const newQuestion = await quizQuestionModel.create({
         quiz_id,
         question,
-        order: totalQuestion + 1
+        order,
     });
     const labels = ["A", "B", "C", "D"];
     await quizAnswerModel.insertMany(
@@ -139,16 +175,38 @@ export const updateQuestion = async (questionId, data) => {
 
 // Delete question
 
-export const deleteQuestion = async (questionId) => {
-
+export const deleteQuestionSV = async (questionId) => {
     const question = await quizQuestionModel.findById(questionId);
 
     if (!question) {
         throw new Error("Câu hỏi không tồn tại");
     }
 
-    await question.deleteOne();
+    const quizId = question.quiz_id;
 
-    return;
+    // Xóa tất cả đáp án của câu hỏi
+    await quizAnswerModel.deleteMany({
+        question_id: questionId,
+    });
+
+    // Xóa câu hỏi
+    await quizQuestionModel.findByIdAndDelete(questionId);
+
+    // Lấy lại các câu hỏi còn lại của quiz
+    const questions = await quizQuestionModel
+        .find({ quiz_id: quizId })
+        .sort({ order: 1 });
+
+    // Cập nhật lại order
+    await Promise.all(
+        questions.map((item, index) =>
+            quizQuestionModel.findByIdAndUpdate(item._id, {
+                order: index + 1,
+            })
+        )
+    );
+
+    return {
+        message: "Xóa câu hỏi thành công",
+    };
 };
-

@@ -1,10 +1,10 @@
 import { Router } from "express";
-import { createQuizController, deleteQuizController, updateQuizController } from "../controllers/quiz/quiz.js";
+import { createQuizController, deleteQuestion, deleteQuizController, getQuestionAndAnswers, updateQuizController } from "../controllers/quiz/quiz.js";
 
 
 import authMiddleware  from "../middleware/authMiddleware.js";
 import authorizeRole  from "../middleware/authorizeRole.js";
-import { createQuestionController, deleteQuestionController, updateQuestionController } from "../controllers/quiz/quizQuestion.js";
+import { createQuestionController, updateQuestionController } from "../controllers/quiz/quizQuestion.js";
 
 
 const routerQuizCourse = Router();
@@ -32,6 +32,14 @@ routerQuizCourse.delete(
 
 
 // Question
+
+routerQuizCourse.get(
+    "/quiz/:quizId/questions",
+    authMiddleware,
+    authorizeRole("provider"),
+    getQuestionAndAnswers
+);
+
 routerQuizCourse.post(
     "/quiz/question",
     authMiddleware,
@@ -44,13 +52,19 @@ routerQuizCourse.put(
     authorizeRole("provider"),
     updateQuestionController
 );
+// Xóa quizz
 routerQuizCourse.delete(
-    "/quiz/question/:id",
+    "/quiz/:id",
     authMiddleware,
     authorizeRole("provider"),
-    deleteQuestionController
+    deleteQuizController
 );
-
-
+// Xóa câu hỏi và đáp án
+routerQuizCourse.delete(
+    "/questions/:questionId",
+    authMiddleware,
+    authorizeRole("provider"),
+    deleteQuestion
+);
 
 export default routerQuizCourse;

@@ -1,4 +1,4 @@
-import { Card, Button, Typography, Space } from "antd";
+import { Card, Button, Typography, Space, Popconfirm, notification } from "antd";
 import {
   EditOutlined,
   DeleteOutlined,
@@ -6,10 +6,12 @@ import {
 } from "@ant-design/icons";
 import BoxEditCourseQuiz from "./BoxEditCourseQuiz";
 import BoxManageQuestion from "./BoxQuestion/BoxManageQuestion";
+import useDeleteQuizz from "../../../../../../../hooks/useCourse/quizz/useDeleteQuizz";
 
 const { Title, Paragraph } = Typography;
 
-const BoxShowCourseQuiz = ({ quiz }) => {
+const BoxShowCourseQuiz = ({ quiz, refetch }) => {
+  const { mutate: deleteQuizz, isPending } = useDeleteQuizz();
   return (
     <Card
       size="small"
@@ -26,10 +28,44 @@ const BoxShowCourseQuiz = ({ quiz }) => {
 
         <Space>
           
-          <BoxManageQuestion quiz={quiz} />
+          <BoxManageQuestion quiz={quiz} refetch={refetch}/>
 
-          <BoxEditCourseQuiz quiz={quiz} />
+          <BoxEditCourseQuiz quiz={quiz} refetch={refetch} />
+          <Popconfirm
+            title="Bạn chắc chắn muốn xóa quiz?"
+            description="Toàn bộ câu hỏi của quiz sẽ bị xóa."
+            okText="Xóa"
+            cancelText="Hủy"
+            placement="topLeft"
+            okButtonProps={{
+              danger: true,
+              loading: isPending,
+            }}
+            onConfirm={() =>
+              deleteQuizz(quiz._id, {
+                onSuccess: (data) => {
+                  notification.success({
+                    message: "Thành công",
+                    description: data.message,
+                  });
 
+                  refetch();
+                },
+                onError: (error) => {
+                  notification.error({
+                    message: "Thất bại",
+                    description:
+                      error?.response?.data?.message ||
+                      "Xóa quiz thất bại",
+                  });
+                },
+              })
+            }
+          >
+            <Button danger icon={<DeleteOutlined />}>
+              Xóa
+            </Button>
+          </Popconfirm>
         </Space>
       </Space>
     </Card>

@@ -1,6 +1,6 @@
 import quizModel from "../../models/quiz/quiz.js";
 import quizQuestionModel from "../../models/quiz/quizQuestion.js";
-import { createQuestion, deleteQuestion, updateQuestion } from "../../services/quiz/quizService.js";
+import { createQuestion, updateQuestion } from "../../services/quiz/quizService.js";
 
 export const createQuestionController = async (req,res)=>{
     try{
@@ -44,22 +44,3 @@ export const updateQuestionController = async (req, res) => {
     }
 };
 
-export const deleteQuestionController = async (req, res) => {
-
-    try {
-
-        await deleteQuestion(req.params.id);
-
-        return res.status(200).json({
-            message: "Xóa câu hỏi thành công"
-        });
-
-    } catch (error) {
-
-        return res.status(400).json({
-            message: error.message
-        });
-
-    }
-
-};

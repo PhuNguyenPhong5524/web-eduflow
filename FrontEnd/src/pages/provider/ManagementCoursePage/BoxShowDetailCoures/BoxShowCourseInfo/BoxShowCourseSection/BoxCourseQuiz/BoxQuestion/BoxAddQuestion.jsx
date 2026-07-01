@@ -11,7 +11,7 @@ import {
   notification,
 } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
-import usePostQuestionCourse from "../../../../../../../../hooks/useCourse/usePostQuestionCourse";
+import usePostQuestionCourse from "../../../../../../../../hooks/useCourse/quizz/usePostQuestionCourse";
 
 
 const { Title } = Typography;

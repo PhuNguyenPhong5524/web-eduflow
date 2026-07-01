@@ -1,9 +1,11 @@
-import { Card, Typography, Tag, Space, Button, Divider } from "antd";
+import { Card, Typography, Tag, Space, Button, Divider, Popconfirm, notification } from "antd";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import useDeleteQuestion from "../../../../../../../../hooks/useCourse/quizz/useDeleteQuestion";
 
 const { Title, Text } = Typography;
 
 const BoxQuestionCard = ({ question, onEdit, onDelete }) => {
+  const { mutate: deleteQuestion, isPending } = useDeleteQuestion();
   return (
     <Card
       hoverable
@@ -68,15 +70,41 @@ const BoxQuestionCard = ({ question, onEdit, onDelete }) => {
           >
             Sửa
           </Button>
+          <Popconfirm
+            title="Bạn chắc chắn muốn xóa câu hỏi?"
+            description="Toàn bộ đáp án của câu hỏi sẽ bị xóa."
+            okText="Xóa"
+            cancelText="Hủy"
+            placement="topLeft"
+            okButtonProps={{
+              danger: true,
+              loading: isPending,
+            }}
+            onConfirm={() =>
+              deleteQuestion(question._id, {
+                onSuccess: (data) => {
+                  notification.success({
+                    message: "Thành công",
+                    description: data.message,
+                  });
 
-          <Button
-            danger
-            icon={<DeleteOutlined />}
-            onClick={onDelete}
+                  refetch();
+                },
+                onError: (error) => {
+                  notification.error({
+                    message: "Thất bại",
+                    description:
+                      error?.response?.data?.message ||
+                      "Xóa câu hỏi thất bại",
+                  });
+                },
+              })
+            }
           >
-            Xóa
-          </Button>
-
+            <Button danger icon={<DeleteOutlined />}>
+              Xóa
+            </Button>
+          </Popconfirm>
         </Space>
 
       </div>

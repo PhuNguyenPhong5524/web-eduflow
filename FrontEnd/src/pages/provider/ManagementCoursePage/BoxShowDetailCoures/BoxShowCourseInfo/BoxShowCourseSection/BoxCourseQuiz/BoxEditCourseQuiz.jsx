@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Modal, Form, Input, Button, notification } from "antd";
 import { EditOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
-import useUpdateQuizzCourse from "../../../../../../../hooks/useCourse/useUpdateQuizzCourse";
+import useUpdateQuizzCourse from "../../../../../../../hooks/useCourse/quizz/useUpdateQuizzCourse";
 
 const BoxEditCourseQuiz = ({ quiz, refetch }) => {
   const [open, setOpen] = useState(false);
