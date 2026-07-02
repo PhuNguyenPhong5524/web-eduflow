@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { useCart } from "../../contexts/CartContext";
 
@@ -172,9 +172,11 @@ export default function DashboardPage() {
                 </span>
               </div>
               <div className="p-5 space-y-4">
-                <h4 className="font-bold text-on-surface group-hover:text-primary transition-colors">
-                  {course.title}
-                </h4>
+                <Link to={`/my-courses/69e393ad5c45fbef7efaacc6`} className="block">
+                  <h4 className="font-bold text-on-surface group-hover:text-primary transition-colors">
+                    {course.title}
+                  </h4>
+                </Link>
                 <div className="space-y-2">
                   <div className="flex justify-between text-[12px] text-on-surface-variant">
                     <span>

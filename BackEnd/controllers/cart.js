@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import cartModel from "../models/cart.js";
 import courseModel from "../models/course/course.js";
 import orderModel from "../models/order.js";
+import { createProgressAfterCheckout } from "../services/course/courseService.js";
 
 const TAX_RATE = 0.1;
 
@@ -256,6 +257,8 @@ export const checkout = async (req, res) => {
       order_status: "completed",
       paid_at: new Date(),
     });
+
+    await createProgressAfterCheckout(userId, order.items);
 
     cart.items = [];
     await cart.save();

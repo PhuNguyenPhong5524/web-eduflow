@@ -16,7 +16,12 @@ const lectureSchema = new mongoose.Schema({
     type: String,
     default: null
   }
-});
+}
+,
+{
+  timestamps: true,
+}
+);
 
     const lectureModel = mongoose.model("Lecture", lectureSchema);
     

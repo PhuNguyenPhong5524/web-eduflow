@@ -528,7 +528,11 @@ export const getPurchasedCourseById = async (req, res) => {
 export const getCourseLearningDetail = async (req, res) => {
   try {
     const { courseId } = req.params;
-    const data = await courseService.getCourseLearningDetail(courseId);
+
+    const data = await courseService.getCourseLearningDetail(
+      req.user.userId,
+      courseId
+    );
 
     return res.status(200).json({
       success: true,

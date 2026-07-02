@@ -5,6 +5,7 @@ import {
   exportCourseExcel,
   getAllCourseOfProvider,
   getCourseById,
+  getCourseLearningDetail,
   getFeaturedCourses,
   getPurchasedCourseById,
   UpdateCourse,
@@ -47,6 +48,13 @@ routerCourse.get(
   authMiddleware,
   authorizeRole("customer"),
   getPurchasedCourseById
+);
+// Học viên xem khóa học đã mua
+routerCourse.get(
+  "/learning/courses/:courseId",
+  authMiddleware,
+  authorizeRole("customer"),
+  getCourseLearningDetail
 );
 
 // ************************************************************

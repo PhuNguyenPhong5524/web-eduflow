@@ -1,5 +1,6 @@
 import React from 'react';
-import { Tabs, Button, Breadcrumb } from 'antd';
+import { Tabs, Button, Breadcrumb, Spin } from 'antd';
+import { useParams } from 'react-router-dom';
 import {
   ArrowLeftOutlined,
   CaretRightOutlined,
@@ -8,7 +9,6 @@ import {
   ProfileOutlined,
   SettingOutlined,
   FullscreenOutlined,
-  LikeOutlined,
   ShareAltOutlined,
   DownloadOutlined,
   BulbOutlined,
@@ -22,8 +22,23 @@ import {
   LockOutlined,
   RightOutlined
 } from '@ant-design/icons';
+import useGetLearningCourseDetail from '../../hooks/useCourse/useGetLearningCourse';
 
 const MyCoursePage = () => {
+  // Lấy courseId từ URL
+  const { id: courseId } = useParams(); 
+  
+  // Gọi API thông qua Custom Hook
+  // Đổi luôn tên biến data lấy từ React Query thành courseData cho gọn
+  const { data: courseData, isLoading, isError } = useGetLearningCourseDetail(courseId); 
+
+  // Lúc này courseData chính là cục dữ liệu lõi, bóc tách trực tiếp luôn
+  const course = courseData?.course;
+  const progress = courseData?.progress;
+  const overviews = courseData?.overviews || [];
+  const requests = courseData?.requests || [];
+  const sections = courseData?.sections || [];
+
   // CSS dùng chung cho hiệu ứng Glassmorphism và Scrollbar
   const customStyles = `
     .glass-card {
@@ -55,6 +70,23 @@ const MyCoursePage = () => {
     }
   `;
 
+  // Nếu đang gọi API
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-[#f8f9ff]">
+        <Spin size="large" tip="Đang tải dữ liệu khóa học..." />
+      </div>
+    );
+  }
+
+  if (isError || !course) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-[#f8f9ff]">
+        <p className="text-[#464555]">Không thể tải khóa học hoặc khóa học không tồn tại.</p>
+      </div>
+    );
+  }
+
   // Nội dung Tab: Overview
   const OverviewContent = () => (
     <div className="pt-4 space-y-4">
@@ -65,15 +97,11 @@ const MyCoursePage = () => {
             <BulbOutlined className="text-[18px]" /> Tổng quan về khóa học
           </h3>
           <ul className="text-sm text-[#464555] space-y-2">
-            <li className="flex items-start gap-2">
-              <CheckCircleFilled className="text-[#0058be] text-[16px] mt-0.5" /> Understanding Primitive vs. Semantic tokens.
-            </li>
-            <li className="flex items-start gap-2">
-              <CheckCircleFilled className="text-[#0058be] text-[16px] mt-0.5" /> Dynamic spacing systems for fluid hybrid grids.
-            </li>
-            <li className="flex items-start gap-2">
-              <CheckCircleFilled className="text-[#0058be] text-[16px] mt-0.5" /> Automated handoff workflows.
-            </li>
+            {overviews.map((overview) => (
+              <li key={overview._id} className="flex items-start gap-2">
+                <CheckCircleFilled className="text-[#0058be] text-[16px] mt-0.5" /> {overview.overview_name}
+              </li>
+            ))}
           </ul>
         </div>
         {/* Instructor */}
@@ -88,8 +116,8 @@ const MyCoursePage = () => {
               src="https://lh3.googleusercontent.com/aida-public/AB6AXuDQfLdiRmLgEIH3_MUTbTiJTUAiygf_fhKIJcibFgXWpPbVbDPJH7eP_2o4uFh-CDzkQ6QFqeZAYt7HTWfW_Adb4OToLRcRRMXpV-jXtYyQs7GlUKgG0Qqx_SZhgmSIr7SfqhwnPEBbbIaLkAOjtpDPEdLP_qahGoyFIAV2fE7CiTK2LWR_gEu9vBoegljjY_o1EL3N4J2-eBQgvh9qGoN2xh3slUzr_52zYQecXG_P5rAl2AiyP-iR-kJCtN9MeimdcxGxBN1z4-o"
             />
             <div>
-              <p className="text-sm font-medium tracking-wide text-[#0b1c30]">Prof. Adrian Sterling</p>
-              <p className="text-sm text-[#464555]">Lead Architect at DesignSystems.io</p>
+              <p className="text-sm font-medium tracking-wide text-[#0b1c30]">{course.provider_name}</p>
+              <p className="text-sm text-[#464555]">Giảng viên cung cấp khóa học</p>
             </div>
           </div>
         </div>
@@ -97,7 +125,25 @@ const MyCoursePage = () => {
     </div>
   );
 
-  // Nội dung Tab: Resources
+  // Nội dung Tab: Yêu cầu
+  const RequestsContent = () => (
+    <div className="pt-4 space-y-4">
+      <div className="glass-card p-4 rounded-xl">
+        <h3 className="text-sm font-medium tracking-wide text-[#3525CD] mb-2 flex items-center gap-2">
+          <BulbOutlined className="text-[18px]" /> Yêu cầu khóa học
+        </h3>
+        <ul className="text-sm text-[#464555] space-y-2">
+          {requests.map((req) => (
+            <li key={req._id} className="flex items-start gap-2">
+              <CheckCircleFilled className="text-[#0058be] text-[16px] mt-0.5" /> {req.request_name}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+
+  // Nội dung Tab: Resources (Giữ nguyên component UI cũ không bỏ)
   const ResourcesContent = () => (
     <div className="pt-4 space-y-2">
       <div className="flex items-center justify-between p-4 glass-card rounded-xl hover:bg-[#e5eeff] transition-colors cursor-pointer">
@@ -126,9 +172,19 @@ const MyCoursePage = () => {
   // Items cho ANTD Tabs
   const tabItems = [
     { key: 'overview', label: 'Tổng quan', children: <OverviewContent /> },
-    { key: 'request', label: 'Yêu cầu', children: <>Yêu cầu về khóa học</> },
-    { key: 'description', label: 'Mô tả', children: <div className="pt-4 text-[#464555]">Description section coming soon...</div> },
+    { key: 'request', label: 'Yêu cầu', children: <RequestsContent /> },
+    { key: 'description', label: 'Mô tả', children: <div className="pt-4 text-[#464555]">{course.description}</div> },
   ];
+
+  // Tính toán phần trăm tiến độ
+  const completedLecturesCount = progress?.completed_lecture_ids?.length || 0;
+  const totalLecturesCount = course.total_lectures || 1;
+  const progressPercentage = Math.round((completedLecturesCount / totalLecturesCount) * 100);
+
+  // Format ngày upload
+  const formattedDate = new Date(course.updatedAt).toLocaleDateString('vi-VN', {
+    day: '2-digit', month: '2-digit', year: 'numeric'
+  });
 
   return (
     <div className="bg-[#f8f9ff] text-[#0b1c30] text-base font-normal transition-colors duration-300 min-h-screen font-sans">
@@ -151,50 +207,34 @@ const MyCoursePage = () => {
                       </a>
                     ),
                   },
-                  { title: <span className="text-[#464555] text-sm font-medium">React Ultimate - React.JS Cơ Bản Từ Z Đến A Cho Beginners</span> },
+                  { title: <span className="text-[#464555] text-sm font-medium">{course.course_title}</span> },
                 ]}
               />
             </div>
 
             {/* Immersive Video Player */}
-            <div className="video-container group">
-              <img
-                className="w-full h-full object-cover opacity-60"
-                alt="Cinematic modern coding environment"
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuBeuMTHWDlsuahpn0uGYpshe2Tbhhy1rFHzi9vUNzwREAbcsLNnVS_UmcT5dRmYrQEyNGfzQia9oJfdcDat8mBM4-RAhMeCO74ou4uD1HJwMyzLJKMFEaNAYQhoy7edGsaWse41qWlhw-uPFQqHie6T3hh-jD6GrBhAcYyZABl3ComtMjQL6Odq4fVgj3fqQf7fhghM6A6rBoDC2P7MKJQGSLZmMxe6-e_HGtiM6oOhsT-KkmiaHxRA5Cgt7WOMXnXlBArTZRgR7EQ"
-              />
-              {/* Overlays & Controls */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-8 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <div className="flex items-center justify-between text-white w-full">
-                  <div className="flex items-center gap-4 text-2xl">
-                    <CaretRightOutlined className="cursor-pointer hover:scale-110 transition-transform" />
-                    <StepForwardOutlined className="cursor-pointer hover:scale-110 transition-transform" />
-                    <SoundOutlined className="cursor-pointer hover:scale-110 transition-transform" />
-                    <span className="text-sm font-medium font-mono ml-2">12:45 / 24:00</span>
-                  </div>
-                  <div className="flex items-center gap-4 text-2xl">
-                    <ProfileOutlined className="cursor-pointer hover:scale-110 transition-transform" />
-                    <SettingOutlined className="cursor-pointer hover:scale-110 transition-transform" />
-                    <FullscreenOutlined className="cursor-pointer hover:scale-110 transition-transform" />
-                  </div>
-                </div>
-                <div className="w-full h-1 bg-white/30 rounded-full mt-4 cursor-pointer relative">
-                  <div className="absolute top-0 left-0 h-full w-[53%] bg-[#3525CD] shadow-[0_0_8px_#3525CD] rounded-full"></div>
-                </div>
-              </div>
-              {/* Center Play Button */}
-              <div className="absolute inset-0 flex items-center justify-center group-hover:hidden transition-all">
-                <div className="h-20 w-20 rounded-full bg-[#3525CD]/90 text-white flex items-center justify-center shadow-xl backdrop-blur-sm">
-                  <CaretRightOutlined className="text-[48px]" />
-                </div>
-              </div>
+            <div className="aspect-video max-h-[500px] w-full flex items-center justify-center bg-gray-100 ">
+              {course?.video_url?.trim() ? (
+                  <iframe
+                    className="w-full h-full"
+                    src={course.video_url}
+                    title="YouTube video player"
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+              ) : (
+                  <p className="text-gray-400 text-sm font-semibold">
+                  Chưa có video
+                  </p>
+              )}
             </div>
 
             {/* Video Metadata */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
-                <h1 className="text-2xl font-semibold leading-tight text-[#0b1c30]">3.4 Mastering System Design Tokens</h1>
-                <p className="text-sm text-[#464555] mt-1">Uploaded Oct 24 • High-Performance Design Series</p>
+                <h1 className="text-2xl font-semibold leading-tight text-[#0b1c30]">{course.course_title}</h1>
+                <p className="text-sm text-[#464555] mt-1">Uploaded {formattedDate} • {course.category_name}</p>
               </div>
               <div className="flex items-center gap-2">
                 <Button icon={<ShareAltOutlined />} size="large" className="rounded-xl border-[#c7c4d8] text-sm font-medium hover:bg-[#e5eeff]">
@@ -223,75 +263,63 @@ const MyCoursePage = () => {
               <div className="p-4 border-b border-[#c7c4d8]/30 flex items-center justify-between bg-[#eff4ff]">
                 <div>
                   <h2 className="text-sm font-medium tracking-wide text-[#0b1c30]">Nội dung khóa học</h2>
-                  <p className="text-xs font-semibold text-[#464555]">Đã hoàn thành 24% • 12/48 bài giảng</p>
+                  <p className="text-xs font-semibold text-[#464555]">Đã hoàn thành {progressPercentage}% • {completedLecturesCount}/{totalLecturesCount} bài giảng</p>
                 </div>
                 <Button type="text" icon={<FilterOutlined className="text-xl text-[#777587]" />} />
               </div>
 
               <div className="flex-1 overflow-y-auto custom-scrollbar p-2 space-y-1">
-                {/* Module 1 */}
-                <div className="pt-4 pb-2 px-4">
-                  <p className="text-xs font-bold text-[#464555] uppercase tracking-wider">Module 1: Foundations</p>
-                </div>
-                <div className="flex items-center gap-4 p-4 rounded-xl hover:bg-[#3525CD]/5 cursor-pointer">
-                  <CheckCircleFilled className="text-[#0058be] text-[20px]" />
-                  <div className="flex-1">
-                    <p className="text-sm font-medium">1.1 Introduction to Flow</p>
-                    <p className="text-xs font-semibold text-[#464555]">08:24</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4 p-4 rounded-xl hover:bg-[#3525CD]/5 cursor-pointer">
-                  <CheckCircleFilled className="text-[#0058be] text-[20px]" />
-                  <div className="flex-1">
-                    <p className="text-sm font-medium">1.2 History of Design Systems</p>
-                    <p className="text-xs font-semibold text-[#464555]">15:10</p>
-                  </div>
-                </div>
+                {sections.map((section, index) => (
+                  <React.Fragment key={section._id}>
+                    {/* Header Module */}
+                    <div className="pt-4 pb-2 px-4">
+                      <p className="text-xs font-bold text-[#464555] uppercase tracking-wider">Module {index + 1}: {section.chapter_title}</p>
+                    </div>
 
-                {/* Module 2 */}
-                <div className="pt-4 pb-2 px-4">
-                  <p className="text-xs font-bold text-[#464555] uppercase tracking-wider">Module 2: Visual Language</p>
-                </div>
-                <div className="flex items-center gap-4 p-4 rounded-xl bg-[#3525CD]/10 border-l-4 border-[#3525CD]">
-                  <PlayCircleFilled className="text-[#3525CD] text-[20px]" />
-                  <div className="flex-1">
-                    <p className="text-sm font-bold text-[#3525CD]">2.1 Color Theory & Accessibility</p>
-                    <p className="text-xs font-semibold text-[#3525CD]">Now Playing</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4 p-4 rounded-xl hover:bg-[#3525CD]/5 cursor-pointer">
-                  <PlayCircleOutlined className="text-[#777587] text-[20px]" />
-                  <div className="flex-1">
-                    <p className="text-sm font-medium">2.2 Dynamic Typography Levels</p>
-                    <p className="text-xs font-semibold text-[#464555]">12:30</p>
-                  </div>
-                </div>
+                    {/* Danh sách Lectures */}
+                    {section.lectures.map((lecture) => {
+                      const isUnlocked = section.is_unlocked;
+                      const isCompleted = lecture.is_completed;
+                      
+                      // Render cho bài chưa mở khóa
+                      if (!isUnlocked) {
+                        return (
+                          <div key={lecture._id} className="flex items-center gap-4 p-4 rounded-xl hover:bg-[#3525CD]/5 cursor-pointer opacity-80">
+                            <LockOutlined className="text-[#777587] text-[20px]" />
+                            <div className="flex-1">
+                              <p className="text-sm font-medium text-[#464555]">{lecture.title}</p>
+                              <p className="text-xs font-semibold text-[#464555]">{lecture.duration}</p>
+                            </div>
+                          </div>
+                        );
+                      }
 
-                {/* Module 3 */}
-                <div className="pt-4 pb-2 px-4">
-                  <p className="text-xs font-bold text-[#464555] uppercase tracking-wider">Module 3: Advanced Architecture</p>
-                </div>
-                <div className="flex items-center gap-4 p-4 rounded-xl hover:bg-[#3525CD]/5 cursor-pointer opacity-80">
-                  <LockOutlined className="text-[#777587] text-[20px]" />
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-[#464555]">3.1 State Logic & Transitions</p>
-                    <p className="text-xs font-semibold text-[#464555]">19:45</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4 p-4 rounded-xl hover:bg-[#3525CD]/5 cursor-pointer opacity-80">
-                  <LockOutlined className="text-[#777587] text-[20px]" />
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-[#464555]">3.2 Composable Layout Systems</p>
-                    <p className="text-xs font-semibold text-[#464555]">22:00</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4 p-4 rounded-xl hover:bg-[#3525CD]/5 cursor-pointer opacity-80">
-                  <LockOutlined className="text-[#777587] text-[20px]" />
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-[#464555]">3.3 Responsive Grid Mastering</p>
-                    <p className="text-xs font-semibold text-[#464555]">14:15</p>
-                  </div>
-                </div>
+                      // Render cho bài đã hoàn thành
+                      if (isCompleted) {
+                        return (
+                          <div key={lecture._id} className="flex items-center gap-4 p-4 rounded-xl hover:bg-[#3525CD]/5 cursor-pointer">
+                            <CheckCircleFilled className="text-[#0058be] text-[20px]" />
+                            <div className="flex-1">
+                              <p className="text-sm font-medium">{lecture.title}</p>
+                              <p className="text-xs font-semibold text-[#464555]">{lecture.duration}</p>
+                            </div>
+                          </div>
+                        );
+                      }
+
+                      // Render mặc định cho bài đã mở nhưng chưa học (Play Circle bình thường)
+                      return (
+                        <div key={lecture._id} className="flex items-center gap-4 p-4 rounded-xl hover:bg-[#3525CD]/5 cursor-pointer">
+                          <PlayCircleOutlined className="text-[#777587] text-[20px]" />
+                          <div className="flex-1">
+                            <p className="text-sm font-medium">{lecture.title}</p>
+                            <p className="text-xs font-semibold text-[#464555]">{lecture.duration}</p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </React.Fragment>
+                ))}
               </div>
 
               <div className="p-4 bg-[#d3e4fe]">

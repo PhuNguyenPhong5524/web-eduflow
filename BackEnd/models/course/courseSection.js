@@ -8,7 +8,11 @@ const sectionSchema = new mongoose.Schema({
   },
   chapter_title: String,
   lecture_count: Number,
-  duration: String
+  duration: String,
+  
+},
+{
+  timestamps: true,
 });
 
     const courseSectionModel = mongoose.model("CourseSection", sectionSchema);

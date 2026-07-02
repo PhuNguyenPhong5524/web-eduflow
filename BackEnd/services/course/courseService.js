@@ -6,6 +6,8 @@ import courseSectionModel from "../../models/course/courseSection.js";
 import quizModel from "../../models/quiz/quiz.js";
 import quizQuestionModel from "../../models/quiz/quizQuestion.js";
 import quizAnswerModel from "../../models/quiz/quizAnswer.js";
+import orderModel from "../../models/order.js";
+import courseProgressModel from "../../models/course/courseProgress.js";
 
 
 export const getCourseDetail = async (courseId) => {
@@ -64,9 +66,9 @@ export const getCourseDetail = async (courseId) => {
 
 export const getCourseLearningDetail = async (userId, courseId) => {
   const order = await orderModel.findOne({
-    user_id: userId,
-    course_id: courseId,
-    status: "completed",
+      user: userId,
+      payment_status: "paid",
+      "items.course": courseId,
   });
 
   if (!order) {
@@ -82,9 +84,14 @@ export const getCourseLearningDetail = async (userId, courseId) => {
     throw new Error("Khóa học không tồn tại");
   }
 
-  const [overviews, sections] = await Promise.all([
-    courseOverviewModel.find({ course_id: courseId }).lean(),
-    courseSectionModel.find({ course_id: courseId }).lean(),
+  const [overviews, requests, sections, progress] = await Promise.all([
+  courseOverviewModel.find({ course_id: courseId }).lean(),
+  courseRequestModel.find({ course_id: courseId }).lean(),
+  courseSectionModel.find({ course_id: courseId }).lean(),
+  courseProgressModel.findOne({
+      user_id: userId,
+      course_id: courseId,
+    }).lean(),
   ]);
 
   const lectures = await lectureModel.find({
@@ -93,35 +100,122 @@ export const getCourseLearningDetail = async (userId, courseId) => {
     },
   }).lean();
 
+  const totalSections = sections.length;
+  const totalLectures = lectures.length;
+  
   const quizzes = await quizModel.find({
     section_id: {
       $in: sections.map((section) => section._id),
     },
   }).lean();
 
-  const sectionsWithData = sections.map((section) => ({
-    ...section,
-
-    lectures: lectures.filter(
-      (lecture) =>
+  const sectionsWithData = sections.map((section) => {
+    const sectionLectures = lectures.filter(
+      lecture =>
         lecture.section_id.toString() === section._id.toString()
-    ),
+    );
 
-    quizzes: quizzes.filter(
-      (quiz) =>
-        quiz.section_id.toString() === section._id.toString()
-    ),
-  }));
+    return {
+      ...section,
+
+      is_unlocked:
+        progress?.unlocked_section_ids.some(
+          id => id.toString() === section._id.toString()
+        ) || false,
+
+      lectures: sectionLectures.map(lecture => ({
+        ...lecture,
+
+        is_completed:
+          progress?.completed_lecture_ids.some(
+            id => id.toString() === lecture._id.toString()
+          ) || false,
+      })),
+
+      quizzes: quizzes
+        .filter(
+          quiz =>
+            quiz.section_id.toString() === section._id.toString()
+        )
+        .map(quiz => ({
+          ...quiz,
+
+          is_completed:
+            progress?.completed_quiz_ids.some(
+              id => id.toString() === quiz._id.toString()
+            ) || false,
+        })),
+    };
+  });
 
   return {
     course: {
       ...course,
+      total_sections: totalSections,
+      total_lectures: totalLectures,
       category_id: course.category_id?._id,
       category_name: course.category_id?.cate_name,
       provider_id: course.provider_id?._id,
       provider_name: course.provider_id?.provider_name,
     },
+
+    progress: {
+      unlocked_section_ids: progress?.unlocked_section_ids || [],
+      completed_lecture_ids: progress?.completed_lecture_ids || [],
+      completed_quiz_ids: progress?.completed_quiz_ids || [],
+    },
+
     overviews,
+    requests,
     sections: sectionsWithData,
   };
+};
+
+// tiến trình học của user trong khóa học
+
+export const createProgressAfterCheckout = async ( userId,items ) => {
+  
+  for (const item of items) {
+
+    const exist = await courseProgressModel.findOne({
+      user_id: userId,
+      course_id: item.course,
+    });
+
+    if (exist) continue;
+
+    // Lấy chương đầu tiên
+    const firstSection = await courseSectionModel
+      .findOne({
+        course_id: item.course,
+      })
+      .sort({ _id: 1 });
+
+    let firstLecture = null;
+
+    if (firstSection) {
+      firstLecture = await lectureModel
+        .findOne({
+          section_id: firstSection._id,
+        })
+        .sort({ _id: 1 });
+    }
+
+    await courseProgressModel.create({
+      user_id: userId,
+      course_id: item.course,
+
+      unlocked_section_ids: firstSection
+        ? [firstSection._id]
+        : [],
+
+      unlocked_lecture_ids: firstLecture
+        ? [firstLecture._id]
+        : [],
+
+      completed_lecture_ids: [],
+
+      completed_quiz_ids: [],
+    });
+  }
 };
