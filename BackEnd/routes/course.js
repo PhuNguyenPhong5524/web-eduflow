@@ -1,5 +1,6 @@
 import { Router } from "express";
 import {
+  completeLecture,
   createCourse,
   deleteCourse,
   exportCourseExcel,
@@ -9,6 +10,7 @@ import {
   getFeaturedCourses,
   getPurchasedCourseById,
   UpdateCourse,
+  updateLearningProgress,
 } from "../controllers/course/course.js";
 import { getCourses } from "../controllers/course/getCourses.js";
 import authorizeRole  from "../middleware/authorizeRole.js";
@@ -141,7 +143,20 @@ routerCourse.put(
   updateCourseRequest
 );
 
-
+// Cập nhật bài giảng hiện tại đang học của user trong khóa học
+routerCourse.put(
+  "/course-progress/update-learning-progress",
+  authMiddleware,
+  authorizeRole("customer"),
+  updateLearningProgress
+);
+// Cập nhật hoàn thành bài giảng
+routerCourse.put(
+  "/course-progress/complete-lecture",
+  authMiddleware,
+  authorizeRole("customer"),
+  completeLecture
+);
 // ************************************************************
 
 // Xóa khóa học

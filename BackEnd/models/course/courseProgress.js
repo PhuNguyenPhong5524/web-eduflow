@@ -38,6 +38,13 @@ const courseProgressSchema = new mongoose.Schema(
       },
     ],
 
+    // các bài giảng đang học
+    current_lecture_id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Lecture",
+        default: null,
+    },
+
     // Các quiz đã hoàn thành
     completed_quiz_ids: [
       {

@@ -172,7 +172,7 @@ export default function DashboardPage() {
                 </span>
               </div>
               <div className="p-5 space-y-4">
-                <Link to={`/my-courses/69e393ad5c45fbef7efaacc6`} className="block">
+                <Link to={`/my-courses/69e1ad343dbf6e7a4409260c`} className="block">
                   <h4 className="font-bold text-on-surface group-hover:text-primary transition-colors">
                     {course.title}
                   </h4>

@@ -13,6 +13,7 @@ import orderModel from "../../models/order.js";
 import { getCourseDetail } from "../../services/course/courseService.js";
 import * as courseService from "../../services/course/courseService.js";
 
+
 export const getFeaturedCourses = async (req, res) => {
   try {
     const courses = await courseModel
@@ -536,11 +537,58 @@ export const getCourseLearningDetail = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: "Lấy chi tiết khóa học thành công",
+      message: "Lấy chi tiết khóa học đã mua thành công!",
       data,
     });
   } catch (error) {
     return res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// Cập nhật bài giảng hiện tại đang học của user trong khóa học
+
+export const updateLearningProgress = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const { courseId, lectureId } = req.body;
+
+    const progress = await courseService.updateLearningProgressService(
+      userId,
+      courseId,
+      lectureId
+    );
+    return res.status(200).json({
+      success: true,
+      progress,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const completeLecture = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const { courseId, lectureId } = req.body;
+
+    const progress = await courseService.completeLectureService(
+      userId,
+      courseId,
+      lectureId
+    );
+
+    return res.status(200).json({
+      success: true,
+      progress,
+    });
+  } catch (error) {
+    return res.status(500).json({
       success: false,
       message: error.message,
     });

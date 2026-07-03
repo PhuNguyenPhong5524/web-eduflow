@@ -1,5 +1,5 @@
-import React from 'react';
-import { Tabs, Button, Breadcrumb, Spin } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Tabs, Button, Breadcrumb, Spin, message } from 'antd';
 import { useParams } from 'react-router-dom';
 import {
   ArrowLeftOutlined,
@@ -23,6 +23,10 @@ import {
   RightOutlined
 } from '@ant-design/icons';
 import useGetLearningCourseDetail from '../../hooks/useCourse/useGetLearningCourse';
+import useUpdateCourseCurrentLecture from '../../hooks/useCourse/useUpdateCourseCurrentLecture';
+import BoxQuizCardItem from './BoxQuizCardItem/BoxQuizCardItem';
+import useUpdateLearningProgress from '../../hooks/useCourse/useUpdateCourseCurrentLecture';
+import useCompleteLecture from '../../hooks/useCourse/useCompleteLecture';
 
 const MyCoursePage = () => {
   // Lấy courseId từ URL
@@ -38,7 +42,89 @@ const MyCoursePage = () => {
   const overviews = courseData?.overviews || [];
   const requests = courseData?.requests || [];
   const sections = courseData?.sections || [];
+  const { mutate: updateLearningProgress } = useUpdateLearningProgress();
+  const { mutate: completeLecture } = useCompleteLecture();
+  // 🎥 state lưu video đang phát
+  const [currentLecture, setCurrentLecture] = useState(null);
+  const [currentVideo, setCurrentVideo] = useState("");
 
+  useEffect(() => {
+    if (!course || !sections.length) return;
+
+    // Có bài đang học trong DB
+    if (progress?.current_lecture_id) {
+      const lecture = sections
+        .flatMap(section => section.lectures)
+        .find(item => item._id === progress.current_lecture_id);
+
+      if (lecture) {
+        setCurrentLecture(lecture);
+        setCurrentVideo(getEmbedUrl(lecture.vid_lectures_url));
+        return;
+      }
+    }
+
+    // Chưa từng học -> hiện video review
+    setCurrentLecture(null);
+    setCurrentVideo(getEmbedUrl(course.video_url));
+  }, [course, sections, progress]);
+
+  // Hàm xử lý khi người dùng chọn video bài giảng
+  const getEmbedUrl = (url) => {
+    if (!url) return "";
+
+    if (url.includes("watch?v=")) {
+      return url.replace("watch?v=", "embed/");
+    }
+
+    return url;
+  };
+
+  const handleSelectLecture = (section, lecture) => {
+    if (!section.is_unlocked) {
+      return message.error({
+        content: (
+          <>
+            Bài giảng chưa mở khóa.
+            <br />
+            Vui lòng hoàn thành các bài giảng trước đó để mở khóa bài học này!
+          </>
+        ),
+      });
+    }
+
+    setCurrentLecture(lecture);
+
+    setCurrentVideo(
+      lecture?.vid_lectures_url
+        ? getEmbedUrl(lecture.vid_lectures_url)
+        : ""
+    );
+
+    // Lưu bài giảng đang học
+    updateLearningProgress({
+      courseId: course._id,
+      lectureId: lecture._id,
+    });
+
+    // Nếu có video và chưa hoàn thành thì đánh dấu hoàn thành
+    if (lecture.vid_lectures_url && !lecture.is_completed) {
+      completeLecture(
+        {
+          courseId: course._id,
+          lectureId: lecture._id,
+        },
+        {
+          onSuccess: () => {
+            lecture.is_completed = true; // cập nhật UI ngay
+          },
+          onError: () => {
+            message.error("Không thể cập nhật tiến độ");
+          },
+        }
+      );
+    }
+  };
   // CSS dùng chung cho hiệu ứng Glassmorphism và Scrollbar
   const customStyles = `
     .glass-card {
@@ -74,7 +160,7 @@ const MyCoursePage = () => {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-[#f8f9ff]">
-        <Spin size="large" tip="Đang tải dữ liệu khóa học..." />
+        <Spin size="large" description="Đang tải dữ liệu khóa học..." />
       </div>
     );
   }
@@ -214,10 +300,11 @@ const MyCoursePage = () => {
 
             {/* Immersive Video Player */}
             <div className="aspect-video max-h-[500px] w-full flex items-center justify-center bg-gray-100 ">
-              {course?.video_url?.trim() ? (
+              {currentVideo ? (
                   <iframe
                     className="w-full h-full"
-                    src={course.video_url}
+                    key={currentVideo} 
+                    src={currentVideo}
                     title="YouTube video player"
                     frameBorder="0"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -277,47 +364,61 @@ const MyCoursePage = () => {
                     </div>
 
                     {/* Danh sách Lectures */}
-                    {section.lectures.map((lecture) => {
-                      const isUnlocked = section.is_unlocked;
-                      const isCompleted = lecture.is_completed;
-                      
-                      // Render cho bài chưa mở khóa
-                      if (!isUnlocked) {
+                      {section.lectures.map((lecture) => {
+                        const isUnlocked = section.is_unlocked;
+                        const isCompleted = lecture.is_completed;
+                        const isCurrent = currentLecture?._id === lecture._id;
+
+                        let icon;
+
+                        if (!isUnlocked) {
+                          icon = <LockOutlined className="text-[#777587] text-[20px]" />;
+                        } else if (isCompleted) {
+                          icon = <CheckCircleFilled className="text-green-500 text-[20px]" />;
+                        } else {
+                          icon = <PlayCircleOutlined className="text-[#777587] text-[20px]" />;
+                        }
+
                         return (
-                          <div key={lecture._id} className="flex items-center gap-4 p-4 rounded-xl hover:bg-[#3525CD]/5 cursor-pointer opacity-80">
-                            <LockOutlined className="text-[#777587] text-[20px]" />
+                          <div
+                            key={lecture._id}
+                            onClick={() => handleSelectLecture(section, lecture)}
+                            className={`
+                              flex items-center gap-4 p-4 rounded-xl transition-all duration-200 cursor-pointer
+                              ${!isUnlocked ? "opacity-70" : ""}
+                              ${
+                                isCurrent
+                                  ? "bg-[#3525CD]/10 border border-[#3525CD]"
+                                  : "hover:bg-[#3525CD]/5"
+                              }
+                            `}
+                          >
+                            {icon}
+
                             <div className="flex-1">
-                              <p className="text-sm font-medium text-[#464555]">{lecture.title}</p>
-                              <p className="text-xs font-semibold text-[#464555]">{lecture.duration}</p>
+                              <p
+                                className={`text-sm font-medium ${
+                                  !isUnlocked ? "text-[#777587]" : ""
+                                }`}
+                              >
+                                {lecture.title}
+                              </p>
+
+                              <p className="text-xs font-semibold text-[#464555]">
+                                {lecture.duration}
+                              </p>
                             </div>
                           </div>
                         );
-                      }
-
-                      // Render cho bài đã hoàn thành
-                      if (isCompleted) {
-                        return (
-                          <div key={lecture._id} className="flex items-center gap-4 p-4 rounded-xl hover:bg-[#3525CD]/5 cursor-pointer">
-                            <CheckCircleFilled className="text-[#0058be] text-[20px]" />
-                            <div className="flex-1">
-                              <p className="text-sm font-medium">{lecture.title}</p>
-                              <p className="text-xs font-semibold text-[#464555]">{lecture.duration}</p>
-                            </div>
-                          </div>
-                        );
-                      }
-
-                      // Render mặc định cho bài đã mở nhưng chưa học (Play Circle bình thường)
-                      return (
-                        <div key={lecture._id} className="flex items-center gap-4 p-4 rounded-xl hover:bg-[#3525CD]/5 cursor-pointer">
-                          <PlayCircleOutlined className="text-[#777587] text-[20px]" />
-                          <div className="flex-1">
-                            <p className="text-sm font-medium">{lecture.title}</p>
-                            <p className="text-xs font-semibold text-[#464555]">{lecture.duration}</p>
-                          </div>
-                        </div>
-                      );
-                    })}
+                      })}
+                      <div className="mt-3 space-y-3">
+                        {section.quizzes.map((quiz) => (
+                          <BoxQuizCardItem
+                            key={quiz._id}
+                            quiz={quiz}
+                          />
+                        ))}
+                      </div>
                   </React.Fragment>
                 ))}
               </div>

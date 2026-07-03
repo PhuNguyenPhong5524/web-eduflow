@@ -111,8 +111,7 @@ export const getCourseLearningDetail = async (userId, courseId) => {
 
   const sectionsWithData = sections.map((section) => {
     const sectionLectures = lectures.filter(
-      lecture =>
-        lecture.section_id.toString() === section._id.toString()
+      (lecture) => lecture.section_id.toString() === section._id.toString()
     );
 
     return {
@@ -120,29 +119,31 @@ export const getCourseLearningDetail = async (userId, courseId) => {
 
       is_unlocked:
         progress?.unlocked_section_ids.some(
-          id => id.toString() === section._id.toString()
+          (id) => id.toString() === section._id.toString()
         ) || false,
 
-      lectures: sectionLectures.map(lecture => ({
+      lectures: sectionLectures.map((lecture) => ({
         ...lecture,
 
         is_completed:
           progress?.completed_lecture_ids.some(
-            id => id.toString() === lecture._id.toString()
+            (id) => id.toString() === lecture._id.toString()
           ) || false,
+
+        is_current:
+          progress?.current_lecture_id?.toString() === lecture._id.toString(),
       })),
 
       quizzes: quizzes
         .filter(
-          quiz =>
-            quiz.section_id.toString() === section._id.toString()
+          (quiz) => quiz.section_id.toString() === section._id.toString()
         )
-        .map(quiz => ({
+        .map((quiz) => ({
           ...quiz,
 
           is_completed:
             progress?.completed_quiz_ids.some(
-              id => id.toString() === quiz._id.toString()
+              (id) => id.toString() === quiz._id.toString()
             ) || false,
         })),
     };
@@ -163,6 +164,7 @@ export const getCourseLearningDetail = async (userId, courseId) => {
       unlocked_section_ids: progress?.unlocked_section_ids || [],
       completed_lecture_ids: progress?.completed_lecture_ids || [],
       completed_quiz_ids: progress?.completed_quiz_ids || [],
+      current_lecture_id: progress?.current_lecture_id || null,
     },
 
     overviews,
@@ -173,10 +175,8 @@ export const getCourseLearningDetail = async (userId, courseId) => {
 
 // tiến trình học của user trong khóa học
 
-export const createProgressAfterCheckout = async ( userId,items ) => {
-  
+export const createProgressAfterCheckout = async (userId, items) => {
   for (const item of items) {
-
     const exist = await courseProgressModel.findOne({
       user_id: userId,
       course_id: item.course,
@@ -186,36 +186,88 @@ export const createProgressAfterCheckout = async ( userId,items ) => {
 
     // Lấy chương đầu tiên
     const firstSection = await courseSectionModel
-      .findOne({
-        course_id: item.course,
-      })
-      .sort({ _id: 1 });
+      .findOne({ course_id: item.course })
+      .sort({ createdAt: 1 });
 
     let firstLecture = null;
 
     if (firstSection) {
       firstLecture = await lectureModel
-        .findOne({
-          section_id: firstSection._id,
-        })
-        .sort({ _id: 1 });
+        .findOne({ section_id: firstSection._id })
+        .sort({ createdAt: 1 });
     }
 
     await courseProgressModel.create({
       user_id: userId,
       course_id: item.course,
 
-      unlocked_section_ids: firstSection
-        ? [firstSection._id]
-        : [],
+      unlocked_section_ids: firstSection ? [firstSection._id] : [],
 
-      unlocked_lecture_ids: firstLecture
-        ? [firstLecture._id]
-        : [],
+      unlocked_lecture_ids: firstLecture ? [firstLecture._id] : [],
 
       completed_lecture_ids: [],
 
       completed_quiz_ids: [],
+
+      current_lecture_id: null,
     });
   }
+};
+
+// Cập nhật bài giảng hiện tại đang học của user trong khóa học
+
+export const updateLearningProgressService = async (
+  userId,
+  courseId,
+  lectureId
+) => {
+  const progress = await courseProgressModel.findOneAndUpdate(
+    {
+      user_id: userId,
+      course_id: courseId,
+    },
+    {
+      $set: {
+        current_lecture_id: lectureId,
+      },
+    },
+    {
+      returnDocument: "after",
+    }
+  );
+
+  if (!progress) {
+    throw new Error("Không tìm thấy tiến trình học");
+  }
+
+  return progress;
+};
+
+export const completeLectureService = async (
+  userId,
+  courseId,
+  lectureId
+) => {
+  const lecture = await lectureModel.findById(lectureId);
+
+  if (!lecture) {
+    throw new Error("Lecture không tồn tại");
+  }
+
+  const progress = await courseProgressModel.findOneAndUpdate(
+    {
+      user_id: userId,
+      course_id: courseId,
+    },
+    {
+      $addToSet: {
+        completed_lecture_ids: lectureId,
+      },
+    },
+    {
+      returnDocument: "after",
+    }
+  );
+
+  return progress;
 };
