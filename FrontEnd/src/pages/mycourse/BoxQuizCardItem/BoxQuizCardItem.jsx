@@ -7,13 +7,13 @@ import BoxModalQuizzQuestion from "../ModalQuizzQuestion/BoxModalQuizzQuestion";
 
 const BoxQuizCardItem = ({ quiz, refetch }) => {
   return (
-    <div className="flex items-center justify-between rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-all hover:shadow-md">
+    <div className="flex items-center justify-between rounded-xl border-dashed border-2 border-gray-400 bg-white p-4 shadow-sm transition-all hover:shadow-md">
       <div className="flex items-center gap-4">
-        <div className="flex h-12 w-12 items-center justify-center rounded-full">
+        <div className="flex items-center justify-center rounded-full">
           {quiz.is_completed ? (
-            <CheckCircleFilled className="text-[#0058be] text-[22px]" />
+            <CheckCircleFilled style={{color:"green"}} className="text-[#0058be] text-[22px]" />
           ) : (
-            <FileTextOutlined style={{backgroundColor:"none", width:"20px"}} className=" text-[22px] " />
+            <FileTextOutlined style={{backgroundColor:"none"}} className=" text-[22px] " />
           )}
         </div>
 

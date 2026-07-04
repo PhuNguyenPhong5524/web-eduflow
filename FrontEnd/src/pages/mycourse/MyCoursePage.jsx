@@ -374,7 +374,7 @@ const MyCoursePage = () => {
                         if (!isUnlocked) {
                           icon = <LockOutlined className="text-[#777587] text-[20px]" />;
                         } else if (isCompleted) {
-                          icon = <CheckCircleFilled className="text-green-500 text-[20px]" />;
+                          icon = <CheckCircleFilled style={{color:"green"}} className="text-green-500 text-[20px]" />;
                         } else {
                           icon = <PlayCircleOutlined className="text-[#777587] text-[20px]" />;
                         }
