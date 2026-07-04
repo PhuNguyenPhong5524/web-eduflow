@@ -1,6 +1,6 @@
 import quizModel from "../../models/quiz/quiz.js";
 import courseSectionModel from "../../models/course/courseSection.js";
-
+import courseProgressModel from "../../models/course/courseProgress.js";
 
 
 export const createQuiz = async (data) => {
@@ -105,6 +105,50 @@ export const getQuestionByQuiz = async (quiz_id) => {
         ...quiz,
         questions: questionsWithAnswers
     };
+};
+
+export const getQuizForStudent = async (quizId) => {
+  const quiz = await quizModel.findById(quizId).lean();
+
+  if (!quiz) {
+    throw new Error("Quiz không tồn tại");
+  }
+
+  // Lấy danh sách câu hỏi và đáp án của quiz
+
+  const questions = await quizQuestionModel
+    .find({ quiz_id: quizId })
+    .sort({ order: 1 })
+    .lean();
+
+  const answers = await quizAnswerModel.find({
+    question_id: {
+      $in: questions.map((q) => q._id),
+    },
+  }).lean();
+
+  const questionsWithAnswers = questions.map((question) => ({
+    ...question,
+
+    answers: answers
+      .filter(
+        (answer) =>
+          answer.question_id.toString() === question._id.toString()
+      )
+      .map((answer) => ({
+        _id: answer._id,
+        answer_label: answer.answer_label,
+        answer_text: answer.answer_text,
+      })),
+  }));
+
+  return {
+    _id: quiz._id,
+    title: quiz.title,
+    description: quiz.description,
+    total_questions: questions.length,
+    questions: questionsWithAnswers,
+  };
 };
 
 export const createQuestion = async (data) => {
@@ -252,4 +296,85 @@ export const deleteQuestionSV = async (questionId) => {
     return {
         message: "Xóa câu hỏi thành công",
     };
+};
+
+
+//  Submit quiz
+export const submitQuizService = async (quizId, userAnswers) => {
+  const quiz = await quizModel.findById(quizId).lean();
+
+  const questions = await quizQuestionModel.find({
+    quiz_id: quizId,
+  }).lean();
+
+  const answers = await quizAnswerModel.find({
+    question_id: {
+      $in: questions.map((q) => q._id),
+    },
+  }).lean();
+
+  let correctCount = 0;
+  const resultAnswers = {};
+
+  for (const question of questions) {
+    const correctAnswer = answers.find(
+      (a) =>
+        a.question_id.toString() === question._id.toString() &&
+        a.is_correct
+    );
+
+    const userAnswerId = userAnswers[question._id.toString()];
+
+    const isCorrect =
+      correctAnswer?._id.toString() === userAnswerId;
+
+    if (isCorrect) correctCount++;
+
+    resultAnswers[question._id] = {
+      userAnswerId,
+      correctAnswerId: correctAnswer?._id.toString(),
+      isCorrect,
+    };
+  }
+
+  return {
+    totalQuestions: questions.length,
+    correctCount,
+    wrongCount: questions.length - correctCount,
+    passed: correctCount === questions.length,
+    answers: resultAnswers,
+    };
+};
+
+
+export const completeQuizService = async (
+  userId,
+  quizId
+) => {
+  const quiz = await quizModel.findById(quizId);
+
+  const section = await courseSectionModel.findById(
+    quiz.section_id
+  );
+
+  const progress = await courseProgressModel.findOneAndUpdate(
+    {
+      user_id: userId,
+      course_id: section.course_id,
+    },
+    {
+      $addToSet: {
+        completed_quiz_ids: quizId,
+      },
+    },
+    {
+      returnDocument: "after",
+    }
+  );
+
+  if (!progress) {
+    throw new Error("Không tìm thấy tiến trình học");
+  }
+
+  return progress;
 };

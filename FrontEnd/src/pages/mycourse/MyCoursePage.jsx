@@ -34,7 +34,7 @@ const MyCoursePage = () => {
   
   // Gọi API thông qua Custom Hook
   // Đổi luôn tên biến data lấy từ React Query thành courseData cho gọn
-  const { data: courseData, isLoading, isError } = useGetLearningCourseDetail(courseId); 
+  const { data: courseData, isLoading, isError, refetch } = useGetLearningCourseDetail(courseId); 
 
   // Lúc này courseData chính là cục dữ liệu lõi, bóc tách trực tiếp luôn
   const course = courseData?.course;
@@ -416,6 +416,7 @@ const MyCoursePage = () => {
                           <BoxQuizCardItem
                             key={quiz._id}
                             quiz={quiz}
+                            refetch={refetch}
                           />
                         ))}
                       </div>

@@ -3,16 +3,17 @@ import {
   FileTextOutlined,
   CheckCircleFilled,
 } from "@ant-design/icons";
+import BoxModalQuizzQuestion from "../ModalQuizzQuestion/BoxModalQuizzQuestion";
 
-const BoxQuizCardItem = ({ quiz, onStartQuiz }) => {
+const BoxQuizCardItem = ({ quiz, refetch }) => {
   return (
     <div className="flex items-center justify-between rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-all hover:shadow-md">
       <div className="flex items-center gap-4">
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#3525CD]/10">
+        <div className="flex h-12 w-12 items-center justify-center rounded-full">
           {quiz.is_completed ? (
             <CheckCircleFilled className="text-[#0058be] text-[22px]" />
           ) : (
-            <FileTextOutlined className="text-[#3525CD] text-[22px]" />
+            <FileTextOutlined style={{backgroundColor:"none", width:"20px"}} className=" text-[22px] " />
           )}
         </div>
 
@@ -37,14 +38,10 @@ const BoxQuizCardItem = ({ quiz, onStartQuiz }) => {
           </div>
         </div>
       </div>
-
-      <Button
-        type={quiz.is_completed ? "default" : "primary"}
-        className="rounded-lg"
-        onClick={() => onStartQuiz?.(quiz)}
-      >
-        {quiz.is_completed ? "Làm lại" : "Làm bài"}
-      </Button>
+      <BoxModalQuizzQuestion 
+        quiz={quiz}
+        refetch={refetch}
+      />
     </div>
   );
 };

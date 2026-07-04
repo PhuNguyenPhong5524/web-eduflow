@@ -1,5 +1,5 @@
 import { createQuiz, updateQuiz, getQuestionByQuiz, deleteQuestionSV, deleteQuiz, updateQuestion } from "../../services/quiz/quizService.js";
-
+import * as quizService from "../../services/quiz/quizService.js";
 
 export const createQuizController = async (req, res) => {
 
@@ -116,6 +116,58 @@ export const updateQuestionQuiz = async (req, res) => {
     console.error(error); // thêm dòng này
 
     return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+
+// Lấy question và answer theo quizId cho học viên 
+
+export const getQuizForStudent = async (req, res) => {
+  try {
+    const { quizId } = req.params;
+
+    const data = await quizService.getQuizForStudent(quizId);
+
+    return res.status(200).json({
+      success: true,
+      data,
+    });
+  } catch (error) {
+    return res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// Submit quiz cho học viên
+
+export const submitQuiz = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const { quizId } = req.params;
+    const { answers } = req.body;
+
+    const result = await quizService.submitQuizService(
+      quizId,
+      answers
+    );
+
+    if (result.passed) {
+      await quizService.completeQuizService(
+        userId,
+        quizId
+      );
+    }
+    return res.status(200).json({
+      success: true,
+      data: result
+    });
+  } catch (error) {
+    return res.status(400).json({
       success: false,
       message: error.message,
     });

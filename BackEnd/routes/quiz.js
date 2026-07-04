@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createQuizController, deleteQuestion, deleteQuizController, getQuestionAndAnswers, updateQuestionQuiz, updateQuizController } from "../controllers/quiz/quiz.js";
+import { createQuizController, deleteQuestion, deleteQuizController, getQuestionAndAnswers, getQuizForStudent, submitQuiz, updateQuestionQuiz, updateQuizController } from "../controllers/quiz/quiz.js";
 
 
 import authMiddleware  from "../middleware/authMiddleware.js";
@@ -40,6 +40,22 @@ routerQuizCourse.get(
     authorizeRole("provider"),
     getQuestionAndAnswers
 );
+
+routerQuizCourse.get(
+  "/learning/quiz/:quizId",
+  authMiddleware,
+  authorizeRole("customer"),
+  getQuizForStudent
+);
+
+// Submit quiz
+routerQuizCourse.post(
+    "/quiz/:quizId/submit",
+    authMiddleware,
+    authorizeRole("customer"),
+    submitQuiz
+);
+
 
 routerQuizCourse.post(
     "/quiz/question",
