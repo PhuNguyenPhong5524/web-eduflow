@@ -1,12 +1,16 @@
 import { Router } from "express";
 import {
+  completeLecture,
   createCourse,
   deleteCourse,
   exportCourseExcel,
   getAllCourseOfProvider,
   getCourseById,
+  getCourseLearningDetail,
   getFeaturedCourses,
+  getPurchasedCourseById,
   UpdateCourse,
+  updateLearningProgress,
 } from "../controllers/course/course.js";
 import { getCourses } from "../controllers/course/getCourses.js";
 import authorizeRole  from "../middleware/authorizeRole.js";
@@ -40,6 +44,20 @@ routerCourse.get("/courses/featured", getFeaturedCourses);
 routerCourse.get("/courses-feature", getFeaturedCourses);
 // Khóa học detail
 routerCourse.get("/courses/:id", getCourseById);
+// Chi tiết khóa học đã mua 
+routerCourse.get(
+  "/my-courses/:id",
+  authMiddleware,
+  authorizeRole("customer"),
+  getPurchasedCourseById
+);
+// Học viên xem khóa học đã mua
+routerCourse.get(
+  "/learning/courses/:courseId",
+  authMiddleware,
+  authorizeRole("customer"),
+  getCourseLearningDetail
+);
 
 // ************************************************************
 
@@ -125,7 +143,20 @@ routerCourse.put(
   updateCourseRequest
 );
 
-
+// Cập nhật bài giảng hiện tại đang học của user trong khóa học
+routerCourse.put(
+  "/course-progress/update-learning-progress",
+  authMiddleware,
+  authorizeRole("customer"),
+  updateLearningProgress
+);
+// Cập nhật hoàn thành bài giảng
+routerCourse.put(
+  "/course-progress/complete-lecture",
+  authMiddleware,
+  authorizeRole("customer"),
+  completeLecture
+);
 // ************************************************************
 
 // Xóa khóa học

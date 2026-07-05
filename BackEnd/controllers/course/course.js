@@ -9,6 +9,10 @@ import "../../models/provider.js";
 import providerModel from "../../models/provider.js";
 import ExcelJS from "exceljs";
 
+import orderModel from "../../models/order.js";
+import { getCourseDetail } from "../../services/course/courseService.js";
+import * as courseService from "../../services/course/courseService.js";
+
 
 export const getFeaturedCourses = async (req, res) => {
   try {
@@ -54,56 +58,19 @@ export const getFeaturedCourses = async (req, res) => {
 
 export const getCourseById = async (req, res) => {
   try {
-    const { id } = req.params;
+    const data = await getCourseDetail(req.params.id);
 
-    const course = await courseModel
-      .findById(id)
-      .populate("category_id", "cate_name")
-      .populate("provider_id", "provider_name")
-      .lean();
-
-    if (!course) {
+    if (!data) {
       return res.status(404).json({
         message: "Không tìm thấy khóa học",
       });
     }
 
-    const [requests, overviews, sections] = await Promise.all([
-      courseRequestModel.find({ course_id: id }).lean(),
-      courseOverviewModel.find({ course_id: id }).lean(),
-      courseSectionModel.find({ course_id: id }).lean()
-    ]);
+    return res.status(200).json(data);
 
-    // Lấy tất cả lectures 1 lần
-    const lectures = await lectureModel.find({
-      section_id: { $in: sections.map(s => s._id) }
-    }).lean();
-
-    // Gộp lectures vào section
-    const sectionsWithLectures = sections.map(section => ({
-      ...section,
-      lectures: lectures.filter(l => l.section_id.toString() === section._id.toString())
-    }));
-
-    const resultCourse = {
-      ...course,
-      category_id: course.category_id?._id,
-      category_name: course.category_id?.cate_name,
-      provider_id: course.provider_id?._id,
-      provider_name: course.provider_id?.provider_name
-    };
-
-
-    return res.status(200).json({ 
-      course: resultCourse,
-      requests,
-      overviews,
-      sections: sectionsWithLectures 
-    });
-
-  } catch (error) {
+  } catch (err) {
     return res.status(500).json({
-      message: error.message
+      message: err.message,
     });
   }
 };
@@ -518,6 +485,111 @@ export const deleteCourse = async (req, res) => {
     });
   } catch (error) {
     return res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+// Chi Khóa học ng dùng đã mua 
+
+export const getPurchasedCourseById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.userId;
+
+    const purchased = await orderModel.exists({
+      user: userId,
+      payment_status: "paid",
+      "items.course": id,
+    });
+
+    if (!purchased) {
+      return res.status(403).json({
+        message: "Bạn chưa mua khóa học này.",
+      });
+    }
+
+    const data = await getCourseDetail(id);
+
+    if (!data) {
+      return res.status(404).json({
+        message: "Không tìm thấy khóa học",
+      });
+    }
+
+    return res.status(200).json(data);
+
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+export const getCourseLearningDetail = async (req, res) => {
+  try {
+    const { courseId } = req.params;
+
+    const data = await courseService.getCourseLearningDetail(
+      req.user.userId,
+      courseId
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Lấy chi tiết khóa học đã mua thành công!",
+      data,
+    });
+  } catch (error) {
+    return res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// Cập nhật bài giảng hiện tại đang học của user trong khóa học
+
+export const updateLearningProgress = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const { courseId, lectureId } = req.body;
+
+    const progress = await courseService.updateLearningProgressService(
+      userId,
+      courseId,
+      lectureId
+    );
+    return res.status(200).json({
+      success: true,
+      progress,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const completeLecture = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const { courseId, lectureId } = req.body;
+
+    const progress = await courseService.completeLectureService(
+      userId,
+      courseId,
+      lectureId
+    );
+
+    return res.status(200).json({
+      success: true,
+      progress,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
       message: error.message,
     });
   }

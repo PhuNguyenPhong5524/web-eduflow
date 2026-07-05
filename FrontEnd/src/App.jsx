@@ -30,6 +30,7 @@ import OrdersPage from "./pages/customer/OrdersPage";
 import WishlistPage from "./pages/customer/WishlistPage";
 import { CartProvider } from "./contexts/CartContext";
 import { WishlistProvider } from "./contexts/WishlistContext";
+import CourseLearningPage from "./pages/learningPage/CourseLearningPage";
 
 const queryClient = new QueryClient();
 
@@ -69,6 +70,14 @@ function App() {
                     element={
                       <ProtectedRoute roles={["customer"]}>
                         <MyCoursePage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="learn/:courseId"
+                    element={
+                      <ProtectedRoute roles={["customer"]}>
+                        <CourseLearningPage />
                       </ProtectedRoute>
                     }
                   />
@@ -164,9 +173,7 @@ function App() {
                   path="/admin/dashboard"
                   element={
                     <ProtectedRoute roles={["admin"]}>
-                      <AdminLayout title="Dashboard">
-                        <AdminDashboardPage />
-                      </AdminLayout>
+                      <AdminDashboardPage />
                     </ProtectedRoute>
                   }
                 />
@@ -213,9 +220,7 @@ function App() {
                 path="/admin/dashboard"
                 element={
                   <ProtectedRoute roles={["admin"]}>
-                    <AdminLayout title="Dashboard">
-                      <AdminDashboardPage />
-                    </AdminLayout>
+                    <AdminDashboardPage />
                   </ProtectedRoute>
                 }
               />
@@ -240,18 +245,10 @@ function App() {
                 }
               />
               <Route
-                path="courses/detail/:id"
+                path="/courses/detail/:id"
                 element={
                   <ProtectedRoute roles={["provider"]}>
                     <BoxShowDetailCourses />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="my-courses"
-                element={
-                  <ProtectedRoute roles={["customer"]}>
-                    <MyCoursePage />
                   </ProtectedRoute>
                 }
               />
@@ -266,7 +263,7 @@ function App() {
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </BrowserRouter>
-        </WishlistProvider>
+          </WishlistProvider>
         </CartProvider>
       </AuthProvider>
     </QueryClientProvider>

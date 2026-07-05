@@ -9,7 +9,9 @@ export const createCourseLecture = async (req, res) => {
     const { title, duration, preview, vid_lectures_url } = req.body;
 
     if (!sectionId || !title || !duration) {
-      return res.status(400).json({ message: "Missing required fields" });
+      return res.status(400).json({
+        message: "Missing required fields",
+      });
     }
 
     const userId = req.user.userId;
@@ -18,39 +20,65 @@ export const createCourseLecture = async (req, res) => {
       user_id: userId,
       status: "approved",
     });
+
     if (!provider) {
-      return res.status(403).json({ message: "Tài khoản chưa được duyệt làm nhà cung cấp!" });
+      return res.status(403).json({
+        message: "Tài khoản chưa được duyệt làm nhà cung cấp!",
+      });
     }
 
     const section = await courseSectionModel.findById(sectionId);
+
     if (!section) {
-      return res.status(404).json({ message: "Section không tồn tại!" });
+      return res.status(404).json({
+        message: "Section không tồn tại!",
+      });
     }
 
     const course = await courseModel.findById(section.course_id);
+
     if (!course) {
-      return res.status(404).json({ message: "Không tìm thấy khóa học!" });
+      return res.status(404).json({
+        message: "Không tìm thấy khóa học!",
+      });
     }
 
     if (String(course.provider_id) !== String(provider._id)) {
-      return res.status(403).json({ message: "Bạn không có quyền thêm bài giảng vào section này!" });
+      return res.status(403).json({
+        message: "Bạn không có quyền thêm bài giảng vào section này!",
+      });
     }
 
+    // Lấy lecture cuối cùng trong section
+    const lastLecture = await lectureModel
+      .findOne({ section_id: sectionId })
+      .sort({ order: -1 });
+
+    const order = lastLecture ? lastLecture.order + 1 : 1;
+
     const lecture = await lectureModel.create({
-      section_id: sectionId,             
+      section_id: sectionId,
       title,
       duration,
       preview: preview ?? false,
       vid_lectures_url: vid_lectures_url ?? null,
+      order,
     });
 
     await courseSectionModel.findByIdAndUpdate(sectionId, {
-      $inc: { lecture_count: 1 },
+      $inc: {
+        lecture_count: 1,
+      },
     });
 
-    return res.status(201).json({ message: "Tạo lecture thành công", lecture });
+    return res.status(201).json({
+      message: "Tạo lecture thành công",
+      lecture,
+    });
   } catch (error) {
-    return res.status(500).json({ message: error.message });
+    return res.status(500).json({
+      message: error.message,
+    });
   }
 };
 
