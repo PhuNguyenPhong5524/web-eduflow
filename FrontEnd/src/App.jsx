@@ -168,44 +168,6 @@ function App() {
                   />
                 </Route>
 
-                {/* Admin */}
-                <Route
-                  path="/admin/dashboard"
-                  element={
-                    <ProtectedRoute roles={["admin"]}>
-                      <AdminDashboardPage />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/admin/users"
-                  element={
-                    <ProtectedRoute roles={["admin"]}>
-                      <AdminLayout title="Users">
-                        <AdminUsersPage />
-                      </AdminLayout>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/admin/categories"
-                  element={
-                    <ProtectedRoute roles={["admin"]}>
-                      <AdminLayout title="Categories">
-                        <AdminCategoriesPage />
-                      </AdminLayout>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="courses/detail/:id"
-                  element={
-                    <ProtectedRoute roles={["provider"]}>
-                      <BoxShowDetailCourses />
-                    </ProtectedRoute>
-                  }
-                />
-
                 {/* Auth */}
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
@@ -220,7 +182,9 @@ function App() {
                 path="/admin/dashboard"
                 element={
                   <ProtectedRoute roles={["admin"]}>
-                    <AdminDashboardPage />
+                    <AdminLayout title="Dashboard">
+                      <AdminDashboardPage />
+                    </AdminLayout>
                   </ProtectedRoute>
                 }
               />
