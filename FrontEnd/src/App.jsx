@@ -164,7 +164,9 @@ function App() {
                   path="/admin/dashboard"
                   element={
                     <ProtectedRoute roles={["admin"]}>
-                      <AdminDashboardPage />
+                      <AdminLayout title="Dashboard">
+                        <AdminDashboardPage />
+                      </AdminLayout>
                     </ProtectedRoute>
                   }
                 />
