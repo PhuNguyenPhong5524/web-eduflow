@@ -29,14 +29,10 @@ import useUpdateLearningProgress from '../../hooks/useCourse/useUpdateCourseCurr
 import useCompleteLecture from '../../hooks/useCourse/useCompleteLecture';
 
 const CourseLearningPage = () => {
-  // Lấy courseId từ URL
-  const { id: courseId } = useParams(); 
-  
-  // Gọi API thông qua Custom Hook
-  // Đổi luôn tên biến data lấy từ React Query thành courseData cho gọn
-  const { data: courseData, isLoading, isError, refetch } = useGetLearningCourseDetail(courseId); 
 
-  // Lúc này courseData chính là cục dữ liệu lõi, bóc tách trực tiếp luôn
+  const { courseId } = useParams(); 
+  const { data: courseData, isLoading, isError, refetch } = useGetLearningCourseDetail(courseId); 
+  
   const course = courseData?.course;
   const progress = courseData?.progress;
   const overviews = courseData?.overviews || [];
