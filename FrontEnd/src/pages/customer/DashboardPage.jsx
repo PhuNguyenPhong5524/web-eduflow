@@ -36,7 +36,7 @@ export default function DashboardPage() {
   }, []);
 
   return (
-    <div className="max-w-6xl mx-auto space-y-stack-lg">
+    <div className="max-w-6xl mx-auto space-y-stack-lg pb-10">
       {/* Welcome */}
       <header className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>

@@ -70,7 +70,7 @@ function CourseCard({ course }) {
           </span>
           <button
             type="button"
-            onClick={() => navigate(`/course/detail/${course._id}`)}
+            onClick={() => navigate(`/learn/${course._id}`)}
             className="flex items-center gap-1 bg-primary text-on-primary text-[12px] font-semibold px-4 py-1.5 rounded-full hover:opacity-90 transition-opacity"
           >
             <span className="material-symbols-outlined text-[15px]">
