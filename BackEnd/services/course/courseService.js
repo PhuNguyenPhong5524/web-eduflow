@@ -194,7 +194,7 @@ export const createProgressAfterCheckout = async (userId, items) => {
     if (firstSection) {
       firstLecture = await lectureModel
         .findOne({ section_id: firstSection._id })
-        .sort({ createdAt: 1 });
+        .sort({ order: 1 });
     }
 
     await courseProgressModel.create({

@@ -15,7 +15,11 @@ const lectureSchema = new mongoose.Schema({
   vid_lectures_url: {
     type: String,
     default: null
-  }
+  },
+  order: {
+    type: Number,
+    required: true,
+  },
 }
 ,
 {

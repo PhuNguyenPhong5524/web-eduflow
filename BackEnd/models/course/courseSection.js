@@ -9,7 +9,10 @@ const sectionSchema = new mongoose.Schema({
   chapter_title: String,
   lecture_count: Number,
   duration: String,
-  
+  order: {
+    type: Number,
+    required: true,
+  },
 },
 {
   timestamps: true,

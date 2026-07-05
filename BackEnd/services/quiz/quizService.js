@@ -1,7 +1,7 @@
 import quizModel from "../../models/quiz/quiz.js";
 import courseSectionModel from "../../models/course/courseSection.js";
 import courseProgressModel from "../../models/course/courseProgress.js";
-
+import lectureModel from "../../models/course/courseLecture.js";
 
 export const createQuiz = async (data) => {
 
@@ -197,25 +197,6 @@ export const createQuestion = async (data) => {
     return newQuestion;
 };
 
-// Update question
-
-// export const updateQuestion = async (questionId, data) => {
-
-//     const question = await quizQuestionModel.findByIdAndUpdate(
-//         questionId,
-//         data,
-//         {
-//             new: true,
-//             runValidators: true
-//         }
-//     );
-
-//     if (!question) {
-//         throw new Error("Câu hỏi không tồn tại");
-//     }
-
-//     return question;
-// };
 
 
 export const updateQuestion = async (questionId, data) => {
@@ -351,30 +332,56 @@ export const completeQuizService = async (
   userId,
   quizId
 ) => {
-  const quiz = await quizModel.findById(quizId);
+    const quiz = await quizModel.findById(quizId);
 
-  const section = await courseSectionModel.findById(
-    quiz.section_id
-  );
+    const section = await courseSectionModel.findById(
+        quiz.section_id
+    );
+    const nextSection = await courseSectionModel.findOne({
+        course_id: section.course_id,
+        order: section.order + 1,
+    });
+   
+    let firstLecture = null;
 
-  const progress = await courseProgressModel.findOneAndUpdate(
-    {
-      user_id: userId,
-      course_id: section.course_id,
-    },
-    {
-      $addToSet: {
-        completed_quiz_ids: quizId,
-      },
-    },
-    {
-      returnDocument: "after",
+    if (nextSection) {
+
+    firstLecture = await lectureModel
+        .findOne({
+        section_id: nextSection._id,
+        })
+        .sort({ order: 1 });
     }
-  );
 
-  if (!progress) {
-    throw new Error("Không tìm thấy tiến trình học");
-  }
+    const updateData = {
+        $addToSet: {
+            completed_quiz_ids: quizId,
+        },
+    };
+
+    if (nextSection) {
+        updateData.$addToSet.unlocked_section_ids =
+            nextSection._id;
+    }
+
+    if (firstLecture) {
+        updateData.$addToSet.unlocked_lecture_ids = firstLecture._id;
+    }
+
+        const progress = await courseProgressModel.findOneAndUpdate(
+        {
+            user_id: userId,
+            course_id: section.course_id,
+        },
+        updateData,
+        {
+            returnDocument: "after",
+        }
+    );
+
+    if (!progress) {
+        throw new Error("Không tìm thấy tiến trình học");
+    }
 
   return progress;
 };

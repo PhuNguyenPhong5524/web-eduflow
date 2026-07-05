@@ -28,7 +28,7 @@ import BoxQuizCardItem from './BoxQuizCardItem/BoxQuizCardItem';
 import useUpdateLearningProgress from '../../hooks/useCourse/useUpdateCourseCurrentLecture';
 import useCompleteLecture from '../../hooks/useCourse/useCompleteLecture';
 
-const MyCoursePage = () => {
+const CourseLearningPage = () => {
   // Lấy courseId từ URL
   const { id: courseId } = useParams(); 
   
@@ -443,4 +443,4 @@ const MyCoursePage = () => {
   );
 }
 
-export default MyCoursePage;
+export default CourseLearningPage;

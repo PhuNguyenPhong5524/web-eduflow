@@ -36,12 +36,17 @@ export const createCourseSection = async (req, res) => {
     if (String(course.provider_id) !== String(provider._id)) {
       return res.status(403).json({ message: "Bạn không có quyền thêm section cho khóa học này!" });
     }
+    const lastSection = await courseSectionModel
+      .findOne({ course_id: courseId })
+      .sort({ order: -1 });
 
+    const order = lastSection ? lastSection.order + 1 : 1;
     // Tạo section với course_id lấy từ URL
     const section = await courseSectionModel.create({
       course_id: courseId,
       chapter_title,
-      duration
+      duration,
+      order
     });
 
     return res.status(201).send({
