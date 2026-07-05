@@ -222,6 +222,111 @@ export const clearCart = async (req, res) => {
   }
 };
 
+export const getMyAllOrders = async (req, res) => {
+  try {
+    const userId = req.user?.userId;
+
+    const orders = await orderModel
+      .find({ user: userId })
+      .sort({ createdAt: -1 })
+      .lean();
+
+    const result = orders.map((o) => ({
+      _id: o._id,
+      shortId: `#${o._id.toString().slice(-6).toUpperCase()}`,
+      items: o.items.map((i) => i.course_title),
+      subtotal: o.subtotal,
+      discount: o.discount,
+      total: o.total,
+      paymentMethod: o.payment_method,
+      paymentStatus: o.payment_status,
+      orderStatus: o.order_status,
+      createdAt: o.createdAt,
+      paidAt: o.paid_at,
+    }));
+
+    return res.status(200).json({ data: result });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+export const getMyRecentOrders = async (req, res) => {
+  try {
+    const userId = req.user?.userId;
+
+    const orders = await orderModel
+      .find({ user: userId })
+      .sort({ createdAt: -1 })
+      .limit(5)
+      .lean();
+
+    const result = orders.map((o) => ({
+      _id: o._id,
+      shortId: `#${o._id.toString().slice(-6).toUpperCase()}`,
+      itemCount: o.items.length,
+      total: o.total,
+      paymentStatus: o.payment_status,
+      orderStatus: o.order_status,
+      createdAt: o.createdAt,
+      paidAt: o.paid_at,
+    }));
+
+    return res.status(200).json({ data: result });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+export const getMyPurchasedCourses = async (req, res) => {
+  try {
+    const userId = req.user?.userId;
+
+    const orders = await orderModel
+      .find({ user: userId, payment_status: "paid" })
+      .lean();
+
+    // Deduplicate courses across all paid orders
+    const courseMap = new Map();
+    for (const order of orders) {
+      for (const item of order.items) {
+        const courseId = item.course.toString();
+        if (!courseMap.has(courseId)) {
+          courseMap.set(courseId, {
+            pricePaid: item.price,
+            paidAt: order.paid_at,
+          });
+        }
+      }
+    }
+
+    if (courseMap.size === 0) {
+      return res.status(200).json({ data: [] });
+    }
+
+    const courseIds = [...courseMap.keys()];
+    const courses = await courseModel
+      .find({ _id: { $in: courseIds } })
+      .populate("provider_id", "provider_name")
+      .lean();
+
+    const result = courses.map((c) => ({
+      _id: c._id,
+      title: c.course_title,
+      thumbnail: c.image_url ?? null,
+      provider: c.provider_id?.provider_name ?? "Unknown",
+      totalLectures: c.total_lectures ?? 0,
+      duration: c.duration ?? null,
+      pricePaid: courseMap.get(c._id.toString())?.pricePaid ?? 0,
+      paidAt: courseMap.get(c._id.toString())?.paidAt ?? null,
+    }));
+
+    return res.status(200).json({ data: result });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
 export const checkout = async (req, res) => {
   try {
     const userId = req.user?.userId;

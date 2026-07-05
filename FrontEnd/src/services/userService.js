@@ -1,5 +1,9 @@
 import api from "../lib/api";
 
+export const getMyPurchasedCourses = () => api.get("/orders/my-courses");
+export const getMyRecentOrders = () => api.get("/orders/recent");
+export const getMyAllOrders = () => api.get("/orders");
+
 export const changePassword = (currentPassword, newPassword, confirmPassword) =>
   api.put("/users/change-password", {
     currentPassword,

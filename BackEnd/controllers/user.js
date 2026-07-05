@@ -1,4 +1,5 @@
 import userModel from "../models/user.js";
+import courseModel from "../models/course/course.js";
 import mongoose from "mongoose";
 
 const hiddenUserFields =
@@ -166,5 +167,98 @@ export const updateUserStatus = async (req, res) => {
     return res.status(500).json({
       message: error.message,
     });
+  }
+};
+
+// ── Wishlist ──────────────────────────────────────────────────────────────────
+
+export const getWishlist = async (req, res) => {
+  try {
+    const userId = req.user?.userId;
+    const user = await userModel
+      .findById(userId)
+      .populate({
+        path: "wishlist",
+        select:
+          "course_title image_url price price_promotion provider_id students duration",
+        populate: { path: "provider_id", select: "provider_name" },
+      })
+      .lean();
+
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    const data = (user.wishlist || []).map((c) => ({
+      _id: c._id,
+      title: c.course_title,
+      thumbnail: c.image_url ?? null,
+      price: c.price_promotion ?? c.price ?? 0,
+      originalPrice:
+        c.price_promotion !== null &&
+        c.price_promotion !== undefined &&
+        c.price > c.price_promotion
+          ? c.price
+          : null,
+      provider: c.provider_id?.provider_name ?? "Unknown",
+      students: c.students ?? 0,
+      duration: c.duration ?? null,
+      categoryId: c.category_id ?? null,
+    }));
+
+    return res.status(200).json({ data });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+export const addToWishlist = async (req, res) => {
+  try {
+    const userId = req.user?.userId;
+    const { courseId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(courseId)) {
+      return res.status(400).json({ message: "Invalid course id" });
+    }
+
+    const course = await courseModel.findById(courseId).lean();
+    if (!course || course.isActive === false) {
+      return res.status(404).json({ message: "Course not found" });
+    }
+
+    const user = await userModel.findByIdAndUpdate(
+      userId,
+      { $addToSet: { wishlist: courseId } },
+      { new: true },
+    );
+
+    return res.status(200).json({
+      message: "Added to wishlist",
+      wishlistCount: user.wishlist.length,
+    });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+export const removeFromWishlist = async (req, res) => {
+  try {
+    const userId = req.user?.userId;
+    const { courseId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(courseId)) {
+      return res.status(400).json({ message: "Invalid course id" });
+    }
+
+    const user = await userModel.findByIdAndUpdate(
+      userId,
+      { $pull: { wishlist: courseId } },
+      { new: true },
+    );
+
+    return res.status(200).json({
+      message: "Removed from wishlist",
+      wishlistCount: user.wishlist.length,
+    });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
   }
 };
