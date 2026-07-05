@@ -38,8 +38,13 @@ const userSchema = new mongoose.Schema(
     otpExpiry: {
       type: Date,
       default: null,
-    }
-
+    },
+    wishlist: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Course",
+      },
+    ],
   },
   { timestamps: true },
 );
