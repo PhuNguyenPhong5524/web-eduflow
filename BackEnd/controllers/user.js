@@ -175,7 +175,7 @@ export const updateUserStatus = async (req, res) => {
 export const getWishlist = async (req, res) => {
   try {
     const userId = req.user?.userId;
-    const user = await userModel
+    const user = await userModel 
       .findById(userId)
       .populate({
         path: "wishlist",

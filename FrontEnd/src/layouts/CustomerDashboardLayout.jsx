@@ -2,7 +2,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useCart } from "../contexts/CartContext";
 import { Outlet } from "react-router-dom";
-import { Avatar } from "antd";
+import { Avatar, Modal } from "antd";
 
 const NAV_ITEMS = [
   {
@@ -30,6 +30,19 @@ const CustomerDashboardLayout = () => {
   const { itemCount } = useCart();
   const navigate = useNavigate();
   const location = useLocation();
+  const handleLogout = () => {
+    Modal.confirm({
+      title: "Xác nhận đăng xuất",
+      content: "Bạn có chắc muốn đăng xuất không?",
+      okText: "Đăng xuất",
+      cancelText: "Hủy",
+      okType: "danger",
+      onOk: async () => {
+        await logout();
+        navigate("/login", { replace: true });
+      },
+    });
+  };
   return (
     <div className="bg-surface font-body-md text-on-surface">
       {/* TopNavBar */}
@@ -75,7 +88,7 @@ const CustomerDashboardLayout = () => {
         <aside className="fixed left-0 top-0 h-screen w-64 bg-surface pt-20 pb-stack-lg flex-col gap-stack-md border-r border-outline-variant/30 hidden lg:flex">
           <div className="px-6 mb-stack-md">
             <div className="flex items-center gap-3 p-3 rounded-xl bg-surface-container-low">
-              <div className="w-10 h-10 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-bold">
+              <div className="w-full aspect-square px-2 h-auto rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-bold">
                 {user?.username?.charAt(0).toUpperCase()}
               </div>
               <div>
@@ -119,10 +132,7 @@ const CustomerDashboardLayout = () => {
 
           <div className="px-6 mt-auto">
             <button
-              onClick={() => {
-                logout();
-                navigate("/login");
-              }}
+              onClick={handleLogout}
               className="flex items-center gap-3 w-full px-4 py-3 mt-4 text-error font-label-md hover:bg-error-container/10 rounded-xl transition-all"
             >
               <span className="material-symbols-outlined">logout</span>

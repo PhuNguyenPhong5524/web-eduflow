@@ -1,5 +1,6 @@
 import { useWishlist } from "../contexts/WishlistContext";
 import { useAuth } from "../contexts/AuthContext";
+import { Link } from "react-router-dom";
 
 /**
  * StarRow – renders 5 stars (filled / half / empty) based on a numeric rating.
@@ -124,9 +125,12 @@ export default function CourseCard({ course }) {
       </div>
       {/* Content */}
       <div className="p-4 space-y-3">
-        <h3 className="font-headline-md text-[16px] md:text-[18px] leading-tight group-hover:text-primary transition-colors line-clamp-2">
+        <Link
+          to={`/course/detail/${course._id}`}
+          className="font-headline-md text-[18px] text-on-surface font-semibold hover:text-primary transition-colors"
+        >
           {course_title}
-        </h3>
+        </Link>
         <p className="text-body-sm text-on-surface-variant">
           {provider || "Unknown Instructor"}
         </p>
