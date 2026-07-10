@@ -55,12 +55,12 @@ export default function DashboardPage() {
           <h3 className="font-headline-md text-headline-md text-on-surface">
             Khóa học của tôi
           </h3>
-          <a
+          <Link
             className="text-primary font-label-md flex items-center gap-1 hover:underline"
-            href="/my-courses"
+            to="/my-courses"
           >
             Xem tất cả
-          </a>
+          </Link>
         </div>
         {/* Loading skeleton */}
         {coursesLoading && (
