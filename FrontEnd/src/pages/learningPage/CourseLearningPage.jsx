@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Tabs, Button, Breadcrumb, Spin, message } from 'antd';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import {
   ArrowLeftOutlined,
   CaretRightOutlined,
@@ -283,10 +283,10 @@ const CourseLearningPage = () => {
                 items={[
                   {
                     title: (
-                      <a href="#" className="flex items-center text-[#3525CD] text-sm font-medium hover:underline group">
+                      <Link to="#" className="flex items-center text-[#3525CD] text-sm font-medium hover:underline group">
                         <ArrowLeftOutlined className="mr-1 group-hover:-translate-x-1 transition-transform" />
                         Quản lý khóa học của tôi
-                      </a>
+                      </Link>
                     ),
                   },
                   { title: <span className="text-[#464555] text-sm font-medium">{course.course_title}</span> },

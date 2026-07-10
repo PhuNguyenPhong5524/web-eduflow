@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { getCourses } from "../../services/courseService";
 import { getCategories } from "../../services/homeService";
@@ -155,12 +155,12 @@ export default function CourseSearchPage() {
       <div className="max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop">
         {/* Breadcrumb */}
         <nav className="flex items-center gap-2 mb-stack-md">
-          <a
+          <Link
             className="font-label-md text-label-md text-on-surface-variant hover:text-primary"
-            href="/"
+            to="/"
           >
             Home
-          </a>
+          </Link>
           <span className="material-symbols-outlined text-[16px] text-outline">
             chevron_right
           </span>

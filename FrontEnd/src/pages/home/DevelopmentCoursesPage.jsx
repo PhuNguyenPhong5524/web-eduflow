@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 const ratingOptions = [
   { id: "rating-4", label: "4.0 & Up", stars: 4 },
@@ -67,30 +68,30 @@ export default function DevelopmentCoursesPage() {
               EduFlow
             </span>
             <nav className="hidden md:flex items-center gap-gutter">
-              <a
+              <Link
                 className="font-label-md text-label-md text-primary border-b-2 border-primary pb-1"
-                href="#"
+                to="#"
               >
                 Browse
-              </a>
-              <a
+              </Link>
+              <Link
                 className="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors duration-200"
-                href="#"
+                to="#"
               >
                 My Courses
-              </a>
-              <a
+              </Link>
+              <Link
                 className="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors duration-200"
-                href="#"
+                to="#"
               >
                 Instructors
-              </a>
-              <a
+              </Link>
+              <Link
                 className="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors duration-200"
-                href="#"
+                to="#"
               >
                 Resources
-              </a>
+              </Link>
             </nav>
           </div>
 
@@ -125,12 +126,12 @@ export default function DevelopmentCoursesPage() {
       <main className="pt-24 pb-stack-lg">
         <div className="max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop">
           <nav className="flex items-center gap-2 mb-stack-md">
-            <a
+            <Link
               className="font-label-md text-label-md text-on-surface-variant hover:text-primary"
-              href="#"
+              to="#"
             >
               Home
-            </a>
+            </Link>
             <span className="material-symbols-outlined text-[16px] text-outline">
               chevron_right
             </span>
@@ -487,36 +488,36 @@ export default function DevelopmentCoursesPage() {
           </div>
 
           <nav className="flex flex-wrap justify-center gap-gutter">
-            <a
+            <Link
               className="font-body-sm text-body-sm text-on-surface-variant hover:text-primary hover:underline transition-all"
-              href="#"
+              to="#"
             >
               Privacy Policy
-            </a>
-            <a
+            </Link>
+            <Link
               className="font-body-sm text-body-sm text-on-surface-variant hover:text-primary hover:underline transition-all"
-              href="#"
+              to="#"
             >
               Terms of Service
-            </a>
-            <a
+            </Link>
+            <Link
               className="font-body-sm text-body-sm text-on-surface-variant hover:text-primary hover:underline transition-all"
-              href="#"
+              to="#"
             >
               Help Center
-            </a>
-            <a
+            </Link>
+            <Link
               className="font-body-sm text-body-sm text-on-surface-variant hover:text-primary hover:underline transition-all"
-              href="#"
+              to="#"
             >
               Contact Us
-            </a>
-            <a
+            </Link>
+            <Link
               className="font-body-sm text-body-sm text-on-surface-variant hover:text-primary hover:underline transition-all"
-              href="#"
+              to="#"
             >
               Careers
-            </a>
+            </Link>
           </nav>
 
           <span className="font-body-sm text-body-sm text-secondary-fixed-dim md:text-on-surface-variant opacity-80">

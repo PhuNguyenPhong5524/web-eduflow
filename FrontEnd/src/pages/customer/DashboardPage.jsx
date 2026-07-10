@@ -166,12 +166,12 @@ export default function DashboardPage() {
             <h3 className="font-headline-md text-headline-md text-on-surface">
               Danh sách yêu thích
             </h3>
-            <a
-              href="/wishlist"
+            <Link
+              to="/wishlist"
               className="text-primary font-label-md flex items-center gap-1 hover:underline"
             >
               Xem tất cả
-            </a>
+            </Link>
           </div>
           <div className="space-y-4">
             {/* Loading skeleton */}
@@ -274,12 +274,12 @@ export default function DashboardPage() {
             <h3 className="font-headline-md text-headline-md text-on-surface">
               Đơn hàng gần đây
             </h3>
-            <a
-              href="/user/orders"
+            <Link
+              to="/user/orders"
               className="text-primary font-label-md flex items-center gap-1 hover:underline"
             >
               Xem tất cả đơn hàng
-            </a>
+            </Link>
           </div>
 
           <div className="glass-card rounded-2xl overflow-hidden">
