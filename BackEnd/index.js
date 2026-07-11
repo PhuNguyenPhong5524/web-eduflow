@@ -1,3 +1,5 @@
+import http from "http";
+import { Server } from "socket.io";
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
@@ -20,9 +22,10 @@ import routerQuizCourse from "./routes/quiz.js";
 
 dotenv.config();
 
-const app = express();
 const PORT = process.env.PORT || 8080;
-const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
+
+const FRONTEND_URL =
+  process.env.FRONTEND_URL || "http://localhost:5173";
 
 const allowedOrigins = new Set([
   FRONTEND_URL,
@@ -31,6 +34,25 @@ const allowedOrigins = new Set([
   "http://127.0.0.1:5173",
   "http://127.0.0.1:5174",
 ]);
+
+const app = express();
+
+const server = http.createServer(app);
+
+const io = new Server(server, {
+  cors: {
+    origin: [...allowedOrigins],
+    credentials: true,
+  },
+});
+
+io.on("connection", (socket) => {
+  console.log("Socket Connected:", socket.id);
+
+  socket.on("disconnect", () => {
+    console.log("Socket Disconnected");
+  });
+});
 
 app.use(
   cors({
@@ -106,6 +128,6 @@ app.use("/", routerRefreshToken);
 
 app.use("/", routerDashboard);
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });

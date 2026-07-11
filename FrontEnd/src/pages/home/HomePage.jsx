@@ -6,6 +6,7 @@ import {
   getProviders,
 } from "../../services/homeService";
 import { useCart } from "../../contexts/CartContext";
+import socket from "../../socket/socket";
 
 // Map icon_key from DB to Material Symbol names
 const ICON_MAP = {
@@ -57,6 +58,14 @@ function ProviderSkeleton() {
     </div>
   );
 }
+
+useEffect(() => {
+
+        socket.on("connect", () => {
+            console.log(socket.id);
+        });
+
+  }, []);
 
 export default function HomePage() {
   const mainRef = useRef(null);
