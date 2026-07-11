@@ -1,8 +1,8 @@
-
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
+import cookieParser from "cookie-parser";
 
 import routerUser from "./routes/user.js";
 import routerLogin from "./routes/auth/login.js";
@@ -44,6 +44,7 @@ app.use(
     credentials: true,
   }),
 );
+app.use(cookieParser());
 app.use(express.json());
 
 const mongoUri = process.env.MONGODB_URI;

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Modal, Form, Input, Button, message, notification } from "antd";
+import { Modal, Form, Input, Button, notification } from "antd";
 import EditCourseIcon from "../../../../../../../components/icons/EditCourseIcon";
 import useUpdateCourseRequest from "../../../../../../../hooks/useCourse/useUpdateCourseRequest";
 
@@ -28,7 +28,7 @@ const BoxEditCourseRequest = ({ request, refetch }) => {
           notification.success({
             title: "Thành công",
             description: "Cập nhật yêu cầu khóa học thành công",
-          })
+          });
           setOpen(false);
           refetch?.();
         },
@@ -38,7 +38,7 @@ const BoxEditCourseRequest = ({ request, refetch }) => {
             description: err?.response?.data?.message,
           });
         },
-      }
+      },
     );
   };
 
@@ -69,10 +69,7 @@ const BoxEditCourseRequest = ({ request, refetch }) => {
           onFinish={handleSubmit}
           autoComplete="off"
         >
-          <Form.Item
-            label={<span className="text-[12px]">Mã</span>}
-            name="_id"
-          >
+          <Form.Item label={<span className="text-[12px]">Mã</span>} name="_id">
             <Input disabled className="custom-input" />
           </Form.Item>
 

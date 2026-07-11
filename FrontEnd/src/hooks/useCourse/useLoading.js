@@ -1,20 +1,17 @@
 import { useEffect, useState } from "react";
 
 const useLoading = (loading, minTime = 300) => {
-  const [visible, setVisible] = useState(false);
+  const [visible, setVisible] = useState(Boolean(loading));
 
   useEffect(() => {
-    let timer;
+    const delay = loading ? 0 : minTime;
+    const timer = setTimeout(() => {
+      setVisible(loading);
+    }, delay);
 
-    if (loading) {
-      setVisible(true);
-    } else {
-      timer = setTimeout(() => {
-        setVisible(false);
-      }, minTime);
-    }
-
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+    };
   }, [loading, minTime]);
 
   return visible;

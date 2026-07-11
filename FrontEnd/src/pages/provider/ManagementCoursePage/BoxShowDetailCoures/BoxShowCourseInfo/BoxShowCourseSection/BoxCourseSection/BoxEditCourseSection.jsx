@@ -8,7 +8,7 @@ const BoxEditCourseSection = ({ section, refetch }) => {
   const [open, setOpen] = useState(false);
   const [form] = Form.useForm();
   const { id: courseId } = useParams();
-  const { mutate: updateSection, isPending, queryKey } = useUpdateCourseSection();
+  const { mutate: updateSection, isPending } = useUpdateCourseSection();
 
   useEffect(() => {
     if (open && section) {
@@ -39,30 +39,29 @@ const BoxEditCourseSection = ({ section, refetch }) => {
           notification.error({
             title: "Thất bại",
             description:
-              error?.response?.data?.message ||
-              "Cập nhật section thất bại",
+              error?.response?.data?.message || "Cập nhật section thất bại",
           });
         },
-      }
+      },
     );
   };
- 
+
   return (
-    <div  onClick={(e) => e.stopPropagation()}>
+    <div onClick={(e) => e.stopPropagation()}>
       <button
         onClick={() => setOpen(true)}
         className="
                 text-blue-500 hover:text-blue-700 transition p-2 group
             duration-300 ease-in-out hover:bg-[#3525CD] rounded-[5px]
             hover:scale-105 hover:opacity-65 cursor-pointer 
-        " 
+        "
       >
-          <EditCourseIcon 
-              size={18}
-              className="
+        <EditCourseIcon
+          size={18}
+          className="
                   group-hover:scale-125 group-hover:fill-blue-500
               "
-          />
+        />
       </button>
 
       <Modal
@@ -102,8 +101,7 @@ const BoxEditCourseSection = ({ section, refetch }) => {
             htmlType="submit"
             loading={isPending}
             className="w-full bg-[#3525CD] text-white"
-          
-            style={{backgroundColor:"#3525CD" , color:'#ffffff'}}
+            style={{ backgroundColor: "#3525CD", color: "#ffffff" }}
           >
             Lưu thay đổi
           </Button>

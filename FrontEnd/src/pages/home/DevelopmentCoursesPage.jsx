@@ -10,6 +10,81 @@ const levelOptions = ["Beginner", "Intermediate", "Advanced"];
 const priceOptions = ["Paid", "Free"];
 const durationOptions = ["0-3 Hours", "3-7 Hours", "7+ Hours"];
 
+const courses = [
+  {
+    id: "dev-1",
+    title: "The Complete JavaScript Bootcamp 2026",
+    instructor: "Jonas Schmedtmann",
+    rating: "4.8",
+    stars: 4.8,
+    reviews: "(12,431)",
+    price: "599,000d",
+    badge: "Bestseller",
+    image:
+      "https://images.unsplash.com/photo-1518773553398-650c184e0bb3?auto=format&fit=crop&w=1200&q=80",
+  },
+  {
+    id: "dev-2",
+    title: "React and TypeScript Masterclass",
+    instructor: "Maximilian Schwarzmuller",
+    rating: "4.7",
+    stars: 4.7,
+    reviews: "(9,205)",
+    price: "549,000d",
+    badge: "Hot",
+    image:
+      "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=80",
+  },
+  {
+    id: "dev-3",
+    title: "Node.js API Design and Production",
+    instructor: "Mosh Hamedani",
+    rating: "4.6",
+    stars: 4.6,
+    reviews: "(6,982)",
+    price: "499,000d",
+    badge: null,
+    image:
+      "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=1200&q=80",
+  },
+  {
+    id: "dev-4",
+    title: "Fullstack Next.js: From Zero to Deployment",
+    instructor: "Lee Robinson",
+    rating: "4.9",
+    stars: 4.9,
+    reviews: "(4,311)",
+    price: "699,000d",
+    badge: "New",
+    image:
+      "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1200&q=80",
+  },
+  {
+    id: "dev-5",
+    title: "Python for Backend and Automation",
+    instructor: "Angela Yu",
+    rating: "4.7",
+    stars: 4.7,
+    reviews: "(8,120)",
+    price: "459,000d",
+    badge: null,
+    image:
+      "https://images.unsplash.com/photo-1517430816045-df4b7de11d1d?auto=format&fit=crop&w=1200&q=80",
+  },
+  {
+    id: "dev-6",
+    title: "System Design Interview for Developers",
+    instructor: "Alex Xu",
+    rating: "4.8",
+    stars: 4.8,
+    reviews: "(3,902)",
+    price: "799,000d",
+    badge: "Trending",
+    image:
+      "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=1200&q=80",
+  },
+];
+
 function StarRow({ stars }) {
   const wholeStars = Math.floor(stars);
   const hasHalf = stars % 1 !== 0;

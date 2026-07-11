@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Modal, Form, Input, Button, Switch, message, notification } from "antd";
+import { Modal, Form, Input, Button, Switch, notification } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import usePostCourseLecture from "../../../../../../../hooks/useCourse/usePostCourseLecture";
 
@@ -24,10 +24,10 @@ const BoxAddCourseLecture = ({ sectionId, refetch }) => {
           notification.success({
             title: "Thành công",
             description: "Thêm bài giảng thành công!",
-          })
+          });
           setOpen(false);
           form.resetFields();
-          refetch?.();  
+          refetch?.();
         },
         onError: (err) => {
           notification.error({
@@ -35,7 +35,7 @@ const BoxAddCourseLecture = ({ sectionId, refetch }) => {
             description: err?.response?.data?.message,
           });
         },
-      }
+      },
     );
   };
 
@@ -71,7 +71,9 @@ const BoxAddCourseLecture = ({ sectionId, refetch }) => {
           <Form.Item
             label={<span className="text-[12px]">Tên bài giảng</span>}
             name="title"
-            rules={[{ required: true, message: "Vui lòng nhập tên bài giảng!" }]}
+            rules={[
+              { required: true, message: "Vui lòng nhập tên bài giảng!" },
+            ]}
           >
             <Input className="custom-input" placeholder="Nhập tên bài giảng" />
           </Form.Item>
@@ -87,9 +89,14 @@ const BoxAddCourseLecture = ({ sectionId, refetch }) => {
           <Form.Item
             label={<span className="text-[12px]">Video bài giảng (URL)</span>}
             name="vid_lectures_url"
-            rules={[{ required: true, message: "Vui lòng nhập url video bài giảng!" }]}
+            rules={[
+              { required: true, message: "Vui lòng nhập url video bài giảng!" },
+            ]}
           >
-            <Input className="custom-input" placeholder="Nhập url video bài giảng" />
+            <Input
+              className="custom-input"
+              placeholder="Nhập url video bài giảng"
+            />
           </Form.Item>
 
           <Form.Item
@@ -106,7 +113,7 @@ const BoxAddCourseLecture = ({ sectionId, refetch }) => {
               htmlType="submit"
               loading={isPending}
               className=" w-full text-white"
-              style={{backgroundColor:"#3525CD", color: "#ffffff"}}
+              style={{ backgroundColor: "#3525CD", color: "#ffffff" }}
             >
               Xác nhận thêm
             </Button>

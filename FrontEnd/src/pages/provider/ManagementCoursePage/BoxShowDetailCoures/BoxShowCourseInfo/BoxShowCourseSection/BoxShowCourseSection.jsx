@@ -1,14 +1,7 @@
-import { Collapse, Button, Space, Popconfirm, Spin, notification } from "antd";
-import {
-  CaretDownOutlined,
-  ClockCircleOutlined,
-  EditOutlined,
-  DeleteOutlined,
-  PlusOutlined,
-  ReloadOutlined,
-} from "@ant-design/icons";
+import { Collapse, Space, Popconfirm, Spin, notification } from "antd";
+import { CaretDownOutlined, ReloadOutlined } from "@ant-design/icons";
 import BoxLesson from "./BoxLesson";
-import EditCourseIcon from "../../../../../../components/icons/EditCourseIcon";
+
 import CloseIcon from "../../../../../../components/icons/CloseIcon";
 import BoxEditCourseSection from "./BoxCourseSection/BoxEditCourseSection";
 import BoxAddCourseSection from "./BoxCourseSection/BoxAddCourseSection";
@@ -24,20 +17,17 @@ const BoxShowCourseSection = ({
   refetch,
   isLoading,
   isFetching,
-  onEditSection,
-  onDeleteSection,
-  onAddLecture,
+
   onEditLecture,
   onDeleteLecture,
 }) => {
   const sections = Array.isArray(showCourse) ? showCourse : [];
-  const { mutate: deleteSection, isPending  } = useDeleteCourseSection();
-
+  const { mutate: deleteSection } = useDeleteCourseSection();
 
   const items = sections.map((section) => ({
     key: section._id,
     label: (
-      <div className="flex justify-between items-start w-full px-[55px] py-2">
+      <div className="flex justify-between items-start w-full px-13.75 py-2">
         {/* LEFT */}
         <div className="flex flex-col gap-1 text-[12px] lg:text-[14px]">
           <span className="font-semibold text-white">
@@ -50,85 +40,76 @@ const BoxShowCourseSection = ({
         </div>
 
         {/* RIGHT */}
-        <Space size="small" style={{ paddingRight: "15px" }}  onClick={(e) => e.stopPropagation()}>
-          <BoxEditCourseSection 
-            section={section} 
-          />
+        <Space
+          size="small"
+          style={{ paddingRight: "15px" }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <BoxEditCourseSection section={section} />
           <Popconfirm
-              title="Bạn chắc chắn muốn xóa chương học?"
-              description="Toàn bộ bài giảng trong chương sẽ bị xóa"
-              onConfirm={() =>
-                deleteSection(
-                  {
-                    courseId,
-                    sectionId: section._id,
+            title="Bạn chắc chắn muốn xóa chương học?"
+            description="Toàn bộ bài giảng trong chương sẽ bị xóa"
+            onConfirm={() =>
+              deleteSection(
+                {
+                  courseId,
+                  sectionId: section._id,
+                },
+                {
+                  onSuccess: () => {
+                    notification.success({
+                      title: "Thành công",
+                      description: "Xóa chương học thành công!",
+                    });
+                    refetch();
                   },
-                  {
-                    onSuccess: () => {
-                      notification.success({
-                        title: "Thành công",
-                        description: "Xóa chương học thành công!",
-                      })
-                      refetch();  
-                    },
-                    onError: (error) => {
-                      notification.error({
-                        title: "Thất bại",
-                        description:
-                          error?.response?.data?.message ||
-                          "Xóa chương học thất bại",
-                      });
-                    },
-                  }
-                )
-              }
-            >
-              <button 
-                className="
+                  onError: (error) => {
+                    notification.error({
+                      title: "Thất bại",
+                      description:
+                        error?.response?.data?.message ||
+                        "Xóa chương học thất bại",
+                    });
+                  },
+                },
+              )
+            }
+          >
+            <button
+              className="
                   text-red-500 hover:text-red-700 transition p-2 group
                     duration-300 ease-in-out hover:bg-[#ffd5bf] rounded-[5px]
                     hover:scale-105 hover:opacity-65 cursor-pointer 
                 "
-              >
-                <CloseIcon size={18} />
-              </button>
-            </Popconfirm>
+            >
+              <CloseIcon size={18} />
+            </button>
+          </Popconfirm>
         </Space>
       </div>
     ),
 
     children: (
-      <div className="flex flex-col gap-2 px-[55px] py-3">
+      <div className="flex flex-col gap-2 px-13.75 py-3">
         {section.lectures?.length > 0 ? (
           section.lectures.map((lecture) => (
             <BoxLesson
               key={lecture._id}
-              lecture={lecture} 
+              lecture={lecture}
               refetch={refetch}
               onEdit={() => onEditLecture?.(lecture, section)}
               onDelete={() => onDeleteLecture?.(lecture._id, section)}
             />
           ))
         ) : (
-          <p className="text-sm text-gray-400 italic ">
-            Chưa có bài giảng!
-          </p>
+          <p className="text-sm text-gray-400 italic ">Chưa có bài giảng!</p>
         )}
 
-        <BoxAddCourseLecture 
-          sectionId={section._id}
-          refetch={refetch}
-        />
+        <BoxAddCourseLecture sectionId={section._id} refetch={refetch} />
         {section.quizzes?.length > 0 ? (
-            <BoxShowCourseQuiz
-              quiz={section.quizzes[0]}
-              refetch={refetch}
-            />
-          ) : (
-            <BoxAddCourseQuiz
-              sectionId={section._id}
-              refetch={refetch}
-            />
+          <BoxShowCourseQuiz quiz={section.quizzes[0]} refetch={refetch} />
+        ) : (
+          <BoxAddCourseQuiz sectionId={section._id} refetch={refetch} />
         )}
       </div>
     ),
@@ -136,14 +117,14 @@ const BoxShowCourseSection = ({
   const loading = useLoading(isLoading || isFetching, 300);
 
   if (loading) {
-      return (
-      <div className="flex justify-center items-center h-[300px]">
-          <Spin size="large" />
+    return (
+      <div className="flex justify-center items-center h-75">
+        <Spin size="large" />
       </div>
-      );
+    );
   }
   return (
-    <div >
+    <div>
       {/* HEADER – LÚC NÀO CŨNG HIỆN */}
       <div className="flex justify-end py-2 gap-4">
         <button
@@ -160,18 +141,13 @@ const BoxShowCourseSection = ({
         >
           <ReloadOutlined spin={isFetching} /> Làm mới
         </button>
-        <BoxAddCourseSection 
-          refetch={refetch}
-          courseId={courseId}
-        />
+        <BoxAddCourseSection refetch={refetch} courseId={courseId} />
       </div>
 
       {/* NẾU CHƯA CÓ DỮ LIỆU */}
       {sections.length === 0 && (
         <div className="border border-dashed border-gray-300 rounded-md p-6 text-center bg-white mb-4">
-          <p className="text-gray-400 italic">
-            Chưa có thông tin chương học
-          </p>
+          <p className="text-gray-400 italic">Chưa có thông tin chương học</p>
         </div>
       )}
 

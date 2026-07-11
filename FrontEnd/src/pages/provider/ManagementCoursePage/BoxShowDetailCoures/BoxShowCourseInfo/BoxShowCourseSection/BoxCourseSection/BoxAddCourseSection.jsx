@@ -2,9 +2,8 @@ import { useState } from "react";
 import { Modal, Form, Input, Button, notification } from "antd";
 import { useNavigate } from "react-router-dom";
 import usePostCourseSection from "../../../../../../../hooks/useCourse/usePostCourseSection";
-import { useParams } from "react-router";
 
-const BoxAddCourseSection = ({ refetch, courseId}) => {
+const BoxAddCourseSection = ({ refetch, courseId }) => {
   const [open, setOpen] = useState(false);
   const [form] = Form.useForm();
   const navigate = useNavigate();
@@ -46,10 +45,11 @@ const BoxAddCourseSection = ({ refetch, courseId}) => {
 
           notification.error({
             title: "Thất bại",
-            description: error?.response?.data?.message || "Thêm section thất bại",
+            description:
+              error?.response?.data?.message || "Thêm section thất bại",
           });
         },
-      }
+      },
     );
   };
 
@@ -65,7 +65,12 @@ const BoxAddCourseSection = ({ refetch, courseId}) => {
         + Thêm bài học
       </button>
 
-      <Modal open={open} onCancel={() => setOpen(false)} footer={null} destroyOnHidden>
+      <Modal
+        open={open}
+        onCancel={() => setOpen(false)}
+        footer={null}
+        destroyOnHidden
+      >
         <h1 className="text-[20px] font-semibold text-[#000000] mb-4">
           Thêm bài học
         </h1>
@@ -73,10 +78,9 @@ const BoxAddCourseSection = ({ refetch, courseId}) => {
         <Form
           form={form}
           layout="vertical"
-          onFinish={handleAdd}   
+          onFinish={handleAdd}
           autoComplete="off"
         >
-
           <Form.Item
             label={<span className="text-[12px]">Tên bài học</span>}
             name="chapter_title"
@@ -88,16 +92,21 @@ const BoxAddCourseSection = ({ refetch, courseId}) => {
           <Form.Item
             label={<span className="text-[12px]">Thời gian</span>}
             name="duration"
-            rules={[{ required: true, message: "Vui lòng nhập thời gian bài học!" }]}
+            rules={[
+              { required: true, message: "Vui lòng nhập thời gian bài học!" },
+            ]}
           >
-            <Input className="custom-input" placeholder="Nhập thời gian bài học" />
+            <Input
+              className="custom-input"
+              placeholder="Nhập thời gian bài học"
+            />
           </Form.Item>
 
           <Button
             htmlType="submit"
             loading={isPending}
             className="w-full bg-[#3525CD] text-white"
-            style={{backgroundColor:"#3525CD" , color:'#ffffff'}}
+            style={{ backgroundColor: "#3525CD", color: "#ffffff" }}
           >
             Xác nhận thêm
           </Button>

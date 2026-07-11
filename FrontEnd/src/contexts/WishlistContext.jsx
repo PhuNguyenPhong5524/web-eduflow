@@ -1,5 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useMemo } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "./AuthContext";
 import {
   getWishlist,
@@ -12,37 +13,38 @@ export const useWishlist = () => useContext(WishlistContext);
 
 export function WishlistProvider({ children }) {
   const { user } = useAuth();
-  const [wishlistIds, setWishlistIds] = useState(new Set());
-  const [loading, setLoading] = useState(false);
+  const queryClient = useQueryClient();
+  const isCustomer = !!user && user.role === "customer";
+  const wishlistQueryKey = ["wishlist", user?._id || "guest"];
 
-  // Load wishlist IDs on login
-  useEffect(() => {
-    if (!user || user.role !== "customer") {
-      setWishlistIds(new Set());
-      return;
-    }
-    setLoading(true);
-    getWishlist()
-      .then((res) => {
-        const ids = res.data.data.map((c) => String(c._id));
-        setWishlistIds(new Set(ids));
-      })
-      .catch(() => setWishlistIds(new Set()))
-      .finally(() => setLoading(false));
-  }, [user]);
+  const {
+    data: wishlistIdList = [],
+    isLoading,
+    isFetching,
+  } = useQuery({
+    queryKey: wishlistQueryKey,
+    enabled: isCustomer,
+    queryFn: async () => {
+      const res = await getWishlist();
+      return (res.data.data || []).map((c) => String(c._id));
+    },
+  });
+
+  const wishlistIds = useMemo(() => new Set(wishlistIdList), [wishlistIdList]);
+  const loading = isCustomer ? isLoading || isFetching : false;
 
   const isWishlisted = (courseId) => wishlistIds.has(String(courseId));
 
   const toggleWishlist = async (courseId) => {
-    if (!user || user.role !== "customer") return;
+    if (!isCustomer) return;
     const id = String(courseId);
     const wasAdded = wishlistIds.has(id);
+    const prev = queryClient.getQueryData(wishlistQueryKey) || [];
 
     // Optimistic update
-    setWishlistIds((prev) => {
-      const next = new Set(prev);
-      wasAdded ? next.delete(id) : next.add(id);
-      return next;
+    queryClient.setQueryData(wishlistQueryKey, (old = []) => {
+      if (wasAdded) return old.filter((item) => item !== id);
+      return [...old, id];
     });
 
     try {
@@ -53,11 +55,7 @@ export function WishlistProvider({ children }) {
       }
     } catch {
       // Rollback on error
-      setWishlistIds((prev) => {
-        const next = new Set(prev);
-        wasAdded ? next.add(id) : next.delete(id);
-        return next;
-      });
+      queryClient.setQueryData(wishlistQueryKey, prev);
     }
   };
 

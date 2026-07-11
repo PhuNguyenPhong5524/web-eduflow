@@ -82,7 +82,7 @@ export default function ShoppingCartPage() {
   const total = taxableAmount + tax;
 
   return (
-    <main className="max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop mt-[60px] py-stack-lg min-h-screen">
+    <main className="max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop mt-15 py-stack-lg min-h-screen">
       <header className="mb-stack-lg">
         <h1 className="font-display text-display text-on-surface">
           Shopping Cart

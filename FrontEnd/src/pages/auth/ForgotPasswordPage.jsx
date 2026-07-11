@@ -1,12 +1,15 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { forgotPassword, resetPassword, verifyOtp } from "../../services/authService";
+import {
+  forgotPassword,
+  resetPassword,
+  verifyOtp,
+} from "../../services/authService";
 import { message } from "antd";
-
 
 const SCREEN = {
   FORGOT: "forgot",
-  OTP: "otp",     
+  OTP: "otp",
   SUCCESS: "success",
   RESET: "reset",
 };
@@ -21,14 +24,12 @@ function getStrength(val) {
 }
 
 const ForgotPasswordPage = () => {
-
   const [screen, setScreen] = useState(SCREEN.FORGOT);
   const [email, setEmail] = useState("");
   const [sentEmail, setSentEmail] = useState("");
 
   const [otp, setOtp] = useState("");
   const [timeLeft, setTimeLeft] = useState(120);
-  const [canResend, setCanResend] = useState(false);
 
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -41,6 +42,7 @@ const ForgotPasswordPage = () => {
   const [apiError, setApiError] = useState("");
 
   const navigate = useNavigate();
+  const canResend = screen === SCREEN.OTP && timeLeft === 0;
 
   const { strength, hasLength, hasSpecial } = getStrength(newPassword);
 
@@ -53,8 +55,6 @@ const ForgotPasswordPage = () => {
 
       return () => clearInterval(timer);
     }
-
-    if (timeLeft === 0) setCanResend(true);
   }, [timeLeft, screen]);
 
   const formatTime = (s) => {
@@ -66,8 +66,7 @@ const ForgotPasswordPage = () => {
   function strengthLabel() {
     if (strength === 0)
       return { text: "Enter a password", color: "text-outline" };
-    if (strength === 50)
-      return { text: "Moderate", color: "text-amber-600" };
+    if (strength === 50) return { text: "Moderate", color: "text-amber-600" };
     return { text: "Strong password", color: "text-emerald-600" };
   }
 
@@ -92,13 +91,10 @@ const ForgotPasswordPage = () => {
       setSentEmail(email);
       setScreen(SCREEN.OTP);
       setTimeLeft(120);
-      setCanResend(false);
     } catch (err) {
       message.error("Gửi OTP thất bại");
 
-      setApiError(
-        err.response?.data?.message || "Gửi OTP thất bại"
-      );
+      setApiError(err.response?.data?.message || "Gửi OTP thất bại");
     } finally {
       setSubmitting(false);
     }
@@ -112,7 +108,6 @@ const ForgotPasswordPage = () => {
       message.success("Đã gửi lại OTP");
 
       setTimeLeft(120);
-      setCanResend(false);
     } catch {
       message.error("Gửi lại OTP thất bại");
 
@@ -171,7 +166,6 @@ const ForgotPasswordPage = () => {
     setEmail("");
     setOtp("");
     setTimeLeft(120);
-    setCanResend(false);
   }
 
   const label = strengthLabel();
@@ -192,7 +186,8 @@ const ForgotPasswordPage = () => {
                   Quên mật khẩu?
                 </h1>
                 <p className="font-body-sm text-[13px] text-on-surface-variant">
-                  Nhập địa chỉ email liên kết với tài khoản của bạn và chúng tôi sẽ gửi cho bạn một đường dẫn để đặt lại mật khẩu.
+                  Nhập địa chỉ email liên kết với tài khoản của bạn và chúng tôi
+                  sẽ gửi cho bạn một đường dẫn để đặt lại mật khẩu.
                 </p>
               </div>
 
@@ -270,7 +265,8 @@ const ForgotPasswordPage = () => {
                   Chúng tôi đã gửi liên kết đặt lại mật khẩu đến{" "}
                   <span className="font-semibold text-on-surface">
                     {sentEmail}
-                  </span>.
+                  </span>
+                  .
                 </p>
               </div>
 
@@ -280,8 +276,8 @@ const ForgotPasswordPage = () => {
                 </span>
 
                 <p className="font-body-sm text-body-sm text-on-surface-variant leading-snug">
-                  Chưa nhận được email? Hãy kiểm tra thư mục Spam hoặc thử lại sau
-                  khoảng 2 phút.
+                  Chưa nhận được email? Hãy kiểm tra thư mục Spam hoặc thử lại
+                  sau khoảng 2 phút.
                 </p>
               </div>
 
@@ -307,10 +303,7 @@ const ForgotPasswordPage = () => {
         {screen === SCREEN.OTP && (
           <div className="w-full max-w-110">
             <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-xl shadow-sm p-stack-lg flex flex-col gap-stack-lg text-center">
-
-              <h2 className="font-headline-md text-on-surface">
-                Nhập mã OTP
-              </h2>
+              <h2 className="font-headline-md text-on-surface">Nhập mã OTP</h2>
 
               <p className="font-body-sm text-on-surface-variant">
                 Mã đã được gửi tới <b>{email}</b>
@@ -346,8 +339,7 @@ const ForgotPasswordPage = () => {
                 <button
                   onClick={() => {
                     setTimeLeft(120);
-                    setCanResend(false);
-                    handleForgot(new Event("submit")); // gọi lại API
+                    handleResendOtp();
                   }}
                   className="text-primary hover:underline"
                 >
@@ -359,9 +351,7 @@ const ForgotPasswordPage = () => {
                 </p>
               )}
 
-              {apiError && (
-                <p className="text-red-400 text-sm">{apiError}</p>
-              )}
+              {apiError && <p className="text-red-400 text-sm">{apiError}</p>}
             </div>
           </div>
         )}
@@ -374,7 +364,8 @@ const ForgotPasswordPage = () => {
                   Đặt lại mật khẩu mới
                 </h1>
                 <p className="font-body-sm text-body-sm text-on-surface-variant">
-                  Mật khẩu mới của bạn phải khác với các mật khẩu đã sử dụng trước đây.
+                  Mật khẩu mới của bạn phải khác với các mật khẩu đã sử dụng
+                  trước đây.
                 </p>
               </div>
 
@@ -537,6 +528,6 @@ const ForgotPasswordPage = () => {
       </div>
     </div>
   );
-}
+};
 
 export default ForgotPasswordPage;

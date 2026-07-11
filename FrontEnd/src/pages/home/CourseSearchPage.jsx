@@ -25,18 +25,15 @@ export default function CourseSearchPage() {
   const page = Number(searchParams.get("page")) || 1;
 
   // ── Local search input state (for debounce) ───────────────
-  const [searchInput, setSearchInput] = useState(q);
+  const [draftSearch, setDraftSearch] = useState(q);
+  const [isTypingSearch, setIsTypingSearch] = useState(false);
   const debounceRef = useRef(null);
-
-  // Sync searchInput when URL param `q` changes externally
-  // (e.g. browser back/forward)
-  useEffect(() => {
-    setSearchInput(q);
-  }, [q]);
+  const searchInput = isTypingSearch ? draftSearch : q;
 
   // Debounced update of URL param `q`
   const handleSearchChange = (value) => {
-    setSearchInput(value);
+    setIsTypingSearch(true);
+    setDraftSearch(value);
 
     // Clear previous timer
     if (debounceRef.current) {
@@ -54,6 +51,7 @@ export default function CourseSearchPage() {
         next.delete("page"); // reset to page 1
         return next;
       });
+      setIsTypingSearch(false);
     }, DEBOUNCE_MS);
   };
 
@@ -79,7 +77,18 @@ export default function CourseSearchPage() {
 
   // ── Fetch courses (URL params are the source of truth) ────
   const { data, isLoading } = useQuery({
-    queryKey: ["courses", q, category, price, minPrice, maxPrice, rating, level, sort, page],
+    queryKey: [
+      "courses",
+      q,
+      category,
+      price,
+      minPrice,
+      maxPrice,
+      rating,
+      level,
+      sort,
+      page,
+    ],
     queryFn: async () => {
       const { data: res } = await getCourses({
         category: category || undefined,
@@ -146,9 +155,7 @@ export default function CourseSearchPage() {
   const filters = { category, price, minPrice, maxPrice, rating, level };
 
   // ── Display title ─────────────────────────────────────────
-  const pageTitle = q
-    ? `Kết quả cho "${q}"`
-    : category || "All Courses";
+  const pageTitle = q ? `Kết quả cho "${q}"` : category || "All Courses";
 
   return (
     <main className="pt-24 pb-stack-lg min-h-screen">

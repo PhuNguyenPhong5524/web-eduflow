@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { register } from "../../services/authService";
 import { Form, Input, Button, message } from "antd";
 

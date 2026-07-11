@@ -4,12 +4,12 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 
 export default function LoginPage() {
-  const [showPassword, setShowPassword] = useState(false);
+  // const [showPassword, setShowPassword] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  // const [email, setEmail] = useState("");
+  // const [password, setPassword] = useState("");
+  // const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   const onFinish = async (values) => {
@@ -32,13 +32,12 @@ export default function LoginPage() {
       }
     } catch (err) {
       message.error(
-        err.response?.data?.message || "Email hoặc mật khẩu không đúng"
+        err.response?.data?.message || "Email hoặc mật khẩu không đúng",
       );
     } finally {
       setSubmitting(false);
     }
   };
-
 
   useEffect(() => {
     const handleMouseMove = (e) => {
@@ -51,8 +50,6 @@ export default function LoginPage() {
     document.addEventListener("mousemove", handleMouseMove);
     return () => document.removeEventListener("mousemove", handleMouseMove);
   }, []);
-
-
 
   return (
     <main className="min-h-screen flex flex-col md:flex-row">
@@ -86,8 +83,9 @@ export default function LoginPage() {
 
           {/* Vietnamese Descriptive Text */}
           <p className="font-body-lg text-[16px] text-white/80">
-            Khám phá hàng nghìn khóa học chất lượng cao từ nhiều nhà cung cấp khác nhau,
-            giúp bạn làm chủ kỹ năng mới trên một nền tảng tập trung, thuận tiện.
+            Khám phá hàng nghìn khóa học chất lượng cao từ nhiều nhà cung cấp
+            khác nhau, giúp bạn làm chủ kỹ năng mới trên một nền tảng tập trung,
+            thuận tiện.
           </p>
 
           {/* Vietnamese Stats Section */}
@@ -183,73 +181,70 @@ export default function LoginPage() {
             </div>
 
             {/* Login Form */}
-              <Form
-                onFinish={onFinish}
-                autoComplete="off"
-                className="space-y-4"
-                layout="vertical"
+            <Form
+              onFinish={onFinish}
+              autoComplete="off"
+              className="space-y-4"
+              layout="vertical"
+            >
+              {/* EMAIL */}
+              <Form.Item
+                name="email"
+                label={<span className="text-[12px]">Địa chỉ Email</span>}
+                rules={[
+                  { required: true, message: "Vui lòng nhập email!" },
+                  { type: "email", message: "Email không hợp lệ!" },
+                ]}
               >
-                {/* EMAIL */}
-                <Form.Item
-                  name="email"
-                  label={<span className="text-[12px]">Địa chỉ Email</span>}
-                  rules={[
-                    { required: true, message: "Vui lòng nhập email!" },
-                    { type: "email", message: "Email không hợp lệ!" },
-                  ]}
+                <Input
+                  autoComplete="new-password"
+                  placeholder="vd: abc@gmail.com"
+                  className="h-12! rounded-xl!"
+                />
+              </Form.Item>
+
+              {/* PASSWORD */}
+              <Form.Item
+                name="password"
+                label={<span className="text-[12px]">Mật khẩu</span>}
+                rules={[{ required: true, message: "Vui lòng nhập mật khẩu!" }]}
+              >
+                <Input.Password
+                  autoComplete="new-password"
+                  placeholder="Nhập mật khẩu của bạn"
+                  className="h-12! rounded-xl!"
+                />
+              </Form.Item>
+
+              {/* BUTTON */}
+              <Button
+                htmlType="submit"
+                loading={submitting}
+                className="w-full! h-12! rounded-xl! bg-primary! text-white!"
+              >
+                Đăng nhập
+              </Button>
+
+              {/* REGISTER */}
+              <div className="flex gap-1 items-center">
+                <p
+                  className="text-[#FF0000] hover:underline ml-1 cursor-pointer"
+                  onClick={() => navigate("/forgot-password")}
                 >
-                  <Input
-                    autoComplete="new-password"
-                    placeholder="vd: abc@gmail.com"
-                    className="!h-[48px] !rounded-xl"
-                  />
-                </Form.Item>
-
-                {/* PASSWORD */}
-                <Form.Item
-                  name="password"
-                  label={<span className="text-[12px]">Mật khẩu</span>}
-                  rules={[
-                    { required: true, message: "Vui lòng nhập mật khẩu!" },
-                  ]}
-                >
-                  <Input.Password
-                    autoComplete="new-password"
-                    placeholder="Nhập mật khẩu của bạn"
-                    className="!h-[48px] !rounded-xl"
-                  />
-                </Form.Item>
-
-                {/* BUTTON */}
-                <Button
-                  htmlType="submit"
-                  loading={submitting}
-                  className="!w-full !h-[48px] !rounded-xl !bg-primary !text-white"
-                >
-                  Đăng nhập
-                </Button>
-
-                {/* REGISTER */}
-                  <div className="flex gap-1 items-center">
-                    <p
-                      className="text-[#FF0000] hover:underline ml-1 cursor-pointer"
-                      onClick={() => navigate("/forgot-password")}
-                    >
-                      Quên mật khẩu?
-                    </p> 
-                    <div className="text-[#d0d0d0]">|</div>
-                    <p className="text-center text-sm">
-                      Nếu bạn chưa có tài khoản?
-                      <span
-                        className="text-blue-600 hover:underline ml-1 cursor-pointer"
-                        onClick={() => navigate("/register")}
-                      >
-                        Đăng ký
-                      </span>
-                    </p>
-                  </div>
-              </Form>
-
+                  Quên mật khẩu?
+                </p>
+                <div className="text-[#d0d0d0]">|</div>
+                <p className="text-center text-sm">
+                  Nếu bạn chưa có tài khoản?
+                  <span
+                    className="text-blue-600 hover:underline ml-1 cursor-pointer"
+                    onClick={() => navigate("/register")}
+                  >
+                    Đăng ký
+                  </span>
+                </p>
+              </div>
+            </Form>
           </div>
 
           {/* Footer Links (standard Vietnamese transliteration or keeping English) */}

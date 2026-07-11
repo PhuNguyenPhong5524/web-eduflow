@@ -1,11 +1,20 @@
-import { Card, Typography, Tag, Space, Button, Divider, Popconfirm, notification } from "antd";
-import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import {
+  Card,
+  Typography,
+  Tag,
+  Space,
+  Button,
+  Divider,
+  Popconfirm,
+  notification,
+} from "antd";
+import { DeleteOutlined } from "@ant-design/icons";
 import useDeleteQuestion from "../../../../../../../../hooks/useCourse/quizz/useDeleteQuestion";
 import BoxEditQuestion from "./BoxEditQuestion";
 
 const { Title, Text } = Typography;
 
-const BoxQuestionCard = ({ question, onEdit, onDelete }) => {
+const BoxQuestionCard = ({ question, refetch }) => {
   const { mutate: deleteQuestion, isPending } = useDeleteQuestion();
   return (
     <Card
@@ -16,9 +25,7 @@ const BoxQuestionCard = ({ question, onEdit, onDelete }) => {
       }}
     >
       <div className="flex justify-between items-start">
-
         <div>
-
           <Title level={5}>
             {question.order}. {question.question}
           </Title>
@@ -26,9 +33,7 @@ const BoxQuestionCard = ({ question, onEdit, onDelete }) => {
           <Divider style={{ margin: "12px 0" }} />
 
           <div className="space-y-3">
-
             {question.answers?.map((answer) => (
-
               <div
                 key={answer._id}
                 className={`flex items-center justify-between px-3 py-2 rounded-lg ${
@@ -38,36 +43,19 @@ const BoxQuestionCard = ({ question, onEdit, onDelete }) => {
                 }`}
               >
                 <div>
+                  <Text strong>{answer.answer_label}.</Text>
 
-                  <Text strong>
-                    {answer.answer_label}.
-                  </Text>
-
-                  <Text className="ml-2">
-                    {answer.answer_text}
-                  </Text>
-
+                  <Text className="ml-2">{answer.answer_text}</Text>
                 </div>
 
-                {answer.is_correct && (
-                  <Tag color="green">
-                    Đáp án đúng
-                  </Tag>
-                )}
-
+                {answer.is_correct && <Tag color="green">Đáp án đúng</Tag>}
               </div>
-
             ))}
-
           </div>
-
         </div>
 
         <Space orientation="vertical">
-
-          <BoxEditQuestion 
-            question={question}
-          />
+          <BoxEditQuestion question={question} />
           <Popconfirm
             title="Bạn chắc chắn muốn xóa câu hỏi?"
             description="Toàn bộ đáp án của câu hỏi sẽ bị xóa."
@@ -92,8 +80,7 @@ const BoxQuestionCard = ({ question, onEdit, onDelete }) => {
                   notification.error({
                     title: "Thất bại",
                     description:
-                      error?.response?.data?.message ||
-                      "Xóa câu hỏi thất bại",
+                      error?.response?.data?.message || "Xóa câu hỏi thất bại",
                   });
                 },
               })
@@ -104,7 +91,6 @@ const BoxQuestionCard = ({ question, onEdit, onDelete }) => {
             </Button>
           </Popconfirm>
         </Space>
-
       </div>
     </Card>
   );

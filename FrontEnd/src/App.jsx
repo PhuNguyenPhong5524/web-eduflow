@@ -12,6 +12,7 @@ import InstructorProfilePage from "./pages/provider/InstructorProfilePage";
 import AdminDashboardPage from "./pages/admin/AdminDashboardPage";
 import AdminUsersPage from "./pages/admin/AdminUsersPage";
 import AdminCategoriesPage from "./pages/admin/AdminCategoriesPage";
+import AdminOrdersPage from "./pages/admin/AdminOrdersPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminLayout from "./layouts/AdminLayout";
 import CustomerLayout from "./layouts/CustomerLayout";
@@ -27,6 +28,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import BoxShowDetailCourses from "./pages/provider/ManagementCoursePage/BoxShowDetailCoures/BoxShowDetailCourses";
 import MyCoursePage from "./pages/mycourse/MyCoursePage";
 import OrdersPage from "./pages/customer/OrdersPage";
+import OrderDetailPage from "./pages/customer/OrderDetailPage";
 import WishlistPage from "./pages/customer/WishlistPage";
 import { CartProvider } from "./contexts/CartContext";
 import { WishlistProvider } from "./contexts/WishlistContext";
@@ -128,6 +130,15 @@ function App() {
                       </ProtectedRoute>
                     }
                   />
+
+                  <Route
+                    path="orders/:orderId"
+                    element={
+                      <ProtectedRoute roles={["customer"]}>
+                        <OrderDetailPage />
+                      </ProtectedRoute>
+                    }
+                  />
                 </Route>
 
                 {/* Provider*/}
@@ -177,56 +188,69 @@ function App() {
                 />
                 <Route path="/verify-email" element={<VerifyEmailPage />} />
 
-              {/* Admin */}
-              <Route
-                path="/admin/dashboard"
-                element={
-                  <ProtectedRoute roles={["admin"]}>
-                    <AdminLayout title="Dashboard">
-                      <AdminDashboardPage />
-                    </AdminLayout>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/admin/users"
-                element={
-                  <ProtectedRoute roles={["admin"]}>
-                    <AdminLayout title="Users">
-                      <AdminUsersPage />
-                    </AdminLayout>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/admin/categories"
-                element={
-                  <ProtectedRoute roles={["admin"]}>
-                    <AdminLayout title="Categories">
-                      <AdminCategoriesPage />
-                    </AdminLayout>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/courses/detail/:id"
-                element={
-                  <ProtectedRoute roles={["provider"]}>
-                    <BoxShowDetailCourses />
-                  </ProtectedRoute>
-                }
-              />
+                {/* Admin */}
+                <Route
+                  path="/admin/dashboard"
+                  element={
+                    <ProtectedRoute roles={["admin"]}>
+                      <AdminLayout title="Dashboard">
+                        <AdminDashboardPage />
+                      </AdminLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin/users"
+                  element={
+                    <ProtectedRoute roles={["admin"]}>
+                      <AdminLayout title="Users">
+                        <AdminUsersPage />
+                      </AdminLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin/categories"
+                  element={
+                    <ProtectedRoute roles={["admin"]}>
+                      <AdminLayout title="Categories">
+                        <AdminCategoriesPage />
+                      </AdminLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin/orders"
+                  element={
+                    <ProtectedRoute roles={["admin"]}>
+                      <AdminLayout title="Orders">
+                        <AdminOrdersPage />
+                      </AdminLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/courses/detail/:id"
+                  element={
+                    <ProtectedRoute roles={["provider"]}>
+                      <BoxShowDetailCourses />
+                    </ProtectedRoute>
+                  }
+                />
 
-              {/* Auth */}
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/register" element={<RegisterPage />} />
-              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-              <Route path="/verify-email" element={<VerifyEmailPage />} />
-                  
-              {/* Fallback */}
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </BrowserRouter>
+                {/* Auth */}
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<RegisterPage />} />
+                <Route
+                  path="/forgot-password"
+                  element={<ForgotPasswordPage />}
+                />
+                <Route path="/verify-email" element={<VerifyEmailPage />} />
+
+                {/* Fallback */}
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </BrowserRouter>
           </WishlistProvider>
         </CartProvider>
       </AuthProvider>

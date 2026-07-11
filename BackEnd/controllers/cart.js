@@ -6,6 +6,24 @@ import { createProgressAfterCheckout } from "../services/course/courseService.js
 
 const TAX_RATE = 0.1;
 
+const toDateStart = (value) => {
+  if (!value) return null;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return null;
+  date.setHours(0, 0, 0, 0);
+  return date;
+};
+
+const toDateEnd = (value) => {
+  if (!value) return null;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return null;
+  date.setHours(23, 59, 59, 999);
+  return date;
+};
+
+const getOrderShortId = (id) => `#${id.toString().slice(-6).toUpperCase()}`;
+
 const toNumber = (value, fallback = 0) => {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : fallback;
@@ -233,10 +251,11 @@ export const getMyAllOrders = async (req, res) => {
 
     const result = orders.map((o) => ({
       _id: o._id,
-      shortId: `#${o._id.toString().slice(-6).toUpperCase()}`,
+      shortId: getOrderShortId(o._id),
       items: o.items.map((i) => i.course_title),
       subtotal: o.subtotal,
       discount: o.discount,
+      tax: o.tax,
       total: o.total,
       paymentMethod: o.payment_method,
       paymentStatus: o.payment_status,
@@ -263,7 +282,7 @@ export const getMyRecentOrders = async (req, res) => {
 
     const result = orders.map((o) => ({
       _id: o._id,
-      shortId: `#${o._id.toString().slice(-6).toUpperCase()}`,
+      shortId: getOrderShortId(o._id),
       itemCount: o.items.length,
       total: o.total,
       paymentStatus: o.payment_status,
@@ -273,6 +292,229 @@ export const getMyRecentOrders = async (req, res) => {
     }));
 
     return res.status(200).json({ data: result });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+export const getMyOrderById = async (req, res) => {
+  try {
+    const userId = req.user?.userId;
+    const { orderId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(orderId)) {
+      return res.status(400).json({ message: "Invalid order id" });
+    }
+
+    const order = await orderModel
+      .findOne({ _id: orderId, user: userId })
+      .lean();
+
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    return res.status(200).json({
+      data: {
+        _id: order._id,
+        shortId: getOrderShortId(order._id),
+        items: order.items.map((item) => ({
+          courseId: item.course,
+          title: item.course_title,
+          price: item.price,
+          quantity: item.quantity,
+          lineTotal: item.price * item.quantity,
+        })),
+        subtotal: order.subtotal,
+        discount: order.discount,
+        tax: order.tax,
+        total: order.total,
+        paymentMethod: order.payment_method,
+        paymentStatus: order.payment_status,
+        orderStatus: order.order_status,
+        createdAt: order.createdAt,
+        updatedAt: order.updatedAt,
+        paidAt: order.paid_at,
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+export const getAdminOrders = async (req, res) => {
+  try {
+    const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
+    const limit = Math.max(parseInt(req.query.limit, 10) || 10, 1);
+    const skip = (page - 1) * limit;
+    const search = String(req.query.search || "").trim();
+    const paymentStatus = String(req.query.paymentStatus || "").trim();
+    const orderStatus = String(req.query.orderStatus || "").trim();
+    const minPrice = Number(req.query.minPrice);
+    const maxPrice = Number(req.query.maxPrice);
+    const dateFrom = toDateStart(req.query.dateFrom);
+    const dateTo = toDateEnd(req.query.dateTo);
+
+    const allowedPaymentStatus = ["pending", "paid", "failed", "refunded"];
+    const allowedOrderStatus = [
+      "pending",
+      "processing",
+      "completed",
+      "cancelled",
+    ];
+    const match = {};
+
+    if (allowedPaymentStatus.includes(paymentStatus)) {
+      match.payment_status = paymentStatus;
+    }
+
+    if (allowedOrderStatus.includes(orderStatus)) {
+      match.order_status = orderStatus;
+    }
+
+    if (dateFrom || dateTo) {
+      match.createdAt = {};
+      if (dateFrom) match.createdAt.$gte = dateFrom;
+      if (dateTo) match.createdAt.$lte = dateTo;
+    }
+
+    if (Number.isFinite(minPrice) || Number.isFinite(maxPrice)) {
+      match.total = {};
+      if (Number.isFinite(minPrice)) match.total.$gte = minPrice;
+      if (Number.isFinite(maxPrice)) match.total.$lte = maxPrice;
+    }
+
+    const searchMatch = search
+      ? {
+          $or: [
+            { email: { $regex: search, $options: "i" } },
+            { username: { $regex: search, $options: "i" } },
+            { shortId: { $regex: search.replace(/^#/, ""), $options: "i" } },
+            {
+              orderIdText: { $regex: search.replace(/^#/, ""), $options: "i" },
+            },
+          ],
+        }
+      : null;
+
+    const dataPipeline = [
+      { $match: match },
+      {
+        $lookup: {
+          from: "users",
+          localField: "user",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $unwind: {
+          path: "$user",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $addFields: {
+          username: "$user.username",
+          email: "$user.email",
+          orderIdText: { $toString: "$_id" },
+          shortId: {
+            $toUpper: {
+              $concat: [
+                "#",
+                {
+                  $substrCP: [
+                    { $toString: "$_id" },
+                    { $subtract: [{ $strLenCP: { $toString: "$_id" } }, 6] },
+                    6,
+                  ],
+                },
+              ],
+            },
+          },
+        },
+      },
+      ...(searchMatch ? [{ $match: searchMatch }] : []),
+      { $sort: { createdAt: -1 } },
+      { $skip: skip },
+      { $limit: limit },
+      {
+        $project: {
+          _id: 1,
+          shortId: 1,
+          customerName: { $ifNull: ["$username", "Unknown"] },
+          customerEmail: { $ifNull: ["$email", ""] },
+          itemCount: { $size: "$items" },
+          subtotal: 1,
+          discount: 1,
+          tax: 1,
+          total: 1,
+          paymentMethod: "$payment_method",
+          paymentStatus: "$payment_status",
+          orderStatus: "$order_status",
+          createdAt: 1,
+          paidAt: "$paid_at",
+        },
+      },
+    ];
+
+    const countPipeline = [
+      { $match: match },
+      {
+        $lookup: {
+          from: "users",
+          localField: "user",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $unwind: {
+          path: "$user",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $addFields: {
+          username: "$user.username",
+          email: "$user.email",
+          orderIdText: { $toString: "$_id" },
+          shortId: {
+            $toUpper: {
+              $concat: [
+                "#",
+                {
+                  $substrCP: [
+                    { $toString: "$_id" },
+                    { $subtract: [{ $strLenCP: { $toString: "$_id" } }, 6] },
+                    6,
+                  ],
+                },
+              ],
+            },
+          },
+        },
+      },
+      ...(searchMatch ? [{ $match: searchMatch }] : []),
+      { $count: "total" },
+    ];
+
+    const [orders, countResult] = await Promise.all([
+      orderModel.aggregate(dataPipeline),
+      orderModel.aggregate(countPipeline),
+    ]);
+
+    const total = countResult[0]?.total || 0;
+
+    return res.status(200).json({
+      data: orders,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.max(Math.ceil(total / limit), 1),
+      },
+    });
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }

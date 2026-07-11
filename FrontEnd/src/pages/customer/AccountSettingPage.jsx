@@ -1,12 +1,5 @@
-import React, { useRef, useState } from "react";
-import {
-  Button,
-  Card,
-  Form,
-  Input,
-  Modal,
-  message,
-} from "antd";
+import { useRef, useState } from "react";
+import { Button, Card, Form, Input, Modal, message } from "antd";
 import {
   UserOutlined,
   UploadOutlined,
@@ -20,7 +13,7 @@ const AccountSettingPage = () => {
   const fileInputRef = useRef(null);
 
   const [avatarSrc, setAvatarSrc] = useState(
-    "https://i.pravatar.cc/300?img=68"
+    "https://i.pravatar.cc/300?img=68",
   );
 
   const handleUpdateProfile = async (values) => {
@@ -31,7 +24,7 @@ const AccountSettingPage = () => {
 
       message.success("Cập nhật thông tin thành công!");
     } catch (error) {
-      message.error("Cập nhật thất bại!");
+      error.message("Cập nhật thất bại!");
     }
   };
 
@@ -82,9 +75,7 @@ const AccountSettingPage = () => {
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold">
-            Cài đặt tài khoản
-          </h1>
+          <h1 className="text-3xl font-bold">Cài đặt tài khoản</h1>
 
           <p className="text-gray-500 text-sm mt-2">
             Quản lý thông tin cá nhân và hồ sơ của bạn.
@@ -113,9 +104,7 @@ const AccountSettingPage = () => {
                 </div>
               </div>
 
-              <h3 className="mt-5 text-2xl font-semibold">
-                Ảnh đại diện
-              </h3>
+              <h3 className="mt-5 text-2xl font-semibold">Ảnh đại diện</h3>
 
               <p className="text-center text-gray-500 mt-2 mb-5">
                 Tải lên ảnh mới để cá nhân hóa hồ sơ của bạn.
@@ -143,9 +132,7 @@ const AccountSettingPage = () => {
           <Card className="lg:col-span-2 rounded-2xl">
             <div className="flex items-center gap-2 mb-6">
               <UserOutlined />
-              <h3 className="text-xl font-semibold">
-                Thông tin cá nhân
-              </h3>
+              <h3 className="text-xl font-semibold">Thông tin cá nhân</h3>
             </div>
 
             <Form
@@ -164,8 +151,7 @@ const AccountSettingPage = () => {
                 rules={[
                   {
                     required: true,
-                    message:
-                      "Vui lòng nhập tên đăng nhập",
+                    message: "Vui lòng nhập tên đăng nhập",
                   },
                 ]}
               >
@@ -191,25 +177,16 @@ const AccountSettingPage = () => {
                 </Form.Item>
 
                 <Form.Item label="Ngày tạo tài khoản">
-                  <Input
-                    defaultValue="15/01/2024"
-                    disabled
-                  />
+                  <Input defaultValue="15/01/2024" disabled />
                 </Form.Item>
               </div>
 
-              <Form.Item
-                label="Giới thiệu bản thân"
-                name="bio"
-              >
+              <Form.Item label="Giới thiệu bản thân" name="bio">
                 <TextArea rows={4} />
               </Form.Item>
 
               <div className="flex justify-end">
-                <Button
-                  type="primary"
-                  htmlType="submit"
-                >
+                <Button type="primary" htmlType="submit">
                   Lưu thay đổi
                 </Button>
               </div>
@@ -228,21 +205,15 @@ const AccountSettingPage = () => {
         >
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div>
-              <h3 className="text-xl font-bold text-red-600">
-                Đóng tài khoản
-              </h3>
+              <h3 className="text-xl font-bold text-red-600">Đóng tài khoản</h3>
 
               <p className="text-gray-500 mt-2">
-                Xóa vĩnh viễn tài khoản và toàn bộ dữ liệu
-                liên quan. Hành động này không thể hoàn tác.
+                Xóa vĩnh viễn tài khoản và toàn bộ dữ liệu liên quan. Hành động
+                này không thể hoàn tác.
               </p>
             </div>
 
-            <Button
-              danger
-              size="large"
-              onClick={handleDeleteAccount}
-            >
+            <Button danger size="large" onClick={handleDeleteAccount}>
               Xóa tài khoản
             </Button>
           </div>
