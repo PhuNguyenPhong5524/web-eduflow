@@ -5,15 +5,24 @@ import {
   getFeatureCourses,
   getProviders,
 } from "../../services/homeService";
+import { getRecentlyViewed } from "../../services/viewHistoryService";
 import { useCart } from "../../contexts/CartContext";
+import { useAuth } from "../../contexts/AuthContext";
 
 // Map icon_key from DB to Material Symbol names
 const ICON_MAP = {
   web: "public",
   data: "analytics",
   mobile: "smartphone",
-  language: "code",
+  language: "language",
   game: "sports_esports",
+  programming: "code",
+  design: "brush",
+  marketing: "campaign",
+  business: "business_center",
+  ai: "smart_toy",
+  network: "router",
+  "cyber security": "security",
 };
 // Rotating bg colors for category small cards
 const CATEGORY_BG = [
@@ -25,7 +34,8 @@ const CATEGORY_BG = [
 
 function formatPrice(price) {
   if (price === 0) return "Miễn phí";
-  return price.toLocaleString("vi-VN") + "₫";
+  if (price == null) return "Chưa cập nhật";
+  return Number(price).toLocaleString("vi-VN") + "₫";
 }
 
 // Skeleton loaders
@@ -62,9 +72,11 @@ export default function HomePage() {
   const mainRef = useRef(null);
   const navigate = useNavigate();
   const { addToCart } = useCart();
+  const { user } = useAuth();
   const [categories, setCategories] = useState([]);
   const [courses, setCourses] = useState([]);
   const [providers, setProviders] = useState([]);
+  const [historyCourses, setHistoryCourses] = useState([]);
   const [searchKeyword, setSearchKeyword] = useState("");
   const [loadingCat, setLoadingCat] = useState(true);
   const [loadingCourse, setLoadingCourse] = useState(true);
@@ -101,7 +113,11 @@ export default function HomePage() {
       .then(({ data }) => setProviders(data.data))
       .catch(console.error)
       .finally(() => setLoadingProv(false));
-  }, []);
+
+    getRecentlyViewed()
+      .then(({ data }) => setHistoryCourses(data.data))
+      .catch(console.error);
+  }, [user]);
 
   useEffect(() => {
     const container = mainRef.current;
@@ -239,7 +255,10 @@ export default function HomePage() {
             {loadingCat ? (
               <div className="md:col-span-2 md:row-span-2 rounded-3xl h-100 bg-surface-container animate-pulse" />
             ) : categories[0] ? (
-              <div className="md:col-span-2 md:row-span-2 group relative overflow-hidden rounded-3xl h-100">
+              <Link
+                to={`/all-courses?category=${encodeURIComponent(categories[0].cate_name)}`}
+                className="md:col-span-2 md:row-span-2 group relative overflow-hidden rounded-3xl h-100 block"
+              >
                 <img
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                   src="https://lh3.googleusercontent.com/aida-public/AB6AXuBxGqrFq_Mfu9T8YiROyyrbmtZm-_Wj7hc5oYF11sFeWzJPyiKLsP32MjnSGoh2gh3AmJRZ1H3QTD7jig8nJX-M8nviNPQ250dVTn4i49l2YYQ3GHMIysMY7kL6oNDmrRysoeedKE7drmo5nGsIE5GgZuEzHrBprufhH2wqQZpf9OJt9hBFr-27W8SLATM1h8GUVnVTWpoDlXiDHwkQ4wf8jKUYPettxSZ4YE4SrwMPY0HfAjbAQP-Tr4ImqJFEn4050Qtddr9Yk_c"
@@ -254,7 +273,7 @@ export default function HomePage() {
                     {categories[0].cate_name}
                   </h3>
                 </div>
-              </div>
+              </Link>
             ) : null}
 
             {/* Remaining categories — small cards */}
@@ -262,14 +281,19 @@ export default function HomePage() {
               ? Array.from({ length: 4 }).map((_, i) => (
                   <CategorySkeleton key={i} />
                 ))
-              : categories.slice(1).map((cat, i) => (
-                  <div
+              : categories.slice(1).map((cat, i) => {
+                  const iconKeyMatch = Object.keys(ICON_MAP).find(k => cat.cate_name.toLowerCase().includes(k));
+                  const iconName = iconKeyMatch ? ICON_MAP[iconKeyMatch] : (ICON_MAP[cat.icon_key] ?? "school");
+                  
+                  return (
+                  <Link
                     key={cat._id}
-                    className={`group relative overflow-hidden rounded-3xl h-47 ${CATEGORY_BG[i % CATEGORY_BG.length]}`}
+                    to={`/all-courses?category=${encodeURIComponent(cat.cate_name)}`}
+                    className={`group relative overflow-hidden rounded-3xl h-47 block ${CATEGORY_BG[i % CATEGORY_BG.length]}`}
                   >
                     <div className="absolute inset-0 flex items-center justify-center opacity-10">
                       <span className="material-symbols-outlined text-[120px]">
-                        {ICON_MAP[cat.icon_key] ?? "school"}
+                        {iconName}
                       </span>
                     </div>
                     <div className="absolute inset-0 p-6 flex flex-col justify-end">
@@ -280,8 +304,8 @@ export default function HomePage() {
                         {cat.quantity} khóa học
                       </p>
                     </div>
-                  </div>
-                ))}
+                  </Link>
+                )})}
           </div>
         </section>
 
@@ -362,6 +386,72 @@ export default function HomePage() {
             </div>
           </div>
         </section>
+
+        {/* ── Khóa học đã xem ── */}
+        {historyCourses.length > 0 && (
+          <section className="py-stack-lg">
+            <div className="px-margin-mobile md:px-margin-desktop max-w-7xl mx-auto">
+              <div className="text-center mb-12">
+                <h2 className="font-headline-lg text-headline-lg mb-3">
+                  Khóa học đã xem
+                </h2>
+                <p className="font-body-md text-on-surface-variant">
+                  Tiếp tục hành trình học tập của bạn.
+                </p>
+              </div>
+
+              <div className="flex overflow-x-auto gap-gutter pb-4 snap-x snap-mandatory hide-scrollbar">
+                {historyCourses.map((course) => (
+                  <div
+                    key={course._id}
+                    className="min-w-[280px] sm:min-w-[320px] max-w-[320px] bg-surface rounded-2xl overflow-hidden border border-outline-variant/30 hover:shadow-xl transition-all group flex flex-col snap-start shrink-0"
+                  >
+                    <div className="relative aspect-video overflow-hidden">
+                      <img
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        src={course.image_url}
+                        alt={course.course_title}
+                      />
+                      {course.price_promotion != null && (
+                        <div className="absolute top-3 left-3 px-2 py-1 bg-error text-on-error rounded-lg font-label-sm text-[10px] tracking-wider uppercase">
+                          Giảm giá
+                        </div>
+                      )}
+                    </div>
+                    <div className="p-5 flex flex-col flex-1">
+                      <Link
+                        to={`/course/detail/${course._id}`}
+                        className="font-bold text-[16px] mb-2 hover:text-primary transition-colors line-clamp-2"
+                      >
+                        {course.course_title}
+                      </Link>
+                      <p className="text-on-surface-variant font-body-sm mb-1">
+                        {course.provider}
+                      </p>
+                      <p className="text-on-surface-variant/60 font-body-sm mb-4 text-[12px]">
+                        {course.students.toLocaleString()} học viên
+                      </p>
+                      <div className="mt-auto flex items-center justify-between">
+                        <div>
+                          <span className="font-headline-md text-[18px] text-primary">
+                            {course.price_promotion != null
+                              ? formatPrice(course.price_promotion)
+                              : formatPrice(course.price)}
+                          </span>
+                          {course.price_promotion != null && (
+                            <span className="ml-2 text-[12px] text-on-surface-variant line-through">
+                              {formatPrice(course.price)}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* ── Providers / Instructors ── */}
         <section className="py-stack-lg px-margin-mobile md:px-margin-desktop max-w-7xl mx-auto">

@@ -28,6 +28,8 @@ import BoxShowDetailCourses from "./pages/provider/ManagementCoursePage/BoxShowD
 import MyCoursePage from "./pages/mycourse/MyCoursePage";
 import OrdersPage from "./pages/customer/OrdersPage";
 import WishlistPage from "./pages/customer/WishlistPage";
+import AboutPage from "./pages/about/AboutPage";
+import ProviderListPage from "./pages/provider/ProviderListPage";
 import { CartProvider } from "./contexts/CartContext";
 import { WishlistProvider } from "./contexts/WishlistContext";
 import CourseLearningPage from "./pages/learningPage/CourseLearningPage";
@@ -56,6 +58,8 @@ function App() {
                   />
                   <Route path="course/detail/:id" element={<DetailPage />} />
                   <Route path="all-courses" element={<CourseSearchPage />} />
+                  <Route path="about" element={<AboutPage />} />
+                  <Route path="providers" element={<ProviderListPage />} />
                   <Route
                     path="development"
                     element={<Navigate to="courses/search" replace />}

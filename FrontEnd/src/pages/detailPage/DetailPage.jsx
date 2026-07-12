@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getCourseDetail } from "../../services/courseService";
+import { recordView } from "../../services/viewHistoryService";
 import BoxModalVideo from "./BoxModalShowVideo/BoxModalVideo";
 import { useWishlist } from "../../contexts/WishlistContext";
 import { useAuth } from "../../contexts/AuthContext";
@@ -87,6 +88,11 @@ const CourseDetailPage = () => {
       try {
         const res = await getCourseDetail(id);
         setCourse(res.data);
+        try {
+          await recordView(id);
+        } catch (err) {
+          console.error("Lỗi khi lưu lịch sử xem:", err);
+        }
       } catch (error) {
         console.error(error);
       }
