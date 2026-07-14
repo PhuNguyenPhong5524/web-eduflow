@@ -74,7 +74,7 @@ export default function CheckoutPage() {
   };
 
   return (
-    <main className="max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop mt-[60px] py-stack-lg min-h-screen">
+    <main className="max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop mt-15 py-stack-lg min-h-screen">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         <section className="lg:col-span-7 space-y-8">
           <div className="space-y-6">

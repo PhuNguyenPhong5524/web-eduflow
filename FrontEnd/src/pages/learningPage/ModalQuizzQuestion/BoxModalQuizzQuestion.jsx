@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Button,
   Card,
@@ -9,22 +9,17 @@ import {
   Typography,
   notification,
 } from "antd";
-import {
-  CheckCircleFilled,
-  CloseCircleFilled,
-} from "@ant-design/icons";
+import { CheckCircleFilled, CloseCircleFilled } from "@ant-design/icons";
 
 import useGetQuizForStudent from "../../../hooks/useCourse/quizz/useGetQuizForStudent";
 import useSubmitQuiz from "../../../hooks/useCourse/quizz/useSubmitQuiz";
 
-
 const { Title, Text } = Typography;
 
-const BoxModalQuizzQuestion = ({ quiz , refetch }) => {
+const BoxModalQuizzQuestion = ({ quiz, refetch }) => {
   const [open, setOpen] = useState(false);
 
-  const { data: quizDetail, isLoading } =
-    useGetQuizForStudent(quiz._id, open);
+  const { data: quizDetail, isLoading } = useGetQuizForStudent(quiz._id, open);
 
   const { mutate: submitQuiz, isPending } = useSubmitQuiz();
 
@@ -55,8 +50,7 @@ const BoxModalQuizzQuestion = ({ quiz , refetch }) => {
     if (answeredCount < quizDetail?.total_questions) {
       return notification.warning({
         title: "Chưa hoàn thành",
-        description:
-          "Vui lòng trả lời tất cả câu hỏi trước khi nộp bài.",
+        description: "Vui lòng trả lời tất cả câu hỏi trước khi nộp bài.",
       });
     }
 
@@ -83,11 +77,10 @@ const BoxModalQuizzQuestion = ({ quiz , refetch }) => {
         onError: (error) => {
           notification.error({
             title: "Nộp bài thất bại",
-            description:
-              error?.response?.data?.message || "Đã xảy ra lỗi.",
+            description: error?.response?.data?.message || "Đã xảy ra lỗi.",
           });
         },
-      }
+      },
     );
   };
 
@@ -108,13 +101,10 @@ const BoxModalQuizzQuestion = ({ quiz , refetch }) => {
         onCancel={() => setOpen(false)}
         title={
           <div className="text-center">
-            <Title level={4}>
-              Ôn tập Quiz - {quiz.title}
-            </Title>
+            <Title level={4}>Ôn tập Quiz - {quiz.title}</Title>
 
             <Text type="secondary">
-              Đã trả lời {answeredCount}/
-              {quizDetail?.total_questions} câu
+              Đã trả lời {answeredCount}/{quizDetail?.total_questions} câu
             </Text>
           </div>
         }
@@ -150,17 +140,12 @@ const BoxModalQuizzQuestion = ({ quiz , refetch }) => {
             </Title>
 
             <Text>
-              Đúng {result.correctCount}/
-              {result.totalQuestions} câu
+              Đúng {result.correctCount}/{result.totalQuestions} câu
             </Text>
           </Card>
         )}
 
-        <Space
-          orientation="vertical"
-          size={20}
-          className="w-full"
-        >
+        <Space orientation="vertical" size={20} className="w-full">
           {quizDetail?.questions?.map((question) => (
             <Card
               key={question._id}
@@ -178,27 +163,18 @@ const BoxModalQuizzQuestion = ({ quiz , refetch }) => {
                 disabled={!!result}
                 value={answers[question._id]}
                 onChange={(e) =>
-                  handleChooseAnswer(
-                    question._id,
-                    e.target.value
-                  )
+                  handleChooseAnswer(question._id, e.target.value)
                 }
               >
-                <Space
-                  orientation="vertical"
-                  className="w-full"
-                >
+                <Space orientation="vertical" className="w-full">
                   {question.answers.map((answer) => {
-                    const questionResult =
-                      result?.answers?.[question._id];
+                    const questionResult = result?.answers?.[question._id];
 
                     const isCorrect =
-                      questionResult?.correctAnswerId ===
-                      answer._id;
+                      questionResult?.correctAnswerId === answer._id;
 
                     const isWrong =
-                      questionResult?.userAnswerId ===
-                        answer._id &&
+                      questionResult?.userAnswerId === answer._id &&
                       !questionResult?.isCorrect;
 
                     return (
@@ -209,13 +185,12 @@ const BoxModalQuizzQuestion = ({ quiz , refetch }) => {
                             isCorrect
                               ? "bg-green-50 border-green-500"
                               : isWrong
-                              ? "bg-red-50 border-red-500"
-                              : "border-gray-200"
+                                ? "bg-red-50 border-red-500"
+                                : "border-gray-200"
                           }`}
                       >
                         <Radio value={answer._id}>
-                          <b>{answer.answer_label}.</b>{" "}
-                          {answer.answer_text}
+                          <b>{answer.answer_label}.</b> {answer.answer_text}
                         </Radio>
 
                         {isCorrect && (

@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+
 import {
   getDashboardStats,
   getRevenueChart,
@@ -27,7 +27,10 @@ const formatNumber = (value) => {
 };
 
 function StatCard({ title, value, icon, format = "number" }) {
-  const displayValue = format === "currency" ? formatCurrency(value || 0) : formatNumber(value || 0);
+  const displayValue =
+    format === "currency"
+      ? formatCurrency(value || 0)
+      : formatNumber(value || 0);
   return (
     <div className="glass-card flex flex-col justify-between rounded-xl p-5 transition-shadow hover:shadow-md">
       <div className="mb-4 flex items-center justify-between">
@@ -48,41 +51,43 @@ function StatCard({ title, value, icon, format = "number" }) {
 }
 
 export default function AdminDashboardPage() {
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  
-  const [stats, setStats] = useState(null);
-  const [chartData, setChartData] = useState([]);
-  const [tablesData, setTablesData] = useState({
-    topCourses: [],
-    topProviders: [],
-    pendingProviders: [],
-  });
-
-  const fetchData = async () => {
-    setLoading(true);
-    setError("");
-    try {
+  const {
+    data,
+    isLoading,
+    isFetching,
+    error: queryError,
+    refetch,
+  } = useQuery({
+    queryKey: ["admin-dashboard-overview"],
+    queryFn: async () => {
       const [statsRes, chartRes, tablesRes] = await Promise.all([
         getDashboardStats(),
         getRevenueChart(),
         getDashboardTables(),
       ]);
 
-      setStats(statsRes.data || {});
-      setChartData(chartRes.data || []);
-      setTablesData(tablesRes.data || { topCourses: [], topProviders: [], pendingProviders: [] });
-    } catch (err) {
-      console.error(err);
-      setError(err.response?.data?.message || "Failed to load dashboard data. Please try again later.");
-    } finally {
-      setLoading(false);
-    }
-  };
+      return {
+        stats: statsRes.data || {},
+        chartData: chartRes.data || [],
+        tablesData: tablesRes.data || {
+          topCourses: [],
+          topProviders: [],
+          pendingProviders: [],
+        },
+      };
+    },
+  });
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+  const stats = data?.stats || {};
+  const chartData = data?.chartData || [];
+  const tablesData = data?.tablesData || {
+    topCourses: [],
+    topProviders: [],
+    pendingProviders: [],
+  };
+  const loading = isLoading || isFetching;
+  const error =
+    queryError?.response?.data?.message || queryError?.message || "";
 
   return (
     <div className="space-y-[24px]">
@@ -110,7 +115,7 @@ export default function AdminDashboardPage() {
             type="button"
             className="inline-flex items-center justify-center gap-2 rounded-lg border border-outline-variant px-4 py-2.5 font-label-md text-label-md text-on-surface-variant transition-colors hover:bg-surface-container disabled:cursor-not-allowed disabled:opacity-60"
             disabled={loading}
-            onClick={fetchData}
+            onClick={() => refetch()}
           >
             <span
               className={`material-symbols-outlined text-[20px] ${loading ? "animate-spin" : ""}`}
@@ -134,20 +139,57 @@ export default function AdminDashboardPage() {
       {loading && !stats ? (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="glass-card h-[132px] animate-pulse rounded-xl bg-surface-container/50"></div>
+            <div
+              key={i}
+              className="glass-card h-33 animate-pulse rounded-xl bg-surface-container/50"
+            ></div>
           ))}
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <StatCard title="Tổng Doanh Thu" value={stats?.totalRevenue} icon="payments" format="currency" />
-          <StatCard title="Doanh Thu Tháng Này" value={stats?.currentMonthRevenue} icon="account_balance_wallet" format="currency" />
-          <StatCard title="Đơn Hàng Đã Thanh Toán" value={stats?.paidOrders} icon="shopping_cart_checkout" />
-          <StatCard title="Tổng Học Viên" value={stats?.totalStudents} icon="school" />
-          
-          <StatCard title="Khóa Học (Active)" value={stats?.activeCourses} icon="menu_book" />
-          <StatCard title="Giảng Viên (Approved)" value={stats?.approvedProviders} icon="co_present" />
-          <StatCard title="Khách Hàng (Users)" value={stats?.totalCustomers} icon="group" />
-          <StatCard title="Tổng Danh Mục" value={stats?.totalCategories} icon="category" />
+          <StatCard
+            title="Tổng Doanh Thu"
+            value={stats?.totalRevenue}
+            icon="payments"
+            format="currency"
+          />
+          <StatCard
+            title="Doanh Thu Tháng Này"
+            value={stats?.currentMonthRevenue}
+            icon="account_balance_wallet"
+            format="currency"
+          />
+          <StatCard
+            title="Đơn Hàng Đã Thanh Toán"
+            value={stats?.paidOrders}
+            icon="shopping_cart_checkout"
+          />
+          <StatCard
+            title="Tổng Học Viên"
+            value={stats?.totalStudents}
+            icon="school"
+          />
+
+          <StatCard
+            title="Khóa Học (Active)"
+            value={stats?.activeCourses}
+            icon="menu_book"
+          />
+          <StatCard
+            title="Giảng Viên (Approved)"
+            value={stats?.approvedProviders}
+            icon="co_present"
+          />
+          <StatCard
+            title="Khách Hàng (Users)"
+            value={stats?.totalCustomers}
+            icon="group"
+          />
+          <StatCard
+            title="Tổng Danh Mục"
+            value={stats?.totalCategories}
+            icon="category"
+          />
         </div>
       )}
 
@@ -161,53 +203,74 @@ export default function AdminDashboardPage() {
             Biểu đồ doanh thu từ các đơn hàng đã thanh toán thành công
           </p>
         </div>
-        <div className="h-[350px] w-full p-6 pt-8">
+        <div className="h-87.5 w-full p-6 pt-8">
           {loading && chartData.length === 0 ? (
             <div className="flex h-full w-full items-center justify-center animate-pulse bg-surface-container/20 rounded-xl">
-              <span className="material-symbols-outlined text-outline-variant text-4xl">show_chart</span>
+              <span className="material-symbols-outlined text-outline-variant text-4xl">
+                show_chart
+              </span>
             </div>
           ) : chartData.length === 0 ? (
             <div className="flex h-full w-full flex-col items-center justify-center text-on-surface-variant">
-              <span className="material-symbols-outlined mb-2 text-4xl opacity-50">analytics</span>
+              <span className="material-symbols-outlined mb-2 text-4xl opacity-50">
+                analytics
+              </span>
               <p>Chưa có dữ liệu doanh thu.</p>
             </div>
           ) : (
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={chartData} margin={{ top: 10, right: 30, left: 20, bottom: 0 }}>
+              <AreaChart
+                data={chartData}
+                margin={{ top: 10, right: 30, left: 20, bottom: 0 }}
+              >
                 <defs>
                   <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.3} />
                     <stop offset="95%" stopColor="#4f46e5" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#c7c4d8" opacity={0.5} />
-                <XAxis 
-                  dataKey="label" 
-                  axisLine={false} 
-                  tickLine={false} 
-                  tick={{ fill: '#777587', fontSize: 12 }} 
-                  dy={10} 
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  vertical={false}
+                  stroke="#c7c4d8"
+                  opacity={0.5}
                 />
-                <YAxis 
-                  axisLine={false} 
-                  tickLine={false} 
-                  tick={{ fill: '#777587', fontSize: 12 }}
+                <XAxis
+                  dataKey="label"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: "#777587", fontSize: 12 }}
+                  dy={10}
+                />
+                <YAxis
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: "#777587", fontSize: 12 }}
                   tickFormatter={(value) => `${(value / 1000000).toFixed(0)}M`}
                   dx={-10}
                 />
                 <Tooltip
-                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}
+                  contentStyle={{
+                    borderRadius: "12px",
+                    border: "none",
+                    boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
+                  }}
                   formatter={(value) => [formatCurrency(value), "Doanh thu"]}
-                  labelStyle={{ fontWeight: 'bold', color: '#0b1c30' }}
+                  labelStyle={{ fontWeight: "bold", color: "#0b1c30" }}
                 />
-                <Area 
-                  type="monotone" 
-                  dataKey="revenue" 
-                  stroke="#4f46e5" 
+                <Area
+                  type="monotone"
+                  dataKey="revenue"
+                  stroke="#4f46e5"
                   strokeWidth={3}
-                  fillOpacity={1} 
-                  fill="url(#colorRevenue)" 
-                  activeDot={{ r: 6, fill: '#4f46e5', stroke: '#fff', strokeWidth: 2 }}
+                  fillOpacity={1}
+                  fill="url(#colorRevenue)"
+                  activeDot={{
+                    r: 6,
+                    fill: "#4f46e5",
+                    stroke: "#fff",
+                    strokeWidth: 2,
+                  }}
                 />
               </AreaChart>
             </ResponsiveContainer>
@@ -228,35 +291,61 @@ export default function AdminDashboardPage() {
             <table className="w-full text-left">
               <thead>
                 <tr className="bg-surface-container-low text-on-surface-variant">
-                  <th className="px-6 py-3 font-label-sm text-label-sm uppercase tracking-wider">Khóa học</th>
-                  <th className="px-6 py-3 font-label-sm text-label-sm uppercase tracking-wider">Học viên</th>
-                  <th className="px-6 py-3 font-label-sm text-label-sm uppercase tracking-wider">Giá</th>
+                  <th className="px-6 py-3 font-label-sm text-label-sm uppercase tracking-wider">
+                    Khóa học
+                  </th>
+                  <th className="px-6 py-3 font-label-sm text-label-sm uppercase tracking-wider">
+                    Học viên
+                  </th>
+                  <th className="px-6 py-3 font-label-sm text-label-sm uppercase tracking-wider">
+                    Giá
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-outline-variant/20">
                 {loading && tablesData.topCourses.length === 0 ? (
                   Array.from({ length: 5 }).map((_, i) => (
                     <tr key={i} className="animate-pulse">
-                      <td className="px-6 py-4"><div className="h-4 w-48 rounded bg-surface-container"></div></td>
-                      <td className="px-6 py-4"><div className="h-4 w-12 rounded bg-surface-container"></div></td>
-                      <td className="px-6 py-4"><div className="h-4 w-20 rounded bg-surface-container"></div></td>
+                      <td className="px-6 py-4">
+                        <div className="h-4 w-48 rounded bg-surface-container"></div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="h-4 w-12 rounded bg-surface-container"></div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="h-4 w-20 rounded bg-surface-container"></div>
+                      </td>
                     </tr>
                   ))
                 ) : tablesData.topCourses.length === 0 ? (
                   <tr>
-                    <td colSpan="3" className="px-6 py-8 text-center text-body-sm text-on-surface-variant">
+                    <td
+                      colSpan="3"
+                      className="px-6 py-8 text-center text-body-sm text-on-surface-variant"
+                    >
                       Chưa có dữ liệu.
                     </td>
                   </tr>
                 ) : (
                   tablesData.topCourses.map((course) => (
-                    <tr key={course._id} className="transition-colors hover:bg-primary-container/5">
+                    <tr
+                      key={course._id}
+                      className="transition-colors hover:bg-primary-container/5"
+                    >
                       <td className="px-6 py-4">
-                        <p className="font-label-md text-label-md font-semibold text-on-surface line-clamp-1">{course.course_title}</p>
-                        <p className="text-xs text-on-surface-variant line-clamp-1">{course.provider_name}</p>
+                        <p className="font-label-md text-label-md font-semibold text-on-surface line-clamp-1">
+                          {course.course_title}
+                        </p>
+                        <p className="text-xs text-on-surface-variant line-clamp-1">
+                          {course.provider_name}
+                        </p>
                       </td>
-                      <td className="px-6 py-4 font-body-sm font-semibold text-primary">{formatNumber(course.students)}</td>
-                      <td className="px-6 py-4 font-body-sm text-on-surface-variant">{formatCurrency(course.price)}</td>
+                      <td className="px-6 py-4 font-body-sm font-semibold text-primary">
+                        {formatNumber(course.students)}
+                      </td>
+                      <td className="px-6 py-4 font-body-sm text-on-surface-variant">
+                        {formatCurrency(course.price)}
+                      </td>
                     </tr>
                   ))
                 )}
@@ -278,34 +367,56 @@ export default function AdminDashboardPage() {
               <table className="w-full text-left">
                 <thead>
                   <tr className="bg-surface-container-low text-on-surface-variant">
-                    <th className="px-6 py-3 font-label-sm text-label-sm uppercase tracking-wider">Giảng viên</th>
-                    <th className="px-6 py-3 font-label-sm text-label-sm uppercase tracking-wider">Khóa học</th>
-                    <th className="px-6 py-3 font-label-sm text-label-sm uppercase tracking-wider">Học viên</th>
+                    <th className="px-6 py-3 font-label-sm text-label-sm uppercase tracking-wider">
+                      Giảng viên
+                    </th>
+                    <th className="px-6 py-3 font-label-sm text-label-sm uppercase tracking-wider">
+                      Khóa học
+                    </th>
+                    <th className="px-6 py-3 font-label-sm text-label-sm uppercase tracking-wider">
+                      Học viên
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-outline-variant/20">
                   {loading && tablesData.topProviders.length === 0 ? (
                     Array.from({ length: 3 }).map((_, i) => (
                       <tr key={i} className="animate-pulse">
-                        <td className="px-6 py-4"><div className="h-4 w-32 rounded bg-surface-container"></div></td>
-                        <td className="px-6 py-4"><div className="h-4 w-10 rounded bg-surface-container"></div></td>
-                        <td className="px-6 py-4"><div className="h-4 w-12 rounded bg-surface-container"></div></td>
+                        <td className="px-6 py-4">
+                          <div className="h-4 w-32 rounded bg-surface-container"></div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="h-4 w-10 rounded bg-surface-container"></div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="h-4 w-12 rounded bg-surface-container"></div>
+                        </td>
                       </tr>
                     ))
                   ) : tablesData.topProviders.length === 0 ? (
                     <tr>
-                      <td colSpan="3" className="px-6 py-8 text-center text-body-sm text-on-surface-variant">
+                      <td
+                        colSpan="3"
+                        className="px-6 py-8 text-center text-body-sm text-on-surface-variant"
+                      >
                         Chưa có dữ liệu.
                       </td>
                     </tr>
                   ) : (
                     tablesData.topProviders.map((provider) => (
-                      <tr key={provider._id} className="transition-colors hover:bg-primary-container/5">
+                      <tr
+                        key={provider._id}
+                        className="transition-colors hover:bg-primary-container/5"
+                      >
                         <td className="px-6 py-4 font-label-md text-label-md font-semibold text-on-surface">
                           {provider.provider_name}
                         </td>
-                        <td className="px-6 py-4 font-body-sm text-on-surface-variant">{formatNumber(provider.totalCourses)}</td>
-                        <td className="px-6 py-4 font-body-sm font-semibold text-secondary-fixed">{formatNumber(provider.totalStudents)}</td>
+                        <td className="px-6 py-4 font-body-sm text-on-surface-variant">
+                          {formatNumber(provider.totalCourses)}
+                        </td>
+                        <td className="px-6 py-4 font-body-sm font-semibold text-secondary-fixed">
+                          {formatNumber(provider.totalStudents)}
+                        </td>
                       </tr>
                     ))
                   )}
@@ -330,32 +441,53 @@ export default function AdminDashboardPage() {
               <table className="w-full text-left">
                 <thead>
                   <tr className="bg-surface-container-low text-on-surface-variant">
-                    <th className="px-6 py-3 font-label-sm text-label-sm uppercase tracking-wider">Họ tên / Email</th>
-                    <th className="px-6 py-3 font-label-sm text-label-sm uppercase tracking-wider">Nghề nghiệp</th>
+                    <th className="px-6 py-3 font-label-sm text-label-sm uppercase tracking-wider">
+                      Họ tên / Email
+                    </th>
+                    <th className="px-6 py-3 font-label-sm text-label-sm uppercase tracking-wider">
+                      Nghề nghiệp
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-outline-variant/20">
                   {loading && tablesData.pendingProviders.length === 0 ? (
                     Array.from({ length: 3 }).map((_, i) => (
                       <tr key={i} className="animate-pulse">
-                        <td className="px-6 py-4"><div className="h-4 w-32 rounded bg-surface-container mb-2"></div><div className="h-3 w-40 rounded bg-surface-container"></div></td>
-                        <td className="px-6 py-4"><div className="h-4 w-24 rounded bg-surface-container"></div></td>
+                        <td className="px-6 py-4">
+                          <div className="h-4 w-32 rounded bg-surface-container mb-2"></div>
+                          <div className="h-3 w-40 rounded bg-surface-container"></div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="h-4 w-24 rounded bg-surface-container"></div>
+                        </td>
                       </tr>
                     ))
                   ) : tablesData.pendingProviders.length === 0 ? (
                     <tr>
-                      <td colSpan="2" className="px-6 py-8 text-center text-body-sm text-on-surface-variant">
+                      <td
+                        colSpan="2"
+                        className="px-6 py-8 text-center text-body-sm text-on-surface-variant"
+                      >
                         Không có yêu cầu nào đang chờ.
                       </td>
                     </tr>
                   ) : (
                     tablesData.pendingProviders.map((provider) => (
-                      <tr key={provider._id} className="transition-colors hover:bg-primary-container/5">
+                      <tr
+                        key={provider._id}
+                        className="transition-colors hover:bg-primary-container/5"
+                      >
                         <td className="px-6 py-4">
-                          <p className="font-label-md text-label-md font-semibold text-on-surface">{provider.provider_name}</p>
-                          <p className="text-xs text-on-surface-variant">{provider.email}</p>
+                          <p className="font-label-md text-label-md font-semibold text-on-surface">
+                            {provider.provider_name}
+                          </p>
+                          <p className="text-xs text-on-surface-variant">
+                            {provider.email}
+                          </p>
                         </td>
-                        <td className="px-6 py-4 font-body-sm text-on-surface-variant">{provider.career || "N/A"}</td>
+                        <td className="px-6 py-4 font-body-sm text-on-surface-variant">
+                          {provider.career || "N/A"}
+                        </td>
                       </tr>
                     ))
                   )}

@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import {
   getAdminCategories,
   createCategory,
@@ -65,19 +66,11 @@ function ToggleSwitch({ checked, disabled, onChange }) {
 }
 
 export default function AdminCategoriesPage() {
-  const [categories, setCategories] = useState([]);
-  const [pagination, setPagination] = useState({
-    page: 1,
-    limit: 10,
-    total: 0,
-    totalPages: 1,
-  });
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [status, setStatus] = useState("all");
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
 
@@ -97,28 +90,28 @@ export default function AdminCategoriesPage() {
     return params;
   }, [debouncedSearch, limit, page, status]);
 
-  // ── Fetch categories ────────────────────────────────────
-  const fetchCategories = useCallback(async () => {
-    setLoading(true);
-    setError("");
-    try {
-      const response = await getAdminCategories(queryParams);
-      setCategories(response.data || []);
-      setPagination(
-        response.pagination || {
-          page,
-          limit,
-          total: 0,
-          totalPages: 1,
-        },
-      );
-    } catch (err) {
-      setError(err.response?.data?.message || "Không thể tải danh mục.");
-      setCategories([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [limit, page, queryParams]);
+  const {
+    data,
+    isLoading,
+    isFetching,
+    error: queryError,
+    refetch,
+  } = useQuery({
+    queryKey: ["admin-categories", queryParams],
+    queryFn: async () => getAdminCategories(queryParams),
+    placeholderData: (previousData) => previousData,
+  });
+
+  const categories = data?.data || [];
+  const pagination = data?.pagination || {
+    page,
+    limit,
+    total: 0,
+    totalPages: 1,
+  };
+  const loading = isLoading || isFetching;
+  const displayError =
+    error || queryError?.response?.data?.message || queryError?.message || "";
 
   // ── Debounce search ──────────────────────────────────────
   useEffect(() => {
@@ -128,10 +121,6 @@ export default function AdminCategoriesPage() {
     }, 400);
     return () => clearTimeout(timer);
   }, [search]);
-
-  useEffect(() => {
-    fetchCategories();
-  }, [fetchCategories]);
 
   // Auto-clear success message
   useEffect(() => {
@@ -178,7 +167,7 @@ export default function AdminCategoriesPage() {
         setSuccessMsg("Tạo danh mục mới thành công!");
       }
       handleCloseModal();
-      fetchCategories();
+      refetch();
     } catch (err) {
       setError(
         err.response?.data?.message ||
@@ -199,7 +188,7 @@ export default function AdminCategoriesPage() {
     try {
       await deleteCategory(cat._id);
       setSuccessMsg("Xóa danh mục thành công!");
-      fetchCategories();
+      refetch();
     } catch (err) {
       setError(err.response?.data?.message || "Không thể xóa danh mục.");
     }
@@ -211,15 +200,9 @@ export default function AdminCategoriesPage() {
     setError("");
     try {
       await updateCategoryStatus(cat._id, nextStatus);
-      setCategories((prev) =>
-        prev.map((item) =>
-          item._id === cat._id ? { ...item, isActive: nextStatus } : item,
-        ),
-      );
+      refetch();
     } catch (err) {
-      setError(
-        err.response?.data?.message || "Không thể cập nhật trạng thái.",
-      );
+      setError(err.response?.data?.message || "Không thể cập nhật trạng thái.");
     } finally {
       setToggleLoading("");
     }
@@ -253,7 +236,7 @@ export default function AdminCategoriesPage() {
             type="button"
             className="inline-flex items-center justify-center gap-2 rounded-lg border border-outline-variant px-4 py-2.5 font-label-md text-label-md text-on-surface-variant transition-colors hover:bg-surface-container disabled:cursor-not-allowed disabled:opacity-60"
             disabled={loading}
-            onClick={fetchCategories}
+            onClick={() => refetch()}
           >
             <span
               className={`material-symbols-outlined text-[20px] ${loading ? "animate-spin" : ""}`}
@@ -324,16 +307,16 @@ export default function AdminCategoriesPage() {
         </div>
 
         {/* Error */}
-        {error && (
+        {displayError && (
           <div className="m-5 flex items-start gap-3 rounded-lg border border-error-container bg-error-container/40 p-4 text-on-error-container">
             <span className="material-symbols-outlined">error</span>
-            <p className="text-body-sm">{error}</p>
+            <p className="text-body-sm">{displayError}</p>
           </div>
         )}
 
         {/* Table */}
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[700px] border-collapse text-left">
+          <table className="w-full min-w-175 border-collapse text-left">
             <thead>
               <tr className="bg-surface-container-low text-on-surface-variant">
                 {[
@@ -355,133 +338,133 @@ export default function AdminCategoriesPage() {
             </thead>
 
             <tbody className="divide-y divide-outline-variant/20">
-              {loading
-                ? Array.from({ length: limit }).map((_, index) => (
-                    <tr key={index} className="animate-pulse">
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          <div className="h-10 w-10 rounded-xl bg-surface-container" />
-                          <div className="h-4 w-28 rounded bg-surface-container" />
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="h-4 w-16 rounded bg-surface-container" />
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="h-4 w-10 rounded bg-surface-container" />
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="h-7 w-12 rounded-full bg-surface-container" />
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="h-4 w-24 rounded bg-surface-container" />
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="h-9 w-24 rounded bg-surface-container" />
-                      </td>
-                    </tr>
-                  ))
-                : categories.length === 0
-                  ? (
-                    <tr>
-                      <td colSpan="6" className="px-6 py-16 text-center">
-                        <div className="mx-auto flex max-w-sm flex-col items-center gap-3">
-                          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-container/15 text-primary">
-                            <span className="material-symbols-outlined text-[32px]">
-                              category
-                            </span>
-                          </div>
-                          <div>
-                            <h3 className="font-headline-md text-headline-md text-on-surface">
-                              Không tìm thấy danh mục
-                            </h3>
-                            <p className="mt-1 text-body-sm text-on-surface-variant">
-                              Thử thay đổi từ khóa tìm kiếm hoặc bộ lọc.
-                            </p>
-                          </div>
-                        </div>
-                      </td>
-                    </tr>
-                  )
-                  : categories.map((cat) => (
-                    <tr
-                      key={cat._id}
-                      className="transition-colors hover:bg-primary-container/5"
-                    >
-                      {/* Category name + icon */}
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary-container/15 text-primary">
-                            <span className="material-symbols-outlined">
-                              {ICON_MAP[cat.icon_key] || "category"}
-                            </span>
-                          </div>
-                          <span className="text-body-sm font-semibold text-on-surface">
-                            {cat.cate_name}
-                          </span>
-                        </div>
-                      </td>
-
-                      {/* Icon Key */}
-                      <td className="px-6 py-4">
-                        <span className="inline-flex items-center rounded-full bg-surface-container-high px-2.5 py-1 text-[12px] font-bold text-on-surface-variant">
-                          {cat.icon_key}
+              {loading ? (
+                Array.from({ length: limit }).map((_, index) => (
+                  <tr key={index} className="animate-pulse">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 rounded-xl bg-surface-container" />
+                        <div className="h-4 w-28 rounded bg-surface-container" />
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="h-4 w-16 rounded bg-surface-container" />
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="h-4 w-10 rounded bg-surface-container" />
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="h-7 w-12 rounded-full bg-surface-container" />
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="h-4 w-24 rounded bg-surface-container" />
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="h-9 w-24 rounded bg-surface-container" />
+                    </td>
+                  </tr>
+                ))
+              ) : categories.length === 0 ? (
+                <tr>
+                  <td colSpan="6" className="px-6 py-16 text-center">
+                    <div className="mx-auto flex max-w-sm flex-col items-center gap-3">
+                      <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-container/15 text-primary">
+                        <span className="material-symbols-outlined text-[32px]">
+                          category
                         </span>
-                      </td>
-
-                      {/* Quantity */}
-                      <td className="px-6 py-4 text-body-sm text-on-surface-variant">
-                        {cat.quantity || 0}
-                      </td>
-
-                      {/* Status Toggle */}
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
-                          <ToggleSwitch
-                            checked={cat.isActive !== false}
-                            disabled={toggleLoading === cat._id}
-                            onChange={() => handleToggleStatus(cat)}
-                          />
-                          <span
-                            className={`text-[12px] font-bold ${cat.isActive !== false ? "text-green-600" : "text-on-surface-variant"}`}
-                          >
-                            {cat.isActive !== false ? "Active" : "Inactive"}
+                      </div>
+                      <div>
+                        <h3 className="font-headline-md text-headline-md text-on-surface">
+                          Không tìm thấy danh mục
+                        </h3>
+                        <p className="mt-1 text-body-sm text-on-surface-variant">
+                          Thử thay đổi từ khóa tìm kiếm hoặc bộ lọc.
+                        </p>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                categories.map((cat) => (
+                  <tr
+                    key={cat._id}
+                    className="transition-colors hover:bg-primary-container/5"
+                  >
+                    {/* Category name + icon */}
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary-container/15 text-primary">
+                          <span className="material-symbols-outlined">
+                            {ICON_MAP[cat.icon_key] || "category"}
                           </span>
                         </div>
-                      </td>
+                        <span className="text-body-sm font-semibold text-on-surface">
+                          {cat.cate_name}
+                        </span>
+                      </div>
+                    </td>
 
-                      {/* Created At */}
-                      <td className="px-6 py-4 text-body-sm text-on-surface-variant">
-                        {formatDate(cat.createdAt)}
-                      </td>
+                    {/* Icon Key */}
+                    <td className="px-6 py-4">
+                      <span className="inline-flex items-center rounded-full bg-surface-container-high px-2.5 py-1 text-[12px] font-bold text-on-surface-variant">
+                        {cat.icon_key}
+                      </span>
+                    </td>
 
-                      {/* Actions */}
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
-                          <button
-                            type="button"
-                            onClick={() => handleOpenEdit(cat)}
-                            className="inline-flex items-center gap-1 rounded-lg border border-outline-variant px-3 py-2 text-label-md font-label-md text-on-surface-variant transition-colors hover:bg-surface-container hover:text-primary"
-                          >
-                            <span className="material-symbols-outlined text-[18px]">
-                              edit
-                            </span>
-                            Sửa
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleDelete(cat)}
-                            className="inline-flex items-center gap-1 rounded-lg bg-error px-3 py-2 text-label-md font-label-md text-white transition-opacity hover:opacity-90"
-                          >
-                            <span className="material-symbols-outlined text-[18px]">
-                              delete
-                            </span>
-                            Xóa
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
+                    {/* Quantity */}
+                    <td className="px-6 py-4 text-body-sm text-on-surface-variant">
+                      {cat.quantity || 0}
+                    </td>
+
+                    {/* Status Toggle */}
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-2">
+                        <ToggleSwitch
+                          checked={cat.isActive !== false}
+                          disabled={toggleLoading === cat._id}
+                          onChange={() => handleToggleStatus(cat)}
+                        />
+                        <span
+                          className={`text-[12px] font-bold ${cat.isActive !== false ? "text-green-600" : "text-on-surface-variant"}`}
+                        >
+                          {cat.isActive !== false ? "Active" : "Inactive"}
+                        </span>
+                      </div>
+                    </td>
+
+                    {/* Created At */}
+                    <td className="px-6 py-4 text-body-sm text-on-surface-variant">
+                      {formatDate(cat.createdAt)}
+                    </td>
+
+                    {/* Actions */}
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => handleOpenEdit(cat)}
+                          className="inline-flex items-center gap-1 rounded-lg border border-outline-variant px-3 py-2 text-label-md font-label-md text-on-surface-variant transition-colors hover:bg-surface-container hover:text-primary"
+                        >
+                          <span className="material-symbols-outlined text-[18px]">
+                            edit
+                          </span>
+                          Sửa
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(cat)}
+                          className="inline-flex items-center gap-1 rounded-lg bg-error px-3 py-2 text-label-md font-label-md text-white transition-opacity hover:opacity-90"
+                        >
+                          <span className="material-symbols-outlined text-[18px]">
+                            delete
+                          </span>
+                          Xóa
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

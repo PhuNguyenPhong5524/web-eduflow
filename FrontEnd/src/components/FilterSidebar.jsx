@@ -10,18 +10,17 @@ const PRICE_DEBOUNCE_MS = 600;
 /**
  * PriceRangeSection — Min/Max price inputs with debounce and validation.
  */
-function PriceRangeSection({ minPrice, maxPrice, onFilterChange, isOpen, onToggle }) {
+function PriceRangeSection({
+  minPrice,
+  maxPrice,
+  onFilterChange,
+  isOpen,
+  onToggle,
+}) {
   const [localMin, setLocalMin] = useState(minPrice || "");
   const [localMax, setLocalMax] = useState(maxPrice || "");
   const debounceMinRef = useRef(null);
   const debounceMaxRef = useRef(null);
-  // Sync local state when URL params change externally (back/forward)
-  useEffect(() => {
-    setLocalMin(minPrice || "");
-  }, [minPrice]);
-  useEffect(() => {
-    setLocalMax(maxPrice || "");
-  }, [maxPrice]);
   // Cleanup timers
   useEffect(() => {
     return () => {
@@ -107,7 +106,9 @@ function PriceRangeSection({ minPrice, maxPrice, onFilterChange, isOpen, onToggl
           </div>
           {hasError && (
             <p className="text-[12px] text-error flex items-center gap-1">
-              <span className="material-symbols-outlined text-[14px]">error</span>
+              <span className="material-symbols-outlined text-[14px]">
+                error
+              </span>
               Min price cannot exceed Max price
             </p>
           )}
@@ -116,7 +117,9 @@ function PriceRangeSection({ minPrice, maxPrice, onFilterChange, isOpen, onToggl
               onClick={handleClear}
               className="text-body-sm text-primary hover:underline transition-colors flex items-center gap-1"
             >
-              <span className="material-symbols-outlined text-[14px]">close</span>
+              <span className="material-symbols-outlined text-[14px]">
+                close
+              </span>
               Clear price range
             </button>
           )}
@@ -210,7 +213,6 @@ export default function FilterSidebar({
                         className={`text-body-sm ${filters.category === cat.cate_name ? "text-on-surface font-medium" : "text-on-surface-variant"}`}
                       >
                         {cat.cate_name}
-                        
                       </span>
                     </label>
                   ))}
@@ -316,8 +318,7 @@ export default function FilterSidebar({
                       type="checkbox"
                       checked={filters.level === option}
                       onChange={() => {
-                        const newVal =
-                          filters.level === option ? null : option;
+                        const newVal = filters.level === option ? null : option;
                         onFilterChange("level", newVal);
                       }}
                     />
@@ -361,8 +362,7 @@ export default function FilterSidebar({
                       checked={filters.price === option}
                       onChange={() => {
                         // Toggle off if clicking the same option
-                        const newVal =
-                          filters.price === option ? null : option;
+                        const newVal = filters.price === option ? null : option;
                         onFilterChange("price", newVal);
                       }}
                     />
@@ -376,6 +376,7 @@ export default function FilterSidebar({
           </div>
           {/* ── Price Range ─────────────────────────────── */}
           <PriceRangeSection
+            key={`${filters.minPrice || ""}-${filters.maxPrice || ""}`}
             minPrice={filters.minPrice}
             maxPrice={filters.maxPrice}
             onFilterChange={onFilterChange}

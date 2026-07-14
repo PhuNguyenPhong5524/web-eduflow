@@ -1,9 +1,12 @@
-
-
-import * as React from "react";
-
 const EditCourseIcon = ({ size, ...props }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" width={size} height={size} {...props}>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    viewBox="0 0 24 24"
+    width={size}
+    height={size}
+    {...props}
+  >
     <path
       id="SVGRepo_iconCarrier"
       fill="currentColor"

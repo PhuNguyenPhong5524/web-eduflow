@@ -18,7 +18,6 @@ const BoxEditInfoCourse = ({ course, refetch }) => {
 
   const navigate = useNavigate();
 
-
   useEffect(() => {
     if (!open || !course || categoryLoading) return;
 
@@ -31,20 +30,19 @@ const BoxEditInfoCourse = ({ course, refetch }) => {
       duration: course?.duration,
       description: course?.description,
     });
-  }, [open, course, categoryLoading]);
+  }, [open, course, categoryLoading, form]);
 
   const handleSubmit = (values) => {
-    
     const payload = {
-        category_id: values.category_id, 
-        course_title: values.courseName,
-        price: Number(values.price),
-        image_url: values.image_url,
-        video_url: values.video_url?.trim() || "",
-        description: values.description,
-        duration: values.duration,
-        feature: course?.feature ?? false,
-      };
+      category_id: values.category_id,
+      course_title: values.courseName,
+      price: Number(values.price),
+      image_url: values.image_url,
+      video_url: values.video_url?.trim() || "",
+      description: values.description,
+      duration: values.duration,
+      feature: course?.feature ?? false,
+    };
 
     updateCourse(
       { id: course?._id, payload },
@@ -75,11 +73,12 @@ const BoxEditInfoCourse = ({ course, refetch }) => {
           } else {
             notification.error({
               title: "Thất bại",
-              description: error?.response?.data?.message || "Cập nhật khóa học thất bại",
+              description:
+                error?.response?.data?.message || "Cập nhật khóa học thất bại",
             });
           }
         },
-      }
+      },
     );
   };
 
@@ -101,9 +100,7 @@ const BoxEditInfoCourse = ({ course, refetch }) => {
         footer={null}
         destroyOnHidden
       >
-        <h1 className="text-[20px] font-semibold mb-4">
-          Chỉnh sửa khóa học
-        </h1>
+        <h1 className="text-[20px] font-semibold mb-4">Chỉnh sửa khóa học</h1>
 
         <Form
           form={form}
@@ -202,7 +199,7 @@ const BoxEditInfoCourse = ({ course, refetch }) => {
             htmlType="submit"
             loading={isPending}
             className="w-full bg-[#4F46E5] text-white"
-            style={{backgroundColor:"#4F46E5" , color:'#ffffff'}}
+            style={{ backgroundColor: "#4F46E5", color: "#ffffff" }}
           >
             Lưu chỉnh sửa
           </Button>

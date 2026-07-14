@@ -5,6 +5,7 @@ import { Modal } from "antd";
 const MENU_ITEMS = [
   { icon: "dashboard", label: "Dashboard", to: "/admin/dashboard" },
   { icon: "group", label: "Users", to: "/admin/users" },
+  { icon: "receipt_long", label: "Orders", to: "/admin/orders" },
   { icon: "co_present", label: "Providers", to: "#", disabled: true },
   { icon: "school", label: "Courses", to: "#", disabled: true },
   { icon: "category", label: "Categories", to: "/admin/categories " },
@@ -17,28 +18,22 @@ export default function AdminLayout({ children, title = "Admin Console" }) {
 
   const username = user?.username || user?.fullName || user?.email || "Admin";
 
- 
-  
-  
-const handleLogout = () => {
-  Modal.confirm({
-    title: "Xác nhận đăng xuất",
-    content: "Bạn có chắc muốn đăng xuất không?",
-    okText: "Đăng xuất",
-    cancelText: "Hủy",
-    okType: "danger",
-    onOk: async () => {
-      await logout();
-      navigate("/login");
-    },
-  });
-};
-
-
+  const handleLogout = () => {
+    Modal.confirm({
+      title: "Xác nhận đăng xuất",
+      content: "Bạn có chắc muốn đăng xuất không?",
+      okText: "Đăng xuất",
+      cancelText: "Hủy",
+      okType: "danger",
+      onOk: async () => {
+        await logout();
+        navigate("/login");
+      },
+    });
+  };
 
   return (
     <div className="min-h-screen bg-surface text-on-surface">
-      
       <aside className="fixed left-0 top-0 z-40 flex h-screen w-64 flex-col gap-[16px] bg-surface-container-low py-[32px] shadow-md">
         <div className="mb-8 px-6">
           <Link
@@ -78,7 +73,7 @@ const handleLogout = () => {
                 <span className="material-symbols-outlined">{icon}</span>
                 <span>{label}</span>
               </NavLink>
-            )
+            ),
           )}
         </nav>
 

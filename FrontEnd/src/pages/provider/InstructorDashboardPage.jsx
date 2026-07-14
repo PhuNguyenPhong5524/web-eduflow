@@ -2,14 +2,6 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 
-const NAV_ITEMS = [
-  { icon: "dashboard", label: "Dashboard", active: true },
-  { icon: "school", label: "My Courses", active: false },
-  { icon: "favorite", label: "Wishlist", active: false },
-  { icon: "settings", label: "Settings", active: false },
-  { icon: "help", label: "Help Center", active: false },
-];
-
 const CHART_BARS = [40, 60, 45, 80, 65, 90, 100];
 
 const COURSES = [
@@ -81,13 +73,6 @@ const ACTIVITIES = [
   },
 ];
 
-const MOBILE_NAV = [
-  { icon: "dashboard", label: "Dashboard", active: true },
-  { icon: "school", label: "Courses", active: false },
-  { icon: "analytics", label: "Analytics", active: false },
-  { icon: "settings", label: "Settings", active: false },
-];
-
 function EngagementBar({ value }) {
   const [width, setWidth] = useState(0);
   useEffect(() => {
@@ -105,7 +90,7 @@ function EngagementBar({ value }) {
 }
 
 export default function InstructorDashboardPage() {
-  const { user, logout } = useAuth();
+  const { logout } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -115,7 +100,6 @@ export default function InstructorDashboardPage() {
   const [hoveredBar, setHoveredBar] = useState(null);
 
   return (
-
     <div className="max-w-7xl mx-auto space-y-[32px]">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-[16px]">
@@ -348,9 +332,7 @@ export default function InstructorDashboardPage() {
                   <div
                     className={`h-10 w-10 rounded-full ${iconBg} flex items-center justify-center ${iconColor} shrink-0`}
                   >
-                    <span className="material-symbols-outlined">
-                      {icon}
-                    </span>
+                    <span className="material-symbols-outlined">{icon}</span>
                   </div>
                   <div>
                     <p className="text-body-sm text-on-surface">
@@ -367,6 +349,5 @@ export default function InstructorDashboardPage() {
         </div>
       </div>
     </div>
-
   );
 }

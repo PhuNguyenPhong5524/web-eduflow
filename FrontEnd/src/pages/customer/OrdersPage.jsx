@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { getMyAllOrders } from "../../services/userService";
 
 const STATUS_MAP = {
@@ -12,7 +13,6 @@ export default function OrdersPage() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [expanded, setExpanded] = useState(null);
 
   useEffect(() => {
     getMyAllOrders()
@@ -22,8 +22,6 @@ export default function OrdersPage() {
       )
       .finally(() => setLoading(false));
   }, []);
-
-  const toggle = (id) => setExpanded((prev) => (prev === id ? null : id));
 
   return (
     <div className="max-w-6xl mx-auto space-y-stack-lg">
@@ -94,6 +92,9 @@ export default function OrdersPage() {
                 <th className="px-6 py-4 text-[11px] font-semibold text-on-surface-variant text-right">
                   Trạng thái
                 </th>
+                <th className="px-6 py-4 text-[11px] font-semibold text-on-surface-variant text-right">
+                  Hành động
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-outline-variant/10">
@@ -102,105 +103,45 @@ export default function OrdersPage() {
                   label: order.paymentStatus,
                   cls: "bg-surface-container text-on-surface-variant",
                 };
-                const isOpen = expanded === order._id;
 
                 return (
-                  <>
-                    <tr
-                      key={order._id}
-                      className="hover:bg-surface-container/40 cursor-pointer transition-colors"
-                      onClick={() => toggle(order._id)}
-                    >
-                      <td className="px-6 py-4 text-[12px] font-medium font-mono">
-                        {order.shortId}
-                      </td>
-                      <td className="px-6 py-4 text-[12px] text-on-surface-variant">
-                        {new Date(order.createdAt).toLocaleDateString("vi-VN")}
-                      </td>
-                      <td className="px-6 py-4 text-[12px] text-on-surface-variant">
-                        {order.items.length === 1
-                          ? order.items[0]
-                          : `${order.items[0]} +${order.items.length - 1} khóa học`}
-                      </td>
-                      <td className="px-6 py-4 text-[12px] font-bold text-on-surface">
-                        {order.total.toLocaleString("vi-VN")}đ
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <span
-                            className={`px-3 py-1 rounded-full text-[11px] font-bold ${cls}`}
-                          >
-                            {label}
-                          </span>
-                          <span
-                            className="material-symbols-outlined text-[16px] text-on-surface-variant transition-transform duration-200"
-                            style={{
-                              transform: isOpen
-                                ? "rotate(180deg)"
-                                : "rotate(0deg)",
-                            }}
-                          >
-                            expand_more
-                          </span>
-                        </div>
-                      </td>
-                    </tr>
-
-                    {/* Expanded detail row */}
-                    {isOpen && (
-                      <tr
-                        key={`${order._id}-detail`}
-                        className="bg-surface-container-low/50"
+                  <tr
+                    key={order._id}
+                    className="hover:bg-surface-container/40 transition-colors"
+                  >
+                    <td className="px-6 py-4 text-[12px] font-medium font-mono">
+                      {order.shortId}
+                    </td>
+                    <td className="px-6 py-4 text-[12px] text-on-surface-variant">
+                      {new Date(order.createdAt).toLocaleDateString("vi-VN")}
+                    </td>
+                    <td className="px-6 py-4 text-[12px] text-on-surface-variant">
+                      {order.items.length === 1
+                        ? order.items[0]
+                        : `${order.items[0]} +${order.items.length - 1} khóa học`}
+                    </td>
+                    <td className="px-6 py-4 text-[12px] font-bold text-on-surface">
+                      {order.total.toLocaleString("vi-VN")}đ
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <span
+                        className={`px-3 py-1 rounded-full text-[11px] font-bold ${cls}`}
                       >
-                        <td colSpan={5} className="px-6 py-4">
-                          <div className="space-y-2">
-                            <p className="text-[11px] font-semibold text-on-surface-variant uppercase tracking-wide mb-2">
-                              Chi tiết đơn hàng
-                            </p>
-                            <ul className="space-y-1">
-                              {order.items.map((title, i) => (
-                                <li
-                                  key={i}
-                                  className="flex items-center gap-2 text-[12px] text-on-surface"
-                                >
-                                  <span className="material-symbols-outlined text-[14px] text-primary">
-                                    play_circle
-                                  </span>
-                                  {title}
-                                </li>
-                              ))}
-                            </ul>
-                            <div className="flex gap-6 pt-2 border-t border-outline-variant/20 text-[12px] text-on-surface-variant">
-                              {order.discount > 0 && (
-                                <span>
-                                  Giảm giá:{" "}
-                                  <span className="text-green-600 font-semibold">
-                                    -{order.discount.toLocaleString("vi-VN")}đ
-                                  </span>
-                                </span>
-                              )}
-                              <span>
-                                Phương thức:{" "}
-                                <span className="font-semibold text-on-surface capitalize">
-                                  {order.paymentMethod}
-                                </span>
-                              </span>
-                              {order.paidAt && (
-                                <span>
-                                  Thanh toán lúc:{" "}
-                                  <span className="font-semibold text-on-surface">
-                                    {new Date(order.paidAt).toLocaleString(
-                                      "vi-VN",
-                                    )}
-                                  </span>
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        </td>
-                      </tr>
-                    )}
-                  </>
+                        {label}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <Link
+                        to={`/user/orders/${order._id}`}
+                        className="inline-flex items-center gap-1 rounded-lg border border-outline-variant px-3 py-1.5 text-[12px] font-semibold text-on-surface-variant transition-colors hover:bg-surface-container hover:text-primary"
+                      >
+                        Xem chi tiết
+                        <span className="material-symbols-outlined text-[16px]">
+                          arrow_forward
+                        </span>
+                      </Link>
+                    </td>
+                  </tr>
                 );
               })}
             </tbody>
