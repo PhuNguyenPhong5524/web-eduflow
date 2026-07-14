@@ -31,7 +31,7 @@ export default function AboutPage() {
   }, []);
 
   return (
-    <div className="bg-background text-on-surface font-body-md selection:bg-primary-fixed-dim selection:text-primary">
+    <div className="bg-background text-on-surface font-body-md selection:bg-primary-fixed-dim selection:text-primary ">
       <main className="pt-16">
         {/* Hero Section */}
         <section className="relative h-[819px] min-h-[600px] flex items-center overflow-hidden">
@@ -43,7 +43,7 @@ export default function AboutPage() {
             />
             <div className="absolute inset-0 bg-linear-to-br from-primary/90 to-tertiary/70 mix-blend-multiply opacity-90"></div>
           </div>
-          <div className="relative z-10 px-margin-desktop max-w-container-max mx-auto w-full text-white">
+          <div className="relative z-10 px-margin-desktop max-w-7xl mx-auto w-full text-white">
             <div className="max-w-3xl">
               <span className="inline-block px-4 py-1.5 bg-white/20 backdrop-blur-md rounded-full font-label-sm text-label-sm mb-stack-md uppercase tracking-wider">
                 Chào mừng đến với EduFlow
@@ -69,7 +69,7 @@ export default function AboutPage() {
         </section>
         
         {/* Stats Section */}
-        <section className="relative z-20 -mt-16 px-margin-desktop max-w-container-max mx-auto">
+        <section className="relative z-20 -mt-16 px-margin-desktop max-w-7xl mx-auto">
           <div className="bg-white/70 backdrop-blur-md rounded-3xl p-stack-lg shadow-2xl flex flex-wrap justify-around items-center gap-stack-lg text-center border border-outline-variant/50">
             <div className="flex flex-col gap-unit">
               <span className="font-display text-display text-primary">100k+</span>
@@ -95,7 +95,7 @@ export default function AboutPage() {
         </section>
 
         {/* Vision & Mission */}
-        <section className="py-24 px-margin-desktop max-w-container-max mx-auto">
+        <section className="py-24 px-margin-desktop max-w-7xl mx-auto">
           <div className="grid md:grid-cols-2 gap-16 items-center">
             <div className="space-y-stack-md">
               <h2 className="font-headline-lg text-headline-lg text-primary">
@@ -141,7 +141,7 @@ export default function AboutPage() {
 
         {/* Core Values */}
         <section className="py-24 bg-surface-container-low">
-          <div className="px-margin-desktop max-w-container-max mx-auto">
+          <div className="px-margin-desktop max-w-7xl mx-auto">
             <div className="text-center mb-16">
               <h2 className="font-headline-lg text-headline-lg mb-stack-sm">
                 Giá trị cốt lõi
@@ -199,7 +199,7 @@ export default function AboutPage() {
         </section>
 
         {/* Leadership Team */}
-        <section className="py-24 px-margin-desktop max-w-container-max mx-auto">
+        <section className="py-24 px-margin-desktop max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="font-headline-lg text-headline-lg mb-stack-sm">
               Đội ngũ lãnh đạo
@@ -275,7 +275,7 @@ export default function AboutPage() {
 
         {/* Partners */}
         <section className="py-24 bg-surface-container-lowest">
-          <div className="px-margin-desktop max-w-container-max mx-auto">
+          <div className="px-margin-desktop max-w-7xl mx-auto">
             <p className="text-center font-label-md text-label-md text-on-surface-variant uppercase tracking-widest mb-12">
               Đối tác chiến lược
             </p>
@@ -300,7 +300,7 @@ export default function AboutPage() {
         </section>
 
         {/* Call to Action */}
-        <section className="py-24 px-margin-desktop max-w-container-max mx-auto">
+        <section className="py-24 px-margin-desktop max-w-7xl mx-auto">
           <div className="relative rounded-[48px] overflow-hidden bg-primary px-stack-lg py-20 text-center">
             <div className="relative z-10 max-w-3xl mx-auto">
               <h2 className="font-display text-display text-white mb-stack-md">
