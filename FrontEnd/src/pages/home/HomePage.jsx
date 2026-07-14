@@ -69,13 +69,6 @@ function ProviderSkeleton() {
   );
 }
 
-useEffect(() => {
-
-        socket.on("connect", () => {
-            console.log(socket.id);
-        });
-
-  }, []);
 
 export default function HomePage() {
   const mainRef = useRef(null);
@@ -90,6 +83,14 @@ export default function HomePage() {
   const [loadingCat, setLoadingCat] = useState(true);
   const [loadingCourse, setLoadingCourse] = useState(true);
   const [loadingProv, setLoadingProv] = useState(true);
+
+    useEffect(() => {
+
+          socket.on("connect", () => {
+              console.log(socket.id);
+          });
+
+    }, [socket]);
 
   const handleSearch = () => {
     const keyword = searchKeyword.trim();
@@ -143,7 +144,6 @@ export default function HomePage() {
       },
       { threshold: 0.1 },
     );
-
     const sections = container.querySelectorAll("section");
     sections.forEach((section) => {
       section.classList.add(
