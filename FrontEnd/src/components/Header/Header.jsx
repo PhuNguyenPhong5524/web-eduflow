@@ -109,7 +109,7 @@ const Header = () => {
               Khóa học
             </NavLink>
             <NavLink
-              to="||"
+              to="/about"
               className={({ isActive }) =>
                 `font-label-md text-label-md text-text-on-surface-variant pb-1 transform transition-all duration-200 ease-in-out ${
                   isActive
@@ -119,6 +119,18 @@ const Header = () => {
               }
             >
               Giới thiệu
+            </NavLink>
+            <NavLink
+              to="/providers"
+              className={({ isActive }) =>
+                `font-label-md text-label-md text-text-on-surface-variant pb-1 transform transition-all duration-200 ease-in-out ${
+                  isActive
+                    ? "border-[#0000ff] text-[#0000ff] border-b"
+                    : "border-none "
+                }`
+              }
+            >
+              Nhà cung cấp
             </NavLink>
           </nav>
         </div>

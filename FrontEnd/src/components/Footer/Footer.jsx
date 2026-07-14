@@ -17,12 +17,13 @@ const Footer = () => {
                     </p>
                 </div>
                 <nav className="flex flex-wrap justify-center gap-8">
+                    <Link className="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-all hover:underline" to="/about">Giới thiệu</Link>
+                    <Link className="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-all hover:underline" to="/providers">Nhà cung cấp</Link>
                     {[
                     "Privacy Policy",
                     "Terms of Service",
                     "Help Center",
                     "Contact Us",
-                    "Careers",
                     ].map((link) => (
                         <Link
                             key={link}
