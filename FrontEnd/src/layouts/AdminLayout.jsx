@@ -6,7 +6,7 @@ const MENU_ITEMS = [
   { icon: "dashboard", label: "Dashboard", to: "/admin/dashboard" },
   { icon: "group", label: "Users", to: "/admin/users" },
   { icon: "receipt_long", label: "Orders", to: "/admin/orders" },
-  { icon: "co_present", label: "Providers", to: "#", disabled: true },
+  { icon: "co_present", label: "Providers", to: "/admin/providers-requests" },
   { icon: "school", label: "Courses", to: "#", disabled: true },
   { icon: "category", label: "Categories", to: "/admin/categories " },
   { icon: "settings", label: "Settings", to: "/security-settings" },

@@ -35,6 +35,10 @@ import ProviderListPage from "./pages/provider/ProviderListPage";
 import { CartProvider } from "./contexts/CartContext";
 import { WishlistProvider } from "./contexts/WishlistContext";
 import CourseLearningPage from "./pages/learningPage/CourseLearningPage";
+import RegisterProvider from "./pages/customer/RegisterProvider";
+import ProviderRequestPage from "./pages/admin/AdminProviderRequestPage";
+import AdminProviderRequestPage from "./pages/admin/AdminProviderRequestPage";
+import AdminProviderRequestDetailPage from "./pages/admin/AdminProviderRequestDetailPage";
 
 const queryClient = new QueryClient();
 
@@ -113,6 +117,15 @@ function App() {
                     element={
                       <ProtectedRoute roles={["customer"]}>
                         <ChangePasswordPage />
+                      </ProtectedRoute>
+                    }
+                  />
+
+                   <Route
+                    path="register-provider"
+                    element={
+                      <ProtectedRoute roles={["customer"]}>
+                        <RegisterProvider />
                       </ProtectedRoute>
                     }
                   />
@@ -229,6 +242,26 @@ function App() {
                     <ProtectedRoute roles={["admin"]}>
                       <AdminLayout title="Orders">
                         <AdminOrdersPage />
+                      </AdminLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin/providers-requests"
+                  element={
+                    <ProtectedRoute roles={["admin"]}>
+                      <AdminLayout title="Provider Requests">
+                        <AdminProviderRequestPage />
+                      </AdminLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin/providers-requests/:providerId"
+                  element={
+                    <ProtectedRoute roles={["admin"]}>
+                      <AdminLayout title="Provider Requests Detail">
+                        <AdminProviderRequestDetailPage />
                       </AdminLayout>
                     </ProtectedRoute>
                   }

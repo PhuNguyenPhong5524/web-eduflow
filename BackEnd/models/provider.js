@@ -6,6 +6,7 @@ const providerSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
+      unique: true, // Đảm bảo 1 user chỉ có 1 hồ sơ Provider
     },
     provider_name: {
       type: String,
@@ -21,9 +22,17 @@ const providerSchema = new mongoose.Schema(
       required: true,
       trim: true,
       lowercase: true,
+      match: [/^\S+@\S+\.\S+$/, "Định dạng email không hợp lệ"],
+    },
+    phone: {
+      type: String,
+      trim: true, 
+    },
+    avatar: {
+      type: String, 
     },
     images: {
-      type: [String],
+      type: [String], 
       default: [],
     },
     status: {
@@ -31,12 +40,14 @@ const providerSchema = new mongoose.Schema(
       enum: ["pending", "approved", "rejected"],
       default: "pending",
     },
-    profile: {
-      type: String,
+    rejection_reason: {
+      type: String, // Lý do từ chối, nếu có
+      default: "",
     },
   },
   { timestamps: true },
 );
+
 const providerModel = mongoose.model("Provider", providerSchema);
 
 export default providerModel;

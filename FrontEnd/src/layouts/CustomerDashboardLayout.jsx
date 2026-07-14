@@ -3,7 +3,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { useCart } from "../contexts/CartContext";
 import { Outlet } from "react-router-dom";
 import { Avatar, Modal } from "antd";
-
+import {SolutionOutlined} from "@ant-design/icons";
 const NAV_ITEMS = [
   {
     icon: "dashboard",
@@ -16,6 +16,12 @@ const NAV_ITEMS = [
     label: "Thay đổi mật khẩu",
     filled: true,
     link: "/user/change-password",
+  },
+  {
+    icon: <SolutionOutlined />,
+    label: "Trở thành nhà cung cấp",
+    filled: true,
+    link: "/user/register-provider",
   },
   {
     icon: "settings",
@@ -85,10 +91,10 @@ const CustomerDashboardLayout = () => {
 
       <div className="flex pt-16 min-h-screen">
         {/* Sidebar */}
-        <aside className="fixed left-0 top-0 h-screen w-64 bg-surface pt-20 pb-stack-lg flex-col gap-stack-md border-r border-outline-variant/30 hidden lg:flex">
+        <aside className="fixed left-0 top-0 h-screen w-[300px] bg-surface pt-20 pb-stack-lg flex-col gap-stack-md border-r border-outline-variant/30 hidden lg:flex">
           <div className="px-6 mb-stack-md">
             <div className="flex items-center gap-3 p-3 rounded-xl bg-surface-container-low">
-              <div className="w-full aspect-square px-2 h-auto rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-bold">
+              <div className="max-w-[50px] w-full aspect-square px-2 h-auto rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-bold">
                 {user?.username?.charAt(0).toUpperCase()}
               </div>
               <div>
