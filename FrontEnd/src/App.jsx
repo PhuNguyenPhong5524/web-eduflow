@@ -35,7 +35,7 @@ import ProviderListPage from "./pages/provider/ProviderListPage";
 import { CartProvider } from "./contexts/CartContext";
 import { WishlistProvider } from "./contexts/WishlistContext";
 import CourseLearningPage from "./pages/learningPage/CourseLearningPage";
-import RegisterProvider from "./pages/customer/RegisterProvider";
+import RegisterProviderPage from "./pages/customer/RegisterProviderPage/RegisterProviderPage";
 import ProviderRequestPage from "./pages/admin/AdminProviderRequestPage";
 import AdminProviderRequestPage from "./pages/admin/AdminProviderRequestPage";
 import AdminProviderRequestDetailPage from "./pages/admin/AdminProviderRequestDetailPage";
@@ -78,7 +78,7 @@ function App() {
                   <Route
                     path="my-courses"
                     element={
-                      <ProtectedRoute roles={["customer"]}>
+                      <ProtectedRoute roles={["customer", "provider"]}>
                         <MyCoursePage />
                       </ProtectedRoute>
                     }
@@ -86,7 +86,7 @@ function App() {
                   <Route
                     path="learn/:courseId"
                     element={
-                      <ProtectedRoute roles={["customer"]}>
+                      <ProtectedRoute roles={["customer", "provider"]}>
                         <CourseLearningPage />
                       </ProtectedRoute>
                     }
@@ -94,7 +94,7 @@ function App() {
                   <Route
                     path="wishlist"
                     element={
-                      <ProtectedRoute roles={["customer"]}>
+                      <ProtectedRoute roles={["customer", "provider"]}>
                         <WishlistPage />
                       </ProtectedRoute>
                     }
@@ -106,7 +106,7 @@ function App() {
                   <Route
                     path="dashboard"
                     element={
-                      <ProtectedRoute roles={["customer"]}>
+                      <ProtectedRoute roles={["customer", "provider"]}>
                         <DashboardPage />
                       </ProtectedRoute>
                     }
@@ -115,7 +115,7 @@ function App() {
                   <Route
                     path="change-password"
                     element={
-                      <ProtectedRoute roles={["customer"]}>
+                      <ProtectedRoute roles={["customer", "provider"]}>
                         <ChangePasswordPage />
                       </ProtectedRoute>
                     }
@@ -125,7 +125,7 @@ function App() {
                     path="register-provider"
                     element={
                       <ProtectedRoute roles={["customer"]}>
-                        <RegisterProvider />
+                        <RegisterProviderPage />
                       </ProtectedRoute>
                     }
                   />
@@ -133,7 +133,7 @@ function App() {
                   <Route
                     path="account-settings"
                     element={
-                      <ProtectedRoute roles={["customer"]}>
+                      <ProtectedRoute roles={["customer","provider"]}>
                         <AccountSettingPage />
                       </ProtectedRoute>
                     }
@@ -142,7 +142,7 @@ function App() {
                   <Route
                     path="orders"
                     element={
-                      <ProtectedRoute roles={["customer"]}>
+                      <ProtectedRoute roles={["customer","provider"]}>
                         <OrdersPage />
                       </ProtectedRoute>
                     }
@@ -151,7 +151,7 @@ function App() {
                   <Route
                     path="orders/:orderId"
                     element={
-                      <ProtectedRoute roles={["customer"]}>
+                      <ProtectedRoute roles={["customer","provider"]}>
                         <OrderDetailPage />
                       </ProtectedRoute>
                     }

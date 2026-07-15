@@ -31,6 +31,11 @@ const providerSchema = new mongoose.Schema(
     avatar: {
       type: String, 
     },
+    description: {
+      type: String,
+      required: true,
+      trim: true,
+    },
     images: {
       type: [String], 
       default: [],
@@ -42,7 +47,16 @@ const providerSchema = new mongoose.Schema(
     },
     rejection_reason: {
       type: String, // Lý do từ chối, nếu có
-      default: "",
+      default: null,
+    },
+    experience_years: {
+      type: Number,
+      default: 0, 
+    },
+    approved_by: { 
+      type: mongoose.Schema.Types.ObjectId, 
+      ref: 'User', 
+      default: null
     },
   },
   { timestamps: true },

@@ -6,6 +6,9 @@ import {
   createProvider,
   getAdminRequestProviders,
   getAdminRequestProvidersDetail,
+  updateProviderStatus,
+  rejectProviderRequest,
+  getMyProviderRequest,
 } from "../controllers/provider.js";
 
 import authMiddleware  from "../middleware/authMiddleware.js";
@@ -29,12 +32,31 @@ routerProvider.get(
   authorizeRole("admin"),
   getAdminRequestProvidersDetail 
 );
+routerProvider.get(
+  "/provider/my-request", 
+  authMiddleware,
+  authorizeRole("customer"),
+  getMyProviderRequest
+);
 routerProvider.post(
   "/provider/register", 
   authMiddleware, 
   authorizeRole("customer"), 
   uploadProviderFiles,
   createProvider
+);
+routerProvider.patch(
+  "/provider/:providerId/status", 
+  authMiddleware, 
+  authorizeRole("admin"), 
+  updateProviderStatus
+);
+
+routerProvider.patch(
+  "/providers/:providerId/reject", 
+  authMiddleware, 
+  authorizeRole("admin"), 
+  rejectProviderRequest
 );
 
 export default routerProvider;

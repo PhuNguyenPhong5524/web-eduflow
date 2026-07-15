@@ -35,11 +35,14 @@ export function AuthProvider({ children }) {
     localStorage.removeItem("user");
     setUser(null);
   };
-
+  const updateUser = (updatedUser) => {
+    localStorage.setItem("user", JSON.stringify(updatedUser));
+    setUser(updatedUser); // Kích hoạt React re-render giao diện ngay lập tức
+  };
   const hasAnyRole = (roles) => roles.includes(user?.role);
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout, hasAnyRole }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, hasAnyRole, updateUser }}>
       {children}
     </AuthContext.Provider>
   );

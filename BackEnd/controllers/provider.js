@@ -2,7 +2,8 @@ import providerModel from "../models/provider.js";
 import courseModel from "../models/course/course.js";
 import categoryModel from "../models/category.js";
 import { seedCoursesForProvider } from "./coursesOfProviderSeed.js";
-import { v2 as cloudinary } from "cloudinary";
+import { createOrUpdateProviderService, updateProviderStatusService } from "../services/provider/providerService.js";
+
 
 const DEFAULT_TITLES = [
   "Complete {topic} Masterclass",
@@ -139,71 +140,27 @@ export const seedProviderCourses = async (req, res) => {
 
 
 
-// Hàm helper upload file từ memory buffer lên Cloudinary
-const uploadToCloudinary = async (file) => {
-  const dataUrl = `data:${file.mimetype};base64,${file.buffer.toString("base64")}`;
-  const fileName = file.originalname.split(".")[0];
-  
-  const result = await cloudinary.uploader.upload(dataUrl, {
-    public_id: fileName,
-    resource_type: "auto",
-  });
-  return result.secure_url; // Trả về link ảnh dạng https
-};
 
 export const createProvider = async (req, res) => {
   try {
-    const user_id = req.user.userId; 
-    const { provider_name, career, email, phone} = req.body;
+    const { provider_name, email, phone, description } = req.body;
 
-    if (!provider_name || !email) {
-      return res.status(400).json({ message: "Thiếu provider_name hoặc email!" });
+    // Validate nhanh gọn: Kiểm tra xem có trường nào bị bỏ trống không
+    if (![provider_name, email, phone, description].every(Boolean)) {
+      return res.status(400).json({ message: "Thông tin không được để trống!" });
     }
 
-    // Chặn gửi trùng (mỗi user chỉ 1 hồ sơ)
-    const existed = await providerModel.findOne({ user_id });
-    if (existed) {
-      return res.status(400).json({ message: "Bạn đã gửi đăng ký trước đó!" });
-    }
-
-    let avatarUrl = "";
-    let imageUrls = [];
-
-    // Kiểm tra xem người dùng có truyền file lên không
-    if (req.files) {
-      // Xử lý upload ảnh đại diện (Avatar)
-      if (req.files.avatar && req.files.avatar[0]) {
-        avatarUrl = await uploadToCloudinary(req.files.avatar[0]);
-      }
-
-      // Xử lý upload danh sách chứng chỉ (Nhiều ảnh dùng Promise.all để chạy song song)
-      if (req.files.images && req.files.images.length > 0) {
-        const uploadPromises = req.files.images.map((file) => uploadToCloudinary(file));
-        imageUrls = await Promise.all(uploadPromises);
-      }
-    }
-
-    // Lưu thông tin vào Database
-    const provider = await providerModel.create({
-      user_id,
-      provider_name,
-      career,
-      email,
-      phone,            
-      avatar: avatarUrl, 
-      images: imageUrls, 
-      status: "pending",
+    const { isNew, data } = await createOrUpdateProviderService(req.user.userId, req.body, req.files);
+    
+    return res.status(isNew ? 201 : 200).json({
+      message: `${isNew ? "Gửi" : "Gửi lại"} đăng ký thành công, vui lòng chờ admin duyệt`,
+      data
     });
 
-    return res.status(201).json({
-      message: "Gửi đăng ký thành công, vui lòng chờ admin duyệt",
-      data: provider,
-    });
   } catch (error) {
-    return res.status(500).json({ message: error.message });
+    return res.status(error.statusCode || 500).json({ message: error.message });
   }
 };
-
 
 // Lấy thông tin yêu cầu trở thành giảng viên của người dùng 
 
@@ -248,5 +205,95 @@ export const getAdminRequestProviders = async (req, res) => {
     });
   } catch (error) {
     return res.status(500).json({ message: error.message });
+  }
+};
+
+
+// Duyệt hồ sơ ng dùng đăng ký trở thành nhà cung cấp
+
+export const updateProviderStatus = async (req, res) => {
+  try {
+    const { providerId } = req.params;
+    const { status } = req.body; 
+    const adminId = req.user.userId; 
+
+    // Validate dữ liệu đầu vào
+    if (!["approved"].includes(status)) {
+      return res.status(400).json({ message: "Trạng thái phê duyệt không hợp lệ!" });
+    }
+
+    // Gọi Service xử lý liên thông 2 bảng (Providers & Users)
+    const updatedProvider = await updateProviderStatusService(
+      providerId, 
+      status, 
+      adminId
+    );
+
+    return res.status(200).json({
+      message: `Đã duyệt hồ sơ ${updatedProvider.provider_name}!`,
+      data: updatedProvider,
+    });
+
+  } catch (error) {
+    return res.status(error.statusCode || 500).json({ message: error.message });
+  }
+};
+// Từ chối hồ sơ
+
+export const rejectProviderRequest = async (req, res) => {
+  try {
+    const { providerId } = req.params;
+    const { rejection_reason } = req.body;  
+
+    // Kiểm tra nếu admin quên nhập lý do
+    if (!rejection_reason || rejection_reason.trim() === "") {
+      return res.status(400).json({ 
+        message: "Vui lòng nhập lý do từ chối hồ sơ!" 
+      });
+    }
+
+    const updatedProvider = await providerModel.findByIdAndUpdate(
+      providerId,
+      { 
+        status: "rejected",             
+        rejection_reason: rejection_reason,  
+        approved_by: req.user.userId     
+      },
+      { new: true }
+    );
+
+    if (!updatedProvider) {
+      return res.status(404).json({ message: "Không tìm thấy hồ sơ đối tác." });
+    }
+
+    return res.status(200).json({
+      message: "Đã từ chối yêu cầu của đối tác thành công!",
+      data: updatedProvider,
+    });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+
+//  Lấy hồ sơ đăng ký của người dùng
+
+export const getMyProviderRequest = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+
+    // Tìm hồ sơ đăng ký mới nhất của user này
+    const providerRequest = await providerModel.findOne({ user_id: userId });
+
+    // Trả về data (có thể là Object hồ sơ hoặc null nếu chưa từng đăng ký)
+    return res.status(200).json({
+      success: true,
+      data: providerRequest, 
+    });
+  } catch (error) {
+    return res.status(500).json({ 
+      success: false, 
+      message: error.message 
+    });
   }
 };

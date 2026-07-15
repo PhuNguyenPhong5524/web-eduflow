@@ -12,6 +12,8 @@ import {
   Divider 
 } from "antd";
 import useGetProviderRequestDetail from "../../hooks/useGetProviderRequestDetail";
+import useUpdateProviderStatus from "../../hooks/useUpdateProviderStatus";
+import useRejectProvider from "../../hooks/useRejectProvider";
 
 const STATUS_CONFIG = {
   pending: { color: "orange", text: "Đang chờ duyệt" },
@@ -24,44 +26,51 @@ const AdminProviderRequestDetailPage = () => {
   const navigate = useNavigate();
   
   // --- State xử lý Modal từ chối ---
-  const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
-  const [rejectReason, setRejectReason] = useState("");
-  const [submittingAction, setSubmittingAction] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [reason, setReason] = useState("");
+
+  const { mutate: rejectProvider, isPending: isRejectPending } = useRejectProvider(providerId);
 
   // --- Gọi API lấy chi tiết qua Hook đã viết ---
   const { data, isLoading, error, refetch } = useGetProviderRequestDetail(providerId);
   const provider = data?.data;
-  console.log(providerId);
-  console.log(provider);
-  // --- Giả lập xử lý Approve/Reject (Bạn gắn API Mutation thực tế tại đây) ---
-  const handleApprove = async () => {
-    setSubmittingAction(true);
-    try {
-    //   await approveProviderApi(id);
-      message.success("Đã phê duyệt yêu cầu trở thành đối tác thành công!");
-      refetch();
-    } catch (err) {
-      message.error(err?.response?.data?.message || "Duyệt thất bại!");
-    } finally {
-      setSubmittingAction(false);
-    }
+  const { mutate: updateStatus, isPending : isStatusPending } = useUpdateProviderStatus(providerId);
+
+  // 🟢 Hàm xử lý DUYỆT hồ sơ
+  const handleApprove = () => {
+    updateStatus(
+      { providerId, status: "approved" },
+      {
+        onSuccess: (res) => {
+          message.success(res?.message || "Đã phê duyệt yêu cầu trở thành đối tác thành công!");
+          refetch(); // Làm mới lại danh sách dữ liệu
+        },
+        onError: (err) => {
+          message.error(err?.response?.data?.message || "Duyệt thất bại!");
+        },
+      }
+    );
   };
 
-  const handleRejectSubmit = async () => {
-    if (!rejectReason.trim()) {
-      return message.warning("Vui lòng nhập lý do từ chối!");
+  const handleConfirmReject = () => {
+    if (!reason.trim()) {
+      return message.warning("Vui lòng nhập lý do trước khi từ chối!");
     }
-    setSubmittingAction(true);
-    try {
-      // await rejectProviderApi(id, { reason: rejectReason });
-      message.success("Đã từ chối yêu cầu và gửi lý do thành công!");
-      setIsRejectModalOpen(false);
-      refetch();
-    } catch (err) {
-      message.error(err?.response?.data?.message || "Từ chối thất bại!");
-    } finally {
-      setSubmittingAction(false);
-    }
+
+    rejectProvider(
+      { providerId, rejection_reason: reason },
+      {
+        onSuccess: (res) => {
+          message.success(res?.message || "Đã hủy hồ sơ thành công!");
+          setIsModalOpen(false); 
+          setReason("");        
+          refetch();            
+        },
+        onError: (err) => {
+          message.error(err?.response?.data?.message || "Thao tác thất bại!");
+        },
+      }
+    );
   };
 
   // --- Giao diện đang tải hoặc lỗi ---
@@ -256,7 +265,7 @@ const AdminProviderRequestDetailPage = () => {
                 <Button 
                   danger 
                   type="text" 
-                  onClick={() => setIsRejectModalOpen(true)}
+                  onClick={() => setIsModalOpen(true)}
                   className="px-4 py-2 h-auto border border-red-200 hover:bg-red-50 text-red-600 rounded-xl font-bold font-label-md"
                 >
                   Từ chối
@@ -267,7 +276,7 @@ const AdminProviderRequestDetailPage = () => {
                   onConfirm={handleApprove}
                   okText="Đồng ý duyệt"
                   cancelText="Hủy"
-                  okButtonProps={{ loading: submittingAction }}
+                  okButtonProps={{ loading: isStatusPending }}
                 >
                   <Button 
                     type="primary" 
@@ -285,29 +294,29 @@ const AdminProviderRequestDetailPage = () => {
 
       {/* --- MODAL LÝ DO TỪ CHỐI --- */}
       <Modal
-        title="Từ chối yêu cầu đăng ký"
-        open={isRejectModalOpen}
+        title="Xác nhận từ chối hồ sơ đối tác"
+        open={isModalOpen}
+        onOk={handleConfirmReject}
         onCancel={() => {
-          setIsRejectModalOpen(false);
-          setRejectReason("");
+          setIsModalOpen(false);
+          setReason("");  
         }}
-        onOk={handleRejectSubmit}
-        confirmLoading={submittingAction}
-        okText="Gửi từ chối"
-        cancelText="Hủy"
-        okButtonProps={{ danger: true, className: "rounded-lg" }}
-        cancelButtonProps={{ className: "rounded-lg" }}
+        confirmLoading={isRejectPending}  
+        okText="Xác nhận từ chối"
+        cancelText="Đóng"
+        okButtonProps={{ danger: true }}  
       >
-        <div className="space-y-3 pt-2">
-          <p className="text-body-sm text-on-surface-variant">
-            Hãy điền lý do từ chối cụ thể để gửi phản hồi và giúp đối tác có thể cải thiện hồ sơ của họ ở lần đăng ký tiếp theo.
+        <div className="py-3">
+          <p className="mb-2 text-sm text-gray-600">
+            Vui lòng nhập lý do cụ thể (Ví dụ: Thiếu chứng chỉ hành nghề, thông tin không rõ ràng...) để gửi phản hồi cho đối tác:
           </p>
           <Input.TextArea
             rows={4}
-            placeholder="Ví dụ: Chứng chỉ kỹ năng của bạn đã hết hạn, hoặc hình ảnh chứng nhận mờ không thể xác thực..."
-            value={rejectReason}
-            onChange={(e) => setRejectReason(e.target.value)}
-            className="rounded-lg font-body-sm border-outline-variant/60"
+            placeholder="Nhập lý do hủy tại đây..."
+            maxLength={300}
+            showCount
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
           />
         </div>
       </Modal>
