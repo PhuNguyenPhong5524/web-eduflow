@@ -18,7 +18,7 @@ const uploadToCloudinary = async (file) => {
 export const createOrUpdateProviderService = async (userId, data, files) => {
   const existed = await providerModel.findOne({ user_id: userId });
 
-  // 1. Chặn nếu trạng thái là pending hoặc approved
+  // Chặn nếu trạng thái là pending hoặc approved
   if (existed && ["pending", "approved"].includes(existed.status)) {
     const msg = existed.status === "pending" 
       ? "Yêu cầu trước đó của bạn đang được xét duyệt, vui lòng đợi!" 
@@ -26,7 +26,7 @@ export const createOrUpdateProviderService = async (userId, data, files) => {
     throw Object.assign(new Error(msg), { statusCode: 400 });
   }
 
-  // 2. Gom logic xử lý ảnh (Dùng cho cả Tạo mới & Cập nhật)
+  // Gom logic xử lý ảnh (Dùng cho cả Tạo mới & Cập nhật)
   const avatarUrl = files?.avatar?.[0] 
     ? await uploadToCloudinary(files.avatar[0]) 
     : (existed?.avatar || "");
@@ -39,7 +39,7 @@ export const createOrUpdateProviderService = async (userId, data, files) => {
     ? (Array.isArray(data.retained_images) ? data.retained_images : [data.retained_images]) 
     : [];
 
-  // 3. Chuẩn bị Object dữ liệu chuẩn
+  // Chuẩn bị Object dữ liệu chuẩn
   const providerData = {
     ...data,
     avatar: avatarUrl,
@@ -49,7 +49,7 @@ export const createOrUpdateProviderService = async (userId, data, files) => {
     rejection_reason: null
   };
 
-  // 4. Thực thi Lưu DB (Update nếu đã có / Create nếu mới tinh)
+  // Thực thi Lưu DB (Update nếu đã có / Create nếu mới tinh)
   if (existed) {
     Object.assign(existed, providerData);
     await existed.save();

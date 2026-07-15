@@ -1,6 +1,7 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { Modal } from "antd";
+import NotificationBell from "../components/admin/NotificationBell/NotificationBell";
 
 const MENU_ITEMS = [
   { icon: "dashboard", label: "Dashboard", to: "/admin/dashboard" },
@@ -133,10 +134,7 @@ export default function AdminLayout({ children, title = "Admin Console" }) {
           </div>
 
           <div className="ml-[24px] flex items-center gap-4">
-            <button className="relative rounded-full p-2 text-on-surface-variant transition-all hover:bg-surface-container">
-              <span className="material-symbols-outlined">notifications</span>
-              <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-error" />
-            </button>
+            <NotificationBell />
 
             <div className="hidden items-center gap-3 sm:flex">
               <div className="text-right">

@@ -84,13 +84,13 @@ export default function HomePage() {
   const [loadingCourse, setLoadingCourse] = useState(true);
   const [loadingProv, setLoadingProv] = useState(true);
 
-    useEffect(() => {
+  useEffect(() => {
 
-          socket.on("connect", () => {
-              console.log(socket.id);
-          });
+        socket.on("connect", () => {
+            console.log(socket.id);
+        });
 
-    }, [socket]);
+  }, [socket]);
 
   const handleSearch = () => {
     const keyword = searchKeyword.trim();

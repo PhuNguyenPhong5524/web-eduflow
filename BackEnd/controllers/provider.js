@@ -3,6 +3,8 @@ import courseModel from "../models/course/course.js";
 import categoryModel from "../models/category.js";
 import { seedCoursesForProvider } from "./coursesOfProviderSeed.js";
 import { createOrUpdateProviderService, updateProviderStatusService } from "../services/provider/providerService.js";
+import notificationModel from "../models/NotificationModel.js";
+import userModel from "../models/user.js";
 
 
 const DEFAULT_TITLES = [
@@ -141,26 +143,36 @@ export const seedProviderCourses = async (req, res) => {
 
 
 
+
+
 export const createProvider = async (req, res) => {
   try {
-    const { provider_name, email, phone, description } = req.body;
-
-    // Validate nhanh gọn: Kiểm tra xem có trường nào bị bỏ trống không
-    if (![provider_name, email, phone, description].every(Boolean)) {
-      return res.status(400).json({ message: "Thông tin không được để trống!" });
-    }
-
     const { isNew, data } = await createOrUpdateProviderService(req.user.userId, req.body, req.files);
     
-    return res.status(isNew ? 201 : 200).json({
-      message: `${isNew ? "Gửi" : "Gửi lại"} đăng ký thành công, vui lòng chờ admin duyệt`,
-      data
+    const newNotification = await notificationModel.create({
+      sender: req.user.userId, 
+      title: "Hồ sơ đăng ký mới",
+      content: `Có một yêu cầu đăng ký làm đối tác mới đang chờ bạn duyệt.`,
+      type: "registration"
     });
 
+    // Đi kèm thông tin người gửi (avatar, tên) để hiển thị lên chuông
+    const populatedNoti = await newNotification.populate("sender", "name email avatar");
+
+    // Bắn Real-time phát một qua Socket đến Admin
+    if (req.io) {
+      req.io.to("admin-room").emit("new_notification", populatedNoti); 
+    }
+
+    return res.status(isNew ? 201 : 200).json({
+      message: "Gửi đăng ký thành công, vui lòng chờ admin duyệt",
+      data
+    });
   } catch (error) {
     return res.status(error.statusCode || 500).json({ message: error.message });
   }
 };
+
 
 // Lấy thông tin yêu cầu trở thành giảng viên của người dùng 
 

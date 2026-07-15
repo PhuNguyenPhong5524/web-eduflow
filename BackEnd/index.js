@@ -19,6 +19,7 @@ import routerForgotPassword from "./routes/auth/forgotPassword.js";
 import routerLogout from "./routes/auth/logout.js";
 import routerDashboard from "./routes/dashboard.js";
 import routerQuizCourse from "./routes/quiz.js";
+import routerNotification from "./routes/notification.js";
 import { v2 as cloudinary } from 'cloudinary';
 
 dotenv.config();
@@ -53,8 +54,15 @@ const io = new Server(server, {
   },
 });
 
+// Lắng nghe Admin join room
 io.on("connection", (socket) => {
   console.log("Socket Connected:", socket.id);
+
+  // Khi Client yêu cầu vào phòng (Ví dụ: admin-room)
+  socket.on("join-room", (roomName) => {
+    socket.join(roomName);
+    console.log(`Socket ${socket.id} đã tham gia phòng: ${roomName}`);
+  });
 
   socket.on("disconnect", () => {
     console.log("Socket Disconnected");
@@ -75,6 +83,11 @@ app.use(
 );
 app.use(cookieParser());
 app.use(express.json());
+
+app.use((req, res, next) => {
+  req.io = io;
+  next();
+});
 
 const mongoUri = process.env.MONGODB_URI;
 
@@ -125,6 +138,9 @@ app.use("/", routerQuizCourse);
 
 // Giỏ hàng + Checkout
 app.use("/", routerCart);
+
+// Thông báo
+app.use("/", routerNotification);
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
