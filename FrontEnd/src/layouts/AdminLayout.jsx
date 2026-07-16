@@ -1,7 +1,7 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { Modal } from "antd";
-import NotificationBell from "../components/admin/NotificationBell/NotificationBell";
+import NotificationBell from "../components/NotificationBell/NotificationBell";
 
 const MENU_ITEMS = [
   { icon: "dashboard", label: "Dashboard", to: "/admin/dashboard" },
@@ -134,7 +134,7 @@ export default function AdminLayout({ children, title = "Admin Console" }) {
           </div>
 
           <div className="ml-[24px] flex items-center gap-4">
-            <NotificationBell />
+            <NotificationBell user={user} />
 
             <div className="hidden items-center gap-3 sm:flex">
               <div className="text-right">

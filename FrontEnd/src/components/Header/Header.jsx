@@ -1,16 +1,24 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Avatar, Dropdown, message, Modal } from "antd";
 import { DownOutlined } from "@ant-design/icons";
 import { useAuth } from "../../contexts/AuthContext";
 import { NavLink } from "react-router-dom";
 import { useCart } from "../../contexts/CartContext";
+import NotificationBell from "../NotificationBell/NotificationBell";
+import socket from "../../socket/socket";
 
 const Header = () => {
   const { user, logout } = useAuth();
   const { itemCount } = useCart();
   const navigate = useNavigate();
   const [searchKeyword, setSearchKeyword] = useState("");
+
+  useEffect(() => {
+    if (socket && user?._id) {
+      socket.emit("join_room", user._id); 
+    }
+  }, [socket, user]);
 
   const handleSearch = () => {
     const keyword = searchKeyword.trim();
@@ -170,11 +178,7 @@ const Header = () => {
                 </span>
               ) : null}
             </button>
-            <button className="p-2 hover:bg-primary-container/10 rounded-full transition-colors active:scale-95">
-              <span className="material-symbols-outlined text-on-surface-variant">
-                notifications
-              </span>
-            </button>
+            <NotificationBell user={user} />
           </div>
 
           {/* <div className="hidden sm:flex items-center gap-3 ml-2">

@@ -4,6 +4,7 @@ import { useCart } from "../contexts/CartContext";
 import { Outlet } from "react-router-dom";
 import { Avatar, Modal } from "antd";
 import {SolutionOutlined} from "@ant-design/icons";
+import NotificationBell from "../components/NotificationBell/NotificationBell";
 const NAV_ITEMS = [
   {
     icon: "dashboard",
@@ -63,10 +64,7 @@ const CustomerDashboardLayout = () => {
         </div>
         <div className="flex items-center gap-stack-md">
           <div className="flex items-center gap-stack-sm">
-            <button className="p-2 text-on-surface-variant hover:bg-surface-container transition-colors rounded-full relative">
-              <span className="material-symbols-outlined">notifications</span>
-              <span className="absolute top-2 right-2 w-2 h-2 bg-error rounded-full" />
-            </button>
+            <NotificationBell user={user} />
             <button
               type="button"
               className="relative p-2 text-on-surface-variant hover:bg-surface-container transition-colors rounded-full"

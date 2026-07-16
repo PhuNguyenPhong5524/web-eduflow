@@ -93,10 +93,10 @@ export default function ProviderStatusView({ providerData, onReRegister }) {
             </Button>,
           ]}
         >
-          {rejection_reason && (
+          {providerData.rejection_reason && (
             <Alert
               title="Lý do từ chối từ Admin:"
-              description={rejection_reason}
+              description={providerData.rejection_reason}
               type="error"
               showIcon
             />

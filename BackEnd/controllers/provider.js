@@ -153,7 +153,8 @@ export const createProvider = async (req, res) => {
       sender: req.user.userId, 
       title: "Hồ sơ đăng ký mới",
       content: `Có một yêu cầu đăng ký làm đối tác mới đang chờ bạn duyệt.`,
-      type: "registration"
+      type: "registration",
+      link: `/admin/providers-requests`,
     });
 
     // Đi kèm thông tin người gửi (avatar, tên) để hiển thị lên chuông
@@ -229,17 +230,30 @@ export const updateProviderStatus = async (req, res) => {
     const { status } = req.body; 
     const adminId = req.user.userId; 
 
-    // Validate dữ liệu đầu vào
     if (!["approved"].includes(status)) {
       return res.status(400).json({ message: "Trạng thái phê duyệt không hợp lệ!" });
     }
 
-    // Gọi Service xử lý liên thông 2 bảng (Providers & Users)
     const updatedProvider = await updateProviderStatusService(
       providerId, 
       status, 
       adminId
     );
+
+    // TẠO THÔNG BÁO DUYỆT THÀNH CÔNG
+    const newNotification = await notificationModel.create({
+      sender: adminId,
+      receiver: updatedProvider.user_id, 
+      title: "Hồ sơ đăng ký đối tác đã được duyệt",
+      content: `Chúc mừng bạn! Hồ sơ đăng ký làm đối tác [${updatedProvider.provider_name}] đã được phê duyệt thành công.`,
+      type: "approved",
+      link: "/user/register-provider" 
+    });
+
+    // Bắn Real-time phát một qua Socket đến riêng Học viên đó
+    if (req.io && updatedProvider.user_id) {
+      req.io.to(updatedProvider.user_id.toString()).emit("new_notification", newNotification); 
+    }
 
     return res.status(200).json({
       message: `Đã duyệt hồ sơ ${updatedProvider.provider_name}!`,
@@ -250,6 +264,7 @@ export const updateProviderStatus = async (req, res) => {
     return res.status(error.statusCode || 500).json({ message: error.message });
   }
 };
+
 // Từ chối hồ sơ
 
 export const rejectProviderRequest = async (req, res) => {
@@ -257,7 +272,6 @@ export const rejectProviderRequest = async (req, res) => {
     const { providerId } = req.params;
     const { rejection_reason } = req.body;  
 
-    // Kiểm tra nếu admin quên nhập lý do
     if (!rejection_reason || rejection_reason.trim() === "") {
       return res.status(400).json({ 
         message: "Vui lòng nhập lý do từ chối hồ sơ!" 
@@ -276,6 +290,21 @@ export const rejectProviderRequest = async (req, res) => {
 
     if (!updatedProvider) {
       return res.status(404).json({ message: "Không tìm thấy hồ sơ đối tác." });
+    }
+
+    // THÔNG BÁO TỪ CHỐI KÈM LÝ DO
+    const newNotification = await notificationModel.create({
+      sender: req.user.userId, 
+      receiver: updatedProvider.user_id,  
+      title: "Yêu cầu đăng ký đối tác bị từ chối",
+      content: `Rất tiếc, hồ sơ đối tác của bạn đã bị từ chối. Lý do: ${rejection_reason}`,
+      type: "rejected",
+      link: "/user/register-provider" 
+    });
+
+    // Bắn Real-time phát một qua Socket đến riêng Học viên đó
+    if (req.io && updatedProvider.user_id) {
+      req.io.to(updatedProvider.user_id.toString()).emit("new_notification", newNotification); 
     }
 
     return res.status(200).json({
