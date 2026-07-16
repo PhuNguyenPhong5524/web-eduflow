@@ -62,11 +62,19 @@ export const login = async (req, res) => {
     await user.save();
 
     // trả data cho frontend
+    //local
+    // res.cookie("refreshToken", refreshToken, {
+    //   httpOnly: true,
+    //   secure: false, // true nếu deploy HTTPS
+    //   sameSite: "strict",
+    //   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 ngày
+    // });
+    // deploy
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      secure: false, // true nếu deploy HTTPS
-      sameSite: "strict",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 ngày
+      secure: true,
+      sameSite: "none",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
     res.json({
