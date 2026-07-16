@@ -2,14 +2,13 @@ import React, { useState } from "react";
 import { Result, Button, Alert } from "antd";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../../contexts/AuthContext";
-import axios from "axios";
+import api from "../../../../lib/api"; 
 
 export default function ProviderStatusView({ providerData, onReRegister }) {
   const navigate = useNavigate();
   const { user, updateUser } = useAuth();
-  const [isUpgrading, setIsUpgrading] = useState(false); // State chặn double click
+  const [isUpgrading, setIsUpgrading] = useState(false); 
 
-  // Lấy status từ props truyền vào
   const status = providerData?.status; 
 
   const handleGoToDashboard = async () => {
@@ -17,35 +16,26 @@ export default function ProviderStatusView({ providerData, onReRegister }) {
     
     setIsUpgrading(true);
     try {
-      const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8080";
-
-      const { data } = await axios.post(
-        `${API_BASE_URL}/refresh-token`,
-        {},
-        { withCredentials: true }
-      );
+      const { data } = await api.post("/refresh-token", {});
 
       localStorage.setItem("accessToken", data.accessToken);
 
-      // Phát lệnh cập nhật State
       if (user) {
         updateUser({ ...user, role: "provider" });
       }
 
-      // Trì hoãn điều hướng một chút để React update State hoàn tất
       setTimeout(() => {
         navigate("/provider");
-      }, 50); // 50ms là mắt người không thể nhận ra, nhưng đủ cho React re-render xong AuthContext
+      }, 50); 
 
     } catch (error) {
       console.error("Lỗi đồng bộ quyền đối tác:", error);
-      alert("Đã có lỗi xảy ra. Vui lòng thử lại!");
+      alert("Đã có lỗi xảy ra khi đồng bộ quyền. Vui lòng thử lại!");
     } finally {
       setIsUpgrading(false);
     }
   };
 
-  //TRẠNG THÁI CHỜ DUYỆT (pending)
   if (status === "pending") {
     return (
       <Result
@@ -56,7 +46,6 @@ export default function ProviderStatusView({ providerData, onReRegister }) {
     );
   }
 
-  //TRẠNG THÁI ĐÃ DUYỆT THÀNH CÔNG (approved)
   if (status === "approved") {
     return (
       <Result
@@ -64,13 +53,13 @@ export default function ProviderStatusView({ providerData, onReRegister }) {
         title="Chúc mừng! Bạn đã là đối tác"
         subTitle="Hồ sơ đăng ký nhà cung cấp của bạn đã được phê duyệt chính thức."
         extra={[
-          /* 🟢 Thay vì gọi navigate trực tiếp, hãy gọi hàm handle vừa tạo */
           <Button 
             type="primary" 
             key="manage" 
             size="large" 
             className="bg-green-600 border-none" 
             onClick={handleGoToDashboard} 
+            loading={isUpgrading}
           >
             Đi đến trang quản lý nhà cung cấp
           </Button>,
@@ -79,7 +68,6 @@ export default function ProviderStatusView({ providerData, onReRegister }) {
     );
   }
 
-  // TRẠNG THÁI BỊ TỪ CHỐI (rejected)
   if (status === "rejected") {
     return (
       <div className="max-w-md mx-auto">
@@ -95,7 +83,7 @@ export default function ProviderStatusView({ providerData, onReRegister }) {
         >
           {providerData.rejection_reason && (
             <Alert
-              title="Lý do từ chối từ Admin:"
+              message="Lý do từ chối từ Admin:" 
               description={providerData.rejection_reason}
               type="error"
               showIcon
